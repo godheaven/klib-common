@@ -15,6 +15,9 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.text.CharacterIterator;
+import java.text.DecimalFormat;
+import java.text.StringCharacterIterator;
 import java.util.stream.Collectors;
 
 /**
@@ -75,10 +78,10 @@ public class FileUtils {
     public static File createFile(InputStream inputStream, String filename) throws IOException {
         String path = checkAndGetFullTemporalPath(filename);
         File fileDir = new File(path);
-         
+
         InputStream in = null;
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileDir))){
-            
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileDir))) {
+
             in = inputStream;
             byte[] buf = new byte[8192];
             int len;
@@ -93,7 +96,7 @@ public class FileUtils {
                 }
             } catch (IOException ex) {
             }
-         
+
         }
         return fileDir;
     }
@@ -145,4 +148,20 @@ public class FileUtils {
         }
         return file;
     }
+
+    public static String prettyFileSize(long bytes) {
+        long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
+        if (absB < 1024) {
+            return bytes + " B";
+        }
+        long value = absB;
+        CharacterIterator ci = new StringCharacterIterator("KMGTPE");
+        for (int i = 40; i >= 0 && absB > 0xfffccccccccccccL >> i; i -= 10) {
+            value >>= 10;
+            ci.next();
+        }
+        value *= Long.signum(bytes);
+        return String.format("%.1f %cB", value / 1024.0, ci.current());
+    }
+
 }
