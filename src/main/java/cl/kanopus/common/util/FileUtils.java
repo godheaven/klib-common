@@ -16,7 +16,6 @@ import java.io.Writer;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.text.CharacterIterator;
-import java.text.DecimalFormat;
 import java.text.StringCharacterIterator;
 import java.util.stream.Collectors;
 
