@@ -66,7 +66,23 @@ public class Utils {
     }
 
     private Utils() {
+    }
 
+    public static StringBuilder printInfoKtools(String component, String version) {
+        StringBuilder info = new StringBuilder();
+
+        info.append("\n");
+        info.append("██   ██ ████████  ██████   ██████  ██      ███████ \n");
+        info.append("██  ██     ██    ██    ██ ██    ██ ██      ██     \n");
+        info.append("█████      ██    ██    ██ ██    ██ ██      ███████\n");
+        info.append("██  ██     ██    ██    ██ ██    ██ ██           ██\n");
+        info.append("██   ██    ██     ██████   ██████  ███████ ███████\n");
+        info.append("\n");
+        info.append(" :: ").append(String.format("%-31s", component)).append("::  (").append(version).append(") \n");
+        info.append(" :: Developed By Kanopus\n");
+        info.append(" :: https://github.com/godheaven/\n");
+
+        return info;
     }
 
     public static <T extends Object> List<T> putIntoArrayList(T item, List<T> items) {
@@ -96,15 +112,15 @@ public class Utils {
     }
 
     public static LocalDate getLocalDate(Date date) {
-        return Instant.ofEpochMilli(date.getTime())
+        return (date != null) ? Instant.ofEpochMilli(date.getTime())
                 .atZone(ZoneId.systemDefault())
-                .toLocalDate();
+                .toLocalDate() : null;
     }
 
     public static LocalDateTime getLocalDateTime(Date date) {
-        return Instant.ofEpochMilli(date.getTime())
+        return (date != null) ? Instant.ofEpochMilli(date.getTime())
                 .atZone(ZoneId.systemDefault())
-                .toLocalDateTime();
+                .toLocalDateTime() : null;
     }
 
     public static double parseDouble(long value) {
@@ -336,6 +352,10 @@ public class Utils {
 
     public static boolean isNullOrEmpty(Object[] list) {
         return (list == null || list.length == 0);
+    }
+
+    public static boolean isEquals(String text1, String text2) {
+        return ((text1 == null && text2 == null) || (text1 != null && text1.equals(text2)));
     }
 
     public static boolean isRut(String rut) {
@@ -597,10 +617,19 @@ public class Utils {
         }
     }
 
-    public static boolean isDateEquals(Date fecha1, Date fecha2) {
-        String fecha1Text = DATE_FORMAT.format(fecha1);
-        String fecha2Text = DATE_FORMAT.format(fecha2);
-        return fecha1Text.equals(fecha2Text);
+    public static boolean isDateEquals(LocalDate date1, LocalDate date2) {
+        boolean equals = false;
+        if (date1 != null && date2 != null) {
+            equals = date1.equals(date2);
+
+        }
+        return equals;
+    }
+
+    public static boolean isDateEquals(Date date1, Date date2) {
+        String date1Text = DATE_FORMAT.format(date1);
+        String date2Text = DATE_FORMAT.format(date2);
+        return date1Text.equals(date2Text);
     }
 
     public static StringBuilder fileToString(File textFile) throws IOException {

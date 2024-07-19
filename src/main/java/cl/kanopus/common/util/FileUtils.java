@@ -43,9 +43,9 @@ public class FileUtils {
         return text;
     }
 
-    public static void renameFile(File fileEnvioDTE, String filename) {
+    public static boolean renameFile(File fileEnvioDTE, String filename) {
         String newFilename = checkAndGetFullTemporalPath(filename);
-        fileEnvioDTE.renameTo(new File(newFilename));
+        return fileEnvioDTE.renameTo(new File(newFilename));
     }
 
     public static File createFile(String text, String filename, Charset charset) throws IOException {

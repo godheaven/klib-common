@@ -9,14 +9,17 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -95,4 +98,10 @@ public class GsonUtils {
             return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         }
     }
+
+    public static <T> List<T> getList(String json, Class<T> clazz) {
+        Type type = TypeToken.getParameterized(List.class, clazz).getType();
+        return (List<T>) (json != null ? GsonUtils.custom.fromJson(json, type) : new ArrayList<T>());
+    }
+
 }

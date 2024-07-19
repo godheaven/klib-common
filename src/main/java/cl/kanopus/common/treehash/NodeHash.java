@@ -1,18 +1,17 @@
 package cl.kanopus.common.treehash;
 
+import static cl.kanopus.common.treehash.TreeHash.KEY_ROOT;
 import java.util.ArrayList;
 import java.util.List;
 
 public class NodeHash {
-
-    public static final String KEY_ROOT = "root";
 
     private String key;
     private String keyParent;
     private Object data;
     private int depth;
     private boolean expanded;
-    private final String type;
+    private String type;
     private boolean selected;
     private boolean originalSelected;
     private boolean selectable = true;
@@ -69,6 +68,10 @@ public class NodeHash {
 
     public String getType() {
         return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public boolean isHasChild() {

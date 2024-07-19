@@ -39,6 +39,23 @@ public class KanopusBeanUtils {
     private KanopusBeanUtils() {
     }
 
+    public static <T> List<T> mergeList(List<T> source, List<T> target) {
+        List<T> merged = source;
+        if (merged == null) {
+             merged = new ArrayList<>();
+        }
+        
+        if (target != null) {
+            for (T t: target) {
+                if (!merged.contains(t)){
+                    merged.add(t);
+                }
+            }
+        }
+
+        return merged;
+    }
+
     public static <T> T copyProperties(Object source, Class<T> targetClassType) {
         try {
             T target = targetClassType.newInstance();

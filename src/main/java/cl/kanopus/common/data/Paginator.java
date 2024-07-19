@@ -6,6 +6,7 @@ import java.util.List;
 /**
  *
  * @author Pablo Diaz Saavedra
+ * @param <T>
  * @email pabloandres.diazsaavedra@gmail.com
  */
 public class Paginator<T> {
