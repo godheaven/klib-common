@@ -21,7 +21,7 @@ public class GtinValidator implements ConstraintValidator<Gtin, String> {
 
     @Override
     public boolean isValid(String object, ConstraintValidatorContext constraintContext) {
-        if (object == null) {
+        if (Utils.isNullOrEmpty(object)) {
             return true;
         }
 

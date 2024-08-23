@@ -174,6 +174,12 @@ public class Utils {
         return bi.longValue() > 0 ? bi.longValue() : bi.longValue() * -1;
     }
 
+    public static Integer generateRandomInt() {
+        SecureRandom random = new SecureRandom();
+        BigInteger bi = new BigInteger(130, random);
+        return bi.intValue() > 0 ? bi.intValue() : bi.intValue() * -1;
+    }
+
     public static String getNumberFormat(double number) {
         return getNumberFormat(number, true, 0);
     }
@@ -236,8 +242,18 @@ public class Utils {
     }
 
     public static String getRutFormat(String rut) {
-        String[] arreglo = rut.replaceAll("\\.", "").split("-");
-        return Utils.getNumberFormat(Double.parseDouble(arreglo[0])) + "-" + arreglo[1];
+        return getRutFormat(rut, true);
+    }
+
+    public static String getRutFormat(String rut, boolean includeSeparator) {
+        String plainText = rut.replaceAll("\\.", "").replace("-", "").toUpperCase();
+
+        String part1 = plainText.substring(0, plainText.length() - 1);
+        String part2 = plainText.substring(plainText.length() - 1, plainText.length());
+        return includeSeparator
+                ? Utils.getNumberFormat(Double.parseDouble(part1)) + "-" + part2
+                : part1 + "-" + part2;
+
     }
 
     public static Date getDate(String text) throws ParseException {
@@ -389,7 +405,7 @@ public class Utils {
 
     public static boolean isGTIN(String gtin) {
         boolean valid = false;
-        if (!isNullOrEmpty(gtin) && gtin.matches("^[0-9]{14}$")) {
+        if (!isNullOrEmpty(gtin) && gtin.matches("^[0-9]{8,18}$")) {
 
             int[] checkDigitArray = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
             int[] gtinMaths = {3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3, 1, 3};
@@ -567,13 +583,32 @@ public class Utils {
         return sb.toString();
     }
 
-    public static int[] toArray(List<Integer> integers) {
+    public static int[] toArrayInt(List<Integer> integers) {
         int[] ret = new int[integers.size()];
         Iterator<Integer> iterator = integers.iterator();
         for (int i = 0; i < ret.length; i++) {
             ret[i] = iterator.next();
         }
         return ret;
+    }
+
+    public static String[] toArrayString(List<? extends EnumIdentifiable> values) {
+        String[] list = new String[values.size()];
+        for (int i = 0; i < values.size(); i++) {
+            list[i] = values.get(i).getId() + "";
+        }
+        return list;
+    }
+
+    public static long[] toArrayLong(List<String> values) {
+        List<Long> list = new ArrayList<>();
+        for (String v : values) {
+            Long parsed = parseLong(v);
+            if (parsed != null) {
+                list.add(parsed);
+            }
+        }
+        return list.stream().mapToLong(i -> i).toArray();
     }
 
     public static List<Integer> toListInt(String array) {
@@ -637,15 +672,12 @@ public class Utils {
             throw new FileNotFoundException("File does not exist: " + textFile);
         }
         StringBuilder contents = new StringBuilder();
-        BufferedReader input = new BufferedReader(new FileReader(textFile));
-        try {
-            String line = null;
+        try (BufferedReader input = new BufferedReader(new FileReader(textFile))) {
+            String line;
             while ((line = input.readLine()) != null) {
                 contents.append(line);
                 contents.append("\n");
             }
-        } finally {
-            input.close();
         }
         return contents;
     }
@@ -838,6 +870,14 @@ public class Utils {
             chunkList.add(list.subList(i, i + chunkSize >= list.size() ? list.size() : i + chunkSize));
         }
         return chunkList;
+    }
+
+    public static String toCamelCase(String text) {
+        //TODO: Se debe implementar
+        if (!Utils.isNullOrEmpty(text)) {
+            text = text.replace("_", " ");
+        }
+        return text;
     }
 
 }

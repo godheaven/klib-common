@@ -23,7 +23,7 @@ public class EmailCollectionValidator implements ConstraintValidator<EmailCollec
     @Override
     public boolean isValid(Collection<String> value, ConstraintValidatorContext constraintContext) {
 
-        if (value == null) {
+        if (value == null || value.isEmpty()) {
             return true;
         }
 

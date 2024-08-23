@@ -381,11 +381,17 @@ public class UtilsTest {
 
     @Test
     public void testIsGTIN() {
-        String gtin = "";
-        boolean expResult = false;
-        boolean result = Utils.isGTIN(gtin);
-        Assertions.assertEquals(expResult, result);
 
+        Assertions.assertFalse(Utils.isGTIN(""));
+        Assertions.assertFalse(Utils.isGTIN("123"));
+        Assertions.assertFalse(Utils.isGTIN("xxxx"));
+        Assertions.assertFalse(Utils.isGTIN("123xxx"));
+
+        Assertions.assertTrue(Utils.isGTIN("0000341643843"));
+        Assertions.assertTrue(Utils.isGTIN("0000337787551"));
+        Assertions.assertTrue(Utils.isGTIN("8880000000017"));
+        Assertions.assertTrue(Utils.isGTIN("7793640000143"));
+        Assertions.assertTrue(Utils.isGTIN("7809591400113"));
     }
 
     @Disabled
@@ -496,12 +502,19 @@ public class UtilsTest {
     }
 
     @Test
-    public void testToArray() {
-        List<Integer> integers = Arrays.asList(1, 2, 3);
+    public void testToArrayInt() {
+        List<Integer> values = Arrays.asList(1, 2, 3);
         int[] expResult = {1, 2, 3};
-        int[] result = Utils.toArray(integers);
+        int[] result = Utils.toArrayInt(values);
         Assertions.assertArrayEquals(expResult, result);
+    }
 
+    @Test
+    public void testToArrayLong() {
+        List<String> values = Arrays.asList("1", "2", "3x");
+        long[] expResult = {1, 2};
+        long[] result = Utils.toArrayLong(values);
+        Assertions.assertArrayEquals(expResult, result);
     }
 
     @Disabled
@@ -741,23 +754,23 @@ public class UtilsTest {
 
         List<ExampleTO> items = new ArrayList<>();
         Assertions.assertTrue(items.isEmpty());
-        
+
         List<ExampleTO> items2 = Utils.putIntoArrayList(new ExampleTO(1, "one"), items);
-        Assertions.assertTrue(items2.size()==1);
+        Assertions.assertTrue(items2.size() == 1);
         Assertions.assertEquals(1, items.get(0).getId());
         Assertions.assertEquals("one", items.get(0).getName());
-        
+
         List<ExampleTO> items3 = Utils.putIntoArrayList(new ExampleTO(10, "one"), items2);
         items3 = Utils.putIntoArrayList(new ExampleTO(2, "two"), items3);
         items3 = Utils.putIntoArrayList(new ExampleTO(3, "three"), items3);
-        Assertions.assertTrue(items3.size()==3);
+        Assertions.assertTrue(items3.size() == 3);
         Assertions.assertEquals(10, items.get(0).getId());
         Assertions.assertEquals("one", items.get(0).getName());
         Assertions.assertEquals(2, items.get(1).getId());
         Assertions.assertEquals("two", items.get(1).getName());
         Assertions.assertEquals(3, items.get(2).getId());
         Assertions.assertEquals("three", items.get(2).getName());
-        
+
     }
 
     public static class ExampleTO {
