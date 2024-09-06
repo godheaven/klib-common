@@ -75,7 +75,7 @@ public abstract class NumberToLetterConverter {
             throw new NumberFormatException("El numero debe ser positivo");
         }
 
-        String splitNumber[] = String.valueOf(formatedDouble).replace('.', '#').split("#");
+        String[] splitNumber = String.valueOf(formatedDouble).replace('.', '#').split("#");
 
         // Descompone el trio de millones
         int millon = Integer.parseInt(String.valueOf(getDigitAt(splitNumber[0],

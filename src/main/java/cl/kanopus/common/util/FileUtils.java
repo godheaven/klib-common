@@ -123,27 +123,58 @@ public class FileUtils {
         StringBuilder sb = new StringBuilder();
         File file = null;
         for (String f : files) {
-            try {
-                //trying opening file from classpath
-                URL resource = FileUtils.class.getClassLoader().getResource(f);
-                file = new File(resource.getFile());
-            } catch (Exception ex) {
-                sb.append(ex);
-                try {
-                    //trying opening file directly
-                    file = new File(f);
-                } catch (Exception ex2) {
-                    sb.append(ex2);
-                }
+            //first attemtp
+            file = getFileAttemp1(f, sb);
+
+            //second attemtp
+            if (file == null || !file.exists()) {
+                file = getFileAttemp2(f, sb);
             }
-            if (file != null) {
+
+            //third attemtp
+            if (file == null || !file.exists()) {
+                file = getFileAttemp3(f, sb);
+            }
+
+            if (file != null && file.exists()) {
                 break;
             }
-
         }
 
-        if (file == null) {
+        if (file == null || !file.exists()) {
             throw new FileNotFoundException(sb.toString());
+        }
+        return file;
+    }
+
+    private static File getFileAttemp1(String filename, StringBuilder messages) {
+        File file = null;
+        try {
+            URL resource = FileUtils.class.getClassLoader().getResource(filename);
+            file = (resource != null) ? new File(resource.getFile()) : null;
+        } catch (Exception ex) {
+            messages.append(ex.getMessage());
+        }
+        return file;
+    }
+
+    private static File getFileAttemp2(String filename, StringBuilder messages) {
+        File file = null;
+        try {
+            URL resource = Thread.currentThread().getClass().getClassLoader().getResource(filename);
+            file = (resource != null) ? new File(resource.getFile()) : null;
+        } catch (Exception ex2) {
+            messages.append(ex2.getMessage());
+        }
+        return file;
+    }
+
+    private static File getFileAttemp3(String filename, StringBuilder messages) {
+        File file = null;
+        try {
+            file = new File(filename);
+        } catch (Exception ex2) {
+            messages.append(ex2.getMessage());
         }
         return file;
     }

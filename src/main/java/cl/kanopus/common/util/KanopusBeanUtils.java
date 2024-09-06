@@ -142,7 +142,6 @@ public class KanopusBeanUtils {
         //si el source es una lista y el target es un arreglo.
         if (target.getClass().isArray() && !source.getClass().isArray()) {
             //no se puede copiar elementos de un objeto cualquiera a un array (aun no soportado)
-            //TODO implementar esto en el futuro si corresponde
             if (source instanceof List) {
                 Class targetElemType = target.getClass().getComponentType();
                 Object[] outArr = copyListToArray((List) source, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
@@ -243,7 +242,7 @@ public class KanopusBeanUtils {
 
         for (int i = 0; i < propNames.size(); i++) {
             String sourcePropName = propNames.get(i);
-            BeanProperty bp = (BeanProperty) sourcePropertiesMap.get(sourcePropName);
+            BeanProperty bp = sourcePropertiesMap.get(sourcePropName);
             Class sourcePropType = bp.getType();
             Object sourcePropValue = bp.getValue();
 
@@ -277,13 +276,7 @@ public class KanopusBeanUtils {
 
             PropertyDescriptor targetDesc;
             try {
-                //TODO aqui se puede encapsular el sourcePropName con un formateador
-                //si es que se desea ignorar mayusculas y minusculas.
-
-                //TODO Aun no soporta el setear listas con elementos nulos.
-                //como myList[1].data
-                //separa el propertyName en un arreglo de elementos suponiendo el
-                //separador "."
+                //separa el propertyName en un arreglo de elementos suponiendo el separador "."
                 String[] props = targetPropName.split(PROPERTY_PATH_SEPARATOR_REGEXP);
                 String prop = "";
                 if (props.length > 0) {
@@ -446,8 +439,7 @@ public class KanopusBeanUtils {
 
     private static Map<String, String> getPropertiesTranslationMap(Class sourceClass, Class targetClass) {
         String key = sourceClass.getSimpleName() + "_" + targetClass.getSimpleName();
-        Map<String, String> propTranslationMap = propTranslateMaps.get(key);
-        return propTranslationMap;
+        return propTranslateMaps.get(key);
     }
 
     public static class BeanProperty {

@@ -53,9 +53,7 @@ public class CryptographyUtils {
             Cipher cipher = Cipher.getInstance("AES");
             cipher.init(Cipher.DECRYPT_MODE, aesKey);
 
-            String decrypted = new String(cipher.doFinal(encryptedBytes));
-
-            return decrypted;
+            return new String(cipher.doFinal(encryptedBytes));
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
@@ -68,7 +66,7 @@ public class CryptographyUtils {
             BigInteger number = new BigInteger(1, messageDigest);
             String hashtext = number.toString(16);
             while (hashtext.length() < 32) {
-                hashtext = "0" + hashtext;
+                hashtext = "0".concat(hashtext);
             }
             return hashtext;
         } catch (NoSuchAlgorithmException e) {

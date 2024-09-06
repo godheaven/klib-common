@@ -39,7 +39,6 @@ import java.util.regex.Pattern;
  */
 public class Utils {
 
-    private static final PaddingDecimalFormat NUMBER_SIGNUS;
     private static final PaddingDecimalFormat NUMBER_FORMAT;
     private static final PaddingDecimalFormat NUMBER_FORMAT_WITH_MILES;
     private static final DecimalFormat DECIMAL_FORMAT;
@@ -53,7 +52,6 @@ public class Utils {
         DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
         symbolComma.setDecimalSeparator(',');
 
-        NUMBER_SIGNUS = new PaddingDecimalFormat("+#,###;-#,###", symbolComma);
         NUMBER_FORMAT = new PaddingDecimalFormat("#,###;(-#,###)", symbolComma);
         NUMBER_FORMAT_WITH_MILES = new PaddingDecimalFormat("###.##;(-###.##)", symbolComma);
 
@@ -396,7 +394,8 @@ public class Utils {
     }
 
     public static boolean isRut(int rut, char dv) {
-        int m = 0, s = 1;
+        int m = 0;
+        int s = 1;
         for (; rut != 0; rut /= 10) {
             s = (s + rut % 10 * (9 - m++ % 6)) % 11;
         }
