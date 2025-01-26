@@ -17,6 +17,7 @@ public class ThreadContext {
     private static final String KEY_THREAD_USER_ID = "threadUserId";
     private static final String KEY_THREAD_USER_NAME = "threadUserName";
     private static final String KEY_THREAD_COMPANY_ID = "threadCompanyId";
+    private static final String KEY_THREAD_TOKEN = "threadToken";
 
     private ThreadContext() {
         this.map = Collections.synchronizedMap(new HashMap<>());
@@ -54,6 +55,14 @@ public class ThreadContext {
 
     public static String getAppKey() {
         return (String) getObject(KEY_THREAD_APP_KEY);
+    }
+
+    public static String getToken() {
+        return (String) getObject(KEY_THREAD_TOKEN);
+    }
+
+    public static void setToken(String token) {
+        addObject(KEY_THREAD_TOKEN, token);
     }
 
     public static String getUserEmail() {

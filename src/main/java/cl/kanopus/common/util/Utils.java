@@ -243,12 +243,12 @@ public class Utils {
         return getRutFormat(rut, true);
     }
 
-    public static String getRutFormat(String rut, boolean includeSeparator) {
+    public static String getRutFormat(String rut, boolean includeDots) {
         String plainText = rut.replaceAll("\\.", "").replace("-", "").toUpperCase();
 
         String part1 = plainText.substring(0, plainText.length() - 1);
         String part2 = plainText.substring(plainText.length() - 1, plainText.length());
-        return includeSeparator
+        return includeDots
                 ? Utils.getNumberFormat(Double.parseDouble(part1)) + "-" + part2
                 : part1 + "-" + part2;
 
@@ -320,7 +320,7 @@ public class Utils {
     }
 
     public static Date getDate(LocalDate localdate) {
-        return java.sql.Date.valueOf(localdate);
+        return localdate != null ? java.sql.Date.valueOf(localdate) : null;
     }
 
     public static String substring(String text, int maxlength) {
@@ -582,9 +582,18 @@ public class Utils {
         return sb.toString();
     }
 
-    public static int[] toArrayInt(List<Integer> integers) {
-        int[] ret = new int[integers.size()];
-        Iterator<Integer> iterator = integers.iterator();
+    public static int[] toArrayInt(List<Integer> numbers) {
+        int[] ret = new int[numbers.size()];
+        Iterator<Integer> iterator = numbers.iterator();
+        for (int i = 0; i < ret.length; i++) {
+            ret[i] = iterator.next();
+        }
+        return ret;
+    }
+
+    public static Integer[] toArrayInteger(List<Integer> numbers) {
+        Integer[] ret = new Integer[numbers.size()];
+        Iterator<Integer> iterator = numbers.iterator();
         for (int i = 0; i < ret.length; i++) {
             ret[i] = iterator.next();
         }
@@ -799,7 +808,7 @@ public class Utils {
     }
 
     public static BigDecimal parseBigDecimal(Double num) {
-        return BigDecimal.valueOf(num);
+        return BigDecimal.valueOf(num.longValue());
     }
 
     public static BigDecimal parseBigDecimal(Long num) {
@@ -877,6 +886,20 @@ public class Utils {
             text = text.replace("_", " ");
         }
         return text;
+    }
+
+    public static boolean contains(Integer[] array, int id) {
+        boolean exist = false;
+        if (array != null) {
+            for (Integer a : array) {
+                if (a == id) {
+                    exist = true;
+                    break;
+                }
+            }
+        }
+
+        return exist;
     }
 
 }

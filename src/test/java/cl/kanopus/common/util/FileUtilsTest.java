@@ -2,7 +2,6 @@ package cl.kanopus.common.util;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.sql.SQLException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -45,7 +44,7 @@ public class FileUtilsTest {
         Assertions.assertThrows(FileNotFoundException.class, () -> {
             FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test-notfound.txt");
         });
-        
+
         File f = FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test.txt");
         Assertions.assertTrue(f.exists());
         Assertions.assertEquals("test.txt", f.getName());

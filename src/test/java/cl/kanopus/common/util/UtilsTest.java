@@ -694,6 +694,10 @@ public class UtilsTest {
     public void testParseBigDecimal_Double() {
         BigDecimal result = Utils.parseBigDecimal(1);
         Assertions.assertEquals(BigDecimal.valueOf(1), result);
+
+        double price = 1999.0;
+        BigDecimal result2 = Utils.parseBigDecimal(price);
+        Assertions.assertEquals("1999", result2 + "");
     }
 
     @Disabled
