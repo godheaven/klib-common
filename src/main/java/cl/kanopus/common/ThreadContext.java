@@ -1,3 +1,26 @@
+/*-
+ * !--
+ * For support and inquiries regarding this library, please contact:
+ *   soporte@kanopus.cl
+ * 
+ * Project website:
+ *   https://www.kanopus.cl
+ * %%
+ * Copyright (C) 2025 Pablo Díaz Saavedra
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * --!
+ */
 package cl.kanopus.common;
 
 import java.util.Collections;
@@ -108,7 +131,7 @@ public class ThreadContext {
         //Esto es mas eficiente que preguntar primero, antes de traer efectivamente el dato.
         Map contextMap = getInstance().map.get(getThreadId());
         if (contextMap == null) {
-            contextMap = Collections.synchronizedMap(new HashMap());
+            contextMap = Collections.synchronizedMap(new HashMap<>());
         }
         return contextMap;
     }
@@ -153,7 +176,7 @@ public class ThreadContext {
     }
 
     public static void initContext() {
-        String threadUniqueId = (new Date()).getTime() + "_" + Thread.currentThread().getId();
+        String threadUniqueId = (new Date()).getTime() + "_" + Thread.currentThread().getName();
         addObject(KEY_THREAD_UNIQUE_ID, threadUniqueId);
         addObject(KEY_THREAD_TIME_START, new Date());
         MDC.put(KEY_THREAD_UNIQUE_ID, threadUniqueId);

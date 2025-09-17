@@ -1,5 +1,5 @@
 
-![Logo](https://www.kanopus.cl/admin/javax.faces.resource/images/logo-gray.png.xhtml?ln=paradise-layout)
+![Logo](https://www.kanopus.cl/admin/javax.faces.resource/images/logo-grey.png.xhtml?ln=paradise-layout)
 
 
 # klib-common
@@ -21,11 +21,11 @@ Allowing to group commonly used functionalities that can be applied to any new p
 
 ## License
 
-This is free software and I hope you enjoy it.
+This software is licensed under the Apache License, Version 2.0. See the LICENSE file for details.
+I hope you enjoy it.
 
-[![GPLv3 License](https://img.shields.io/badge/License-GPL%20v3-yellow.svg)](https://opensource.org/licenses/)
-
+[![Apache License, Version 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://opensource.org/license/apache-2-0)
 
 ## Support
 
-For support, email pabloandres.diazsaavedra@gmail.com
+For support, email soporte@kanopus.cl

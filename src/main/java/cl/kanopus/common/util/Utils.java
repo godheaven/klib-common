@@ -1,15 +1,35 @@
+/*-
+ * !--
+ * For support and inquiries regarding this library, please contact:
+ *   soporte@kanopus.cl
+ *
+ * Project website:
+ *   https://www.kanopus.cl
+ * %%
+ * Copyright (C) 2025 Pablo Díaz Saavedra
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * --!
+ */
 package cl.kanopus.common.util;
 
 import cl.kanopus.common.enums.EnumIdentifiable;
 import cl.kanopus.common.util.format.PaddingDecimalFormat;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringWriter;
+
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -21,22 +41,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- *
- * @author Pablo Diaz Saavedra
- * @email pabloandres.diazsaavedra@gmail.com
- */
 public class Utils {
 
     private static final PaddingDecimalFormat NUMBER_FORMAT;
@@ -47,6 +56,9 @@ public class Utils {
     private static final SimpleDateFormat TIME_FORMAT;
     private static final SimpleDateFormat DATETIME_FORMAT;
     private static final String PATTERN_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+    private static final SecureRandom RNG = new SecureRandom();
+    private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
+
 
     static {
         DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
@@ -105,6 +117,18 @@ public class Utils {
         return equals;
     }
 
+    public static boolean isEqualsOne(EnumIdentifiable source, EnumIdentifiable... values) {
+        boolean equals = false;
+        for (EnumIdentifiable v : values) {
+            equals = v.getId().equals(source.getId());
+            if (equals) {
+                break;
+            }
+        }
+
+        return equals;
+    }
+
     public static LocalDate getLocalDate(String date, String pattern) {
         return LocalDate.parse(date, DateTimeFormatter.ofPattern(pattern));
     }
@@ -130,7 +154,12 @@ public class Utils {
     }
 
     public static <T extends Object> T defaultValue(T value, T defaultValue) {
-        return (value != null) ? value : defaultValue;
+        if (value instanceof String string) {
+            return (!isNullOrEmpty(string) ? value : defaultValue);
+        } else {
+            return (value != null) ? value : defaultValue;
+        }
+
     }
 
     public static <T extends Object> T defaultValue(Map<Integer, T> array, int index, T defaultValue) {
@@ -152,14 +181,16 @@ public class Utils {
     }
 
     public static String generateRandomText(int size) {
-        SecureRandom random = new SecureRandom();
-        StringBuilder text = new StringBuilder();
-        text.append(new BigInteger(130, random).toString(32));
-        while (text.length() < size) {
-            text.append(new BigInteger(130, random).toString(32));
+        if (size <= 0) {
+            throw new IllegalArgumentException("Token size must be greater than 0");
         }
 
-        return text.toString().substring(0, size);
+        StringBuilder token = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+            token.append(ALPHABET[RNG.nextInt(ALPHABET.length)]);
+        }
+
+        return token.toString();
     }
 
     public static String generateRandomText() {
@@ -167,14 +198,12 @@ public class Utils {
     }
 
     public static Long generateRandomLong() {
-        SecureRandom random = new SecureRandom();
-        BigInteger bi = new BigInteger(130, random);
+        BigInteger bi = new BigInteger(130, RNG);
         return bi.longValue() > 0 ? bi.longValue() : bi.longValue() * -1;
     }
 
     public static Integer generateRandomInt() {
-        SecureRandom random = new SecureRandom();
-        BigInteger bi = new BigInteger(130, random);
+        BigInteger bi = new BigInteger(130, RNG);
         return bi.intValue() > 0 ? bi.intValue() : bi.intValue() * -1;
     }
 
@@ -374,7 +403,7 @@ public class Utils {
 
     public static boolean isRut(String rut) {
         boolean valid = false;
-        if (rut.length() > 0) {
+        if (!rut.isEmpty()) {
             // Creamos un arreglo con el rut y el digito verificador
             String[] rutDv = rut.split("-");
             // Las partes del rut (numero y dv) deben tener una longitud positiva
@@ -412,10 +441,10 @@ public class Utils {
             int gtinLength = gtin.length();
             int modifier = (17 - (gtinLength - 1));
             int gtinCheckDigit = Integer.parseInt(gtin.substring(gtinLength - 1));
-            int tmpCheckDigit = 0;
+            int tmpCheckDigit;
             int tmpCheckSum = 0;
-            int i = 0;
-            int ii = 0;
+            int i;
+            int ii;
 
             // Run through and put digits into multiplication table
             for (i = 0; i < (gtinLength - 1); i++) {
@@ -490,8 +519,26 @@ public class Utils {
         return lines;
     }
 
+    public static String mergeText(String... values) {
+        return mergeTextCustomSeparator(" ", values);
+    }
+
+    public static String mergeTextCustomSeparator(String separator, String... values) {
+        StringBuilder sb = new StringBuilder();
+        for (String v : values) {
+            if (!Utils.isNullOrEmpty(v)) {
+                if (!sb.isEmpty()) {
+                    sb.append(separator);
+                }
+                sb.append(v);
+            }
+        }
+
+        return sb.toString();
+    }
+
     public static void replaceAll(StringBuilder sb, String toReplace, String replacement) {
-        int index = -1;
+        int index;
         while ((index = sb.lastIndexOf(toReplace)) != -1) {
             sb.replace(index, index + toReplace.length(), replacement);
         }
@@ -501,7 +548,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         if (numbers != null) {
             for (Object n : numbers) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(",");
                 }
                 sb.append(n);
@@ -514,7 +561,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         if (numbers != null) {
             for (Object n : numbers) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(",");
                 }
                 sb.append(n);
@@ -535,7 +582,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         if (numbers != null) {
             for (Object n : numbers) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(",");
                 }
                 sb.append(n);
@@ -552,7 +599,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         if (text != null) {
             for (String n : text) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(separator);
                 }
                 sb.append(n);
@@ -573,7 +620,7 @@ public class Utils {
         StringBuilder sb = new StringBuilder();
         if (numbers != null) {
             for (Number n : numbers) {
-                if (sb.length() > 0) {
+                if (!sb.isEmpty()) {
                     sb.append(",");
                 }
                 sb.append(n);
@@ -703,7 +750,7 @@ public class Utils {
         int number = 0;
         if (text != null && !text.isEmpty()) {
             double mValue = Double.parseDouble(text);
-            number = new Double(mValue).intValue();
+            number = Double.valueOf(mValue).intValue();
         }
         return number;
     }
@@ -712,7 +759,7 @@ public class Utils {
         long number = 0;
         if (text != null && !text.isEmpty()) {
             double mValue = Double.parseDouble(text);
-            number = new Double(mValue).longValue();
+            number = Double.valueOf(mValue).longValue();
         }
         return number;
     }
@@ -865,7 +912,7 @@ public class Utils {
      * Returns List of the List argument passed to this function with size =
      * chunkSize
      *
-     * @param list Generic type of the List
+     * @param list      Generic type of the List
      * @param chunkSize maximum size of each partition
      * @return A list of Lists which is portioned from the original list
      */
@@ -902,4 +949,15 @@ public class Utils {
         return exist;
     }
 
+
+    public static byte[] sha256(String value) {
+        try {
+            // Uso de JCA estándar
+            java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+            return md.digest(value.getBytes(StandardCharsets.UTF_8));
+        } catch (Exception e) {
+            // No debería ocurrir
+            return new byte[0];
+        }
+    }
 }

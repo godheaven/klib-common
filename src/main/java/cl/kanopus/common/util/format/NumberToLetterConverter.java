@@ -1,28 +1,45 @@
+/*-
+ * !--
+ * For support and inquiries regarding this library, please contact:
+ *   soporte@kanopus.cl
+ *
+ * Project website:
+ *   https://www.kanopus.cl
+ * %%
+ * Copyright (C) 2025 Pablo Díaz Saavedra
+ * %%
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ * --!
+ */
 package cl.kanopus.common.util.format;
 
 import java.math.RoundingMode;
 import java.text.DecimalFormat;
 
-/**
- *
- * @author Pablo Diaz Saavedra
- * @email pabloandres.diazsaavedra@gmail.com
- *
- */
 public abstract class NumberToLetterConverter {
 
     private static final String[] UNIDADES = {"", "UN ", "DOS ", "TRES ",
-        "CUATRO ", "CINCO ", "SEIS ", "SIETE ", "OCHO ", "NUEVE ", "DIEZ ",
-        "ONCE ", "DOCE ", "TRECE ", "CATORCE ", "QUINCE ", "DIECISEIS ",
-        "DIECISIETE ", "DIECIOCHO ", "DIECINUEVE ", "VEINTE "};
+            "CUATRO ", "CINCO ", "SEIS ", "SIETE ", "OCHO ", "NUEVE ", "DIEZ ",
+            "ONCE ", "DOCE ", "TRECE ", "CATORCE ", "QUINCE ", "DIECISEIS ",
+            "DIECISIETE ", "DIECIOCHO ", "DIECINUEVE ", "VEINTE "};
 
     private static final String[] DECENAS = {"VENTI", "TREINTA ", "CUARENTA ",
-        "CINCUENTA ", "SESENTA ", "SETENTA ", "OCHENTA ", "NOVENTA ",
-        "CIEN "};
+            "CINCUENTA ", "SESENTA ", "SETENTA ", "OCHENTA ", "NOVENTA ",
+            "CIEN "};
 
     private static final String[] CENTENAS = {"CIENTO ", "DOSCIENTOS ",
-        "TRESCIENTOS ", "CUATROCIENTOS ", "QUINIENTOS ", "SEISCIENTOS ",
-        "SETECIENTOS ", "OCHOCIENTOS ", "NOVECIENTOS "};
+            "TRESCIENTOS ", "CUATROCIENTOS ", "QUINIENTOS ", "SEISCIENTOS ",
+            "SETECIENTOS ", "OCHOCIENTOS ", "NOVECIENTOS "};
 
     private NumberToLetterConverter() {
         throw new IllegalStateException("Utility class");
@@ -32,9 +49,9 @@ public abstract class NumberToLetterConverter {
      * Convierte a letras un numero de la forma $123,456.32
      *
      * @param number Numero en representacion texto
-     * @throws NumberFormatException Si valor del numero no es valido (fuera de
-     * rango o )
      * @return Numero en letras
+     * @throws NumberFormatException Si valor del numero no es valido (fuera de
+     *                               rango o )
      */
     public static String convertNumberToLetter(String number) throws NumberFormatException {
         return convertNumberToLetter(Double.parseDouble(number));
@@ -68,7 +85,7 @@ public abstract class NumberToLetterConverter {
         if (doubleNumber > 999999999) {
             throw new NumberFormatException(
                     "El numero es mayor de 999'999.999, "
-                    + "no es posible convertirlo");
+                            + "no es posible convertirlo");
         }
 
         if (doubleNumber < 0) {
@@ -161,7 +178,7 @@ public abstract class NumberToLetterConverter {
     /**
      * Retorna el digito numerico en la posicion indicada de derecha a izquierda
      *
-     * @param origin Cadena en la cual se busca el digito
+     * @param origin   Cadena en la cual se busca el digito
      * @param position Posicion de derecha a izquierda a retornar
      * @return Digito ubicado en la posicion indicada
      */
