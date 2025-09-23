@@ -30,16 +30,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 class FileUtilsTest {
+    static final long KB = 1024;
+    static final long MB = KB * 1024;
+    static final long GB = MB * 1024;
+    static final long TB = GB * 1024;
+    static final long PB = TB * 1024;
 
     @Test
     void testPrettyFileSize() {
-
-        long KB = 1024;
-        long MB = KB * 1024;
-        long GB = MB * 1024;
-        long TB = GB * 1024;
-        long PB = TB * 1024;
-
         Assertions.assertEquals("0 B", FileUtils.prettyFileSize(0));
         Assertions.assertEquals("1,0 KB", FileUtils.prettyFileSize(KB));
         Assertions.assertEquals("2,0 KB", FileUtils.prettyFileSize(KB * 2));

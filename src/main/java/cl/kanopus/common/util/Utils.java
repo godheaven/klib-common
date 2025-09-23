@@ -55,10 +55,15 @@ public class Utils {
     private static final SimpleDateFormat DATE_FORMAT;
     private static final SimpleDateFormat TIME_FORMAT;
     private static final SimpleDateFormat DATETIME_FORMAT;
-    private static final String PATTERN_EMAIL = "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@" + "[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)*(\\.[A-Za-z]{2,})$";
+
+    private static final Pattern EMAIL_PATTERN = Pattern.compile(
+            "^[A-Za-z0-9+_.-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$"
+    );
+
     private static final SecureRandom RNG = new SecureRandom();
     private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
-
+    private static final Pattern NEWLINES = Pattern.compile("\\R");
+    private static final Pattern SPACES   = Pattern.compile("\\s+");
 
     static {
         DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
@@ -117,9 +122,9 @@ public class Utils {
         return equals;
     }
 
-    public static boolean isEqualsOne(EnumIdentifiable source, EnumIdentifiable... values) {
+    public static boolean isEqualsOne(EnumIdentifiable<?> source, EnumIdentifiable<?>... values) {
         boolean equals = false;
-        for (EnumIdentifiable v : values) {
+        for (EnumIdentifiable<?> v : values) {
             equals = v.getId().equals(source.getId());
             if (equals) {
                 break;
@@ -297,22 +302,14 @@ public class Utils {
     }
 
     public static String getElapsedTime(LocalDate start, LocalDate end) {
-        try {
-            long milliseconds = ChronoUnit.MILLIS.between(start, end);
-            StringBuilder sb = new StringBuilder();
-            if (milliseconds < 60000) {
-                sb.append("0 dias");
-            } else {
-                long days = TimeUnit.MILLISECONDS.toDays(milliseconds);
-                if (days > 0) {
-                    sb.append(days);
-                    sb.append("dias");
-                }
-            }
-            return sb.toString().trim();
-        } catch (Exception ex) {
-            return null;
+        if (start == null || end == null) {
+            return "";
         }
+        long days = ChronoUnit.DAYS.between(start, end);
+        if (days <= 0) {
+            return "0d";
+        }
+        return days + "d";
 
     }
 
@@ -473,9 +470,7 @@ public class Utils {
     }
 
     public static boolean isValidEmail(String email) {
-        Pattern pattern = Pattern.compile(PATTERN_EMAIL);
-        Matcher matcher = pattern.matcher(email);
-        return matcher.matches();
+        return email != null && EMAIL_PATTERN.matcher(email).matches();
     }
 
     public static int roundUp(int dividend, int divisor) {
@@ -493,30 +488,35 @@ public class Utils {
         return array;
     }
 
-    public static List<String> splitText(String text, int maxLineSize) {
-        List<String> lines = new ArrayList<>();
-        if (text != null && !text.trim().isEmpty()) {
-            String[] lineasSeparadas = text.trim().split("\n");
-            for (String l : lineasSeparadas) {
-                //12345678901
-                //mi texto largo
+    public static List<String> splitText(String text, int maxCharsPerLine) {
+        if (text == null || text.isBlank()) return List.of();
+        if (maxCharsPerLine <= 0) throw new IllegalArgumentException("maxCharsPerLine must be > 0");
 
-                StringBuilder linea = new StringBuilder();
-                String[] lineasSeparadaNivel2 = l.split(" ");
-                for (String s : lineasSeparadaNivel2) {
-                    if ((linea.length() + s.length()) < maxLineSize) {
-                        linea.append(s).append(" ");
-                    } else {
-                        lines.add(linea.toString().trim());
-                        linea.setLength(0);
-                        linea.append(s).append(" ");
-                    }
+        List<String> out = new ArrayList<>();
+        for (String paragraph : NEWLINES.split(text.strip(), -1)) {
+            String p = paragraph.trim();
+            if (p.isEmpty()) { // conserva líneas vacías
+                out.add("");
+                continue;
+            }
+
+            StringBuilder line = new StringBuilder();
+            for (String word : SPACES.split(p)) {
+                if (line.isEmpty()) {
+                    line.append(word);
+                } else if (line.length() + 1 + word.length() <= maxCharsPerLine) {
+                    line.append(' ').append(word);
+                } else {
+                    out.add(line.toString());
+                    line.setLength(0);
+                    line.append(word);
                 }
-                lines.add(linea.toString().trim());
-
+            }
+            if (!line.isEmpty()) {
+                out.add(line.toString());
             }
         }
-        return lines;
+        return out;
     }
 
     public static String mergeText(String... values) {
@@ -750,7 +750,7 @@ public class Utils {
         int number = 0;
         if (text != null && !text.isEmpty()) {
             double mValue = Double.parseDouble(text);
-            number = Double.valueOf(mValue).intValue();
+            number = (int) mValue;
         }
         return number;
     }
@@ -759,7 +759,7 @@ public class Utils {
         long number = 0;
         if (text != null && !text.isEmpty()) {
             double mValue = Double.parseDouble(text);
-            number = Double.valueOf(mValue).longValue();
+            number = (long)mValue;
         }
         return number;
     }
@@ -890,22 +890,42 @@ public class Utils {
         return null;
     }
 
-    public static String getClienteN1A1A2(String cliente, int maxlength) {
-        StringBuilder sb = new StringBuilder();
-        if (cliente != null && cliente.length() > maxlength) {
-            String[] names = cliente.split(" ");
-            if (names.length >= 1) {
-                sb.append(names[0]);
-            }
-
-            for (int i = 2; i < names.length; i++) {
-                sb.append(" ").append(names[i]);
-            }
-        } else {
-            sb.append(cliente);
+    public static String getCustomerN1A1A2(String customer, int maxLength) {
+        if (maxLength <= 0 || customer == null || customer.isBlank()) {
+            return "";
         }
 
-        return sb.toString();
+        String[] parts = customer.trim().split("\\s+");
+        if (parts.length == 0) {
+            return "";
+        }
+
+        // Select candidates based on number of names
+        String[] candidates;
+        int n = parts.length;
+        switch (n) {
+            case 3:
+                candidates = new String[]{ parts[0], parts[1], parts[2] };
+                break;
+            default:
+                candidates = (n > 3)
+                        ? new String[]{ parts[0], parts[n - 2], parts[n - 1] }
+                        : parts; // 1 or 2 names
+                break;
+        }
+
+        StringBuilder out = new StringBuilder();
+        for (String w : candidates) {
+            int extra = (out.isEmpty()) ? w.length() : 1 + w.length();
+            if (out.length() + extra <= maxLength) {
+                if (!out.isEmpty()) {
+                    out.append(' ');
+                }
+                out.append(w);
+            }
+        }
+
+        return (!out.isEmpty()) ? out.toString() : parts[0];
     }
 
     /**

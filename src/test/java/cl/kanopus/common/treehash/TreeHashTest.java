@@ -23,6 +23,7 @@
  */
 package cl.kanopus.common.treehash;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -59,6 +60,11 @@ class TreeHashTest {
         }
 
         System.out.println("############### PRINT ALL NODES ########################");
+
+        Assertions.assertNotNull(tree);
+        Assertions.assertEquals(4, tree.getNodeVisibleList().size());
+        Assertions.assertEquals(18, tree.getNodeList().size());
+
         for (NodeHash n : tree.getNodeList()) {
             System.out.println("node:" + generateIndent(n.getDepth()) + "" + n.getKey() + "[selecteable:" + n.isSelectable() + ", selected:" + n.isSelected() + "]");
         }

@@ -94,12 +94,13 @@ public class FileUtils {
                 out.write(buf, 0, len);
             }
         } finally {
-            // close streams, but don't mask original exception, if any
+
             try {
                 if (in != null) {
                     in.close();
                 }
             } catch (IOException ex) {
+                // close streams, but don't mask original exception, if any
             }
 
         }

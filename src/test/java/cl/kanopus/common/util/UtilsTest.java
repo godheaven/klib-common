@@ -23,8 +23,8 @@
  */
 package cl.kanopus.common.util;
 
+import cl.kanopus.common.enums.EnumIdentifiable;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -40,9 +40,6 @@ import java.util.Date;
 import java.util.List;
 
 class UtilsTest {
-
-    public UtilsTest() {
-    }
 
     @Test
     void testIsNullOrEmpty() {
@@ -73,11 +70,18 @@ class UtilsTest {
         Assertions.assertEquals("2d 5h 30m", result);
     }
 
+
+
     @Test
-    void testIsEqualsOne() {
-        String[] values = {"uno", "dos", "tres"};
-        Assertions.assertTrue(Utils.isEqualsOne("uno", values));
-        Assertions.assertFalse(Utils.isEqualsOne("cuatro", values));
+    void testIsEqualsOne_Enum() {
+        Assertions.assertTrue(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L)));
+        Assertions.assertFalse(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L), new EnumIdentifiableExample(3L)));
+    }
+
+    @Test
+    void testIsEqualsOne_Text() {
+        Assertions.assertTrue(Utils.isEqualsOne("uno", "uno", "dos"));
+        Assertions.assertFalse(Utils.isEqualsOne("uno", "dos", "tres"));
     }
 
     @Test
@@ -296,39 +300,36 @@ class UtilsTest {
 
     }
 
-    @Disabled
+
     @Test
     void testGetElapsedTime_LocalDate_LocalDate() {
-        LocalDate start = null;
-        LocalDate end = null;
-        String expResult = "";
-        String result = Utils.getElapsedTime(start, end);
-        Assertions.assertEquals(expResult, result);
-
+        LocalDate start = LocalDate.of(2023, Month.JANUARY, 1);
+        LocalDate end = LocalDate.of(2023, Month.JANUARY, 30);
+        Assertions.assertEquals("29d", Utils.getElapsedTime(start, end));
     }
 
-    @Disabled
+
     @Test
     void testGetElapsedTime_LocalDateTime_LocalDateTime() {
-        LocalDateTime start = null;
-        LocalDateTime end = null;
-        String expResult = "";
-        String result = Utils.getElapsedTime(start, end);
-        Assertions.assertEquals(expResult, result);
+        LocalDateTime start = LocalDateTime.of(2023, Month.JANUARY, 1, 10, 0);
+        LocalDateTime end = LocalDateTime.of(2023, Month.JANUARY, 30, 10, 0);
+        Assertions.assertEquals("29d",  Utils.getElapsedTime(start, end));
 
     }
 
-    @Disabled
+
     @Test
     void testGetDate_LocalDate() {
-        LocalDate localdate = null;
-        Date expResult = null;
+        LocalDate localdate = LocalDate.of(2023, Month.JANUARY, 30);
+
         Date result = Utils.getDate(localdate);
-        Assertions.assertEquals(expResult, result);
+
+        Assertions.assertNotNull(result);
+        Assertions.assertEquals("30/01/2023", Utils.getDateFormat(result));
 
     }
 
-    @Disabled
+
     @Test
     void testSubstring() {
         String text = "";
@@ -336,47 +337,36 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.substring(text, maxlength);
         Assertions.assertEquals(expResult, result);
-
     }
 
-    @Disabled
+
     @Test
     void testIsNumber() {
-        String number = "";
-        boolean expResult = false;
-        boolean result = Utils.isNumber(number);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertTrue(Utils.isNumber("8"));
+        Assertions.assertFalse(Utils.isNumber("eight"));
     }
 
-    @Disabled
+
     @Test
     void testIsNullOrEmpty_String() {
-        String text = "";
-        boolean expResult = false;
-        boolean result = Utils.isNullOrEmpty(text);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertTrue(Utils.isNullOrEmpty(""));
+        Assertions.assertTrue(Utils.isNullOrEmpty(" "));
+        Assertions.assertTrue(Utils.isNullOrEmpty((String)null));
+        Assertions.assertFalse(Utils.isNullOrEmpty("Test"));
     }
 
-    @Disabled
+
     @Test
     void testIsNullOrEmpty_StringArr() {
-        String[] text = null;
-        boolean expResult = false;
-        boolean result = Utils.isNullOrEmpty(text);
-        Assertions.assertEquals(expResult, result);
-
+        String[] text = new String[]{"", null};
+        Assertions.assertTrue(Utils.isNullOrEmpty(text));
     }
 
-    @Disabled
+
     @Test
     void testIsNullOrEmpty_List() {
-        List list = null;
-        boolean expResult = false;
-        boolean result = Utils.isNullOrEmpty(list);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertFalse(Utils.isNullOrEmpty(Arrays.asList("item1", "item2")));
+        Assertions.assertTrue(Utils.isNullOrEmpty(new ArrayList<>()));
     }
 
     @Test
@@ -384,7 +374,6 @@ class UtilsTest {
         Assertions.assertTrue(Utils.isRut("88888888-8"));
         Assertions.assertFalse(Utils.isRut("88.888.888-9"));
         Assertions.assertFalse(Utils.isRut("123-9"));
-
     }
 
     @Test
@@ -412,34 +401,36 @@ class UtilsTest {
         Assertions.assertTrue(Utils.isGTIN("7809591400113"));
     }
 
-    @Disabled
+
     @Test
     void testIsValidRegex() {
-        String value = "";
-        String regex = "";
-        boolean expResult = false;
-        boolean result = Utils.isValidRegex(value, regex);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertTrue(Utils.isValidRegex("abc123", "^[a-z]+[0-9]+$"));
+        Assertions.assertFalse(Utils.isValidRegex("123abc", "^[a-z]+[0-9]+$"));
 
     }
 
     @Test
     void testIsValidEmail() {
-        String email = "";
-        boolean expResult = false;
-        boolean result = Utils.isValidEmail(email);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertTrue(Utils.isValidEmail("test@gmail.com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@gmail"));
+        Assertions.assertFalse(Utils.isValidEmail("test.com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@.com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@com."));
+        Assertions.assertFalse(Utils.isValidEmail("test@.com."));
+        Assertions.assertFalse(Utils.isValidEmail("test@com..com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@@gmail.com"));
+        Assertions.assertFalse(Utils.isValidEmail("test gmail.com"));
+        Assertions.assertFalse(Utils.isValidEmail("test@gmail .com"));
     }
 
-    @Disabled
+
     @Test
     void testRoundUp() {
-        int dividend = 0;
-        int divisor = 0;
-        int expResult = 0;
-        int result = Utils.roundUp(dividend, divisor);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertEquals(2, Utils.roundUp(8, 5));
+        Assertions.assertEquals(3, Utils.roundUp(11, 5));
+        Assertions.assertEquals(0, Utils.roundUp(0, 5));
+        Assertions.assertEquals(1, Utils.roundUp(5, 5));
     }
 
     @Test
@@ -449,67 +440,54 @@ class UtilsTest {
         Assertions.assertEquals(expResult, result);
     }
 
-    @Disabled
+
     @Test
     void testSplitText() {
-        int maxLineSize = 3;
-        List<String> expResult = Arrays.asList("123", "456", "789");
-        List<String> result = Utils.splitText("123 456 789", maxLineSize);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertLinesMatch(Arrays.asList("123 456", "789 0 123", "ABC DEF", "GHI"), Utils.splitText("123 456 789 0 123 ABC DEF GHI", 10));
+        Assertions.assertLinesMatch(Arrays.asList("123456789"), Utils.splitText("123456789", 5));
+        Assertions.assertLinesMatch(Arrays.asList("123", "456", "789"), Utils.splitText("123 456 789", 3));
     }
 
-    @Disabled
+
     @Test
     void testReplaceAll() {
-        StringBuilder sb = null;
-        String toReplace = "";
-        String replacement = "";
+        StringBuilder sb = new StringBuilder("This is a test. This test is only a test.");
+        String toReplace = "test";
+        String replacement = "kanopus";
         Utils.replaceAll(sb, toReplace, replacement);
-
+        Assertions.assertEquals("This is a kanopus. This kanopus is only a kanopus.", sb.toString());
     }
 
-    @Disabled
+
     @Test
     void testArrayToString_intArr() {
-        int[] numbers = null;
-        Object expResult = null;
-        Object result = Utils.arrayToString(numbers);
-        Assertions.assertEquals(expResult, result);
-
+        int[] numbers = {1,2,3,4,5};
+        Assertions.assertEquals("1,2,3,4,5", Utils.arrayToString(numbers));
     }
 
-    @Disabled
+
     @Test
     void testArrayToString_List() {
-        List<String> text = null;
-        String expResult = "";
-        String result = Utils.arrayToString(text);
-        Assertions.assertEquals(expResult, result);
-
+        List<String> text =  Arrays.asList("1", "2", "3");
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(text));
     }
 
-    @Disabled
+
     @Test
     void testArrayToString_List_String() {
-        List<String> text = null;
-        String separator = "";
-        String expResult = "";
-        String result = Utils.arrayToString(text, separator);
-        Assertions.assertEquals(expResult, result);
-
+        List<String> text =  Arrays.asList("1", "2", "3");
+        String separator = "|";
+        Assertions.assertEquals("1|2|3", Utils.arrayToString(text, separator));
     }
 
-    @Disabled
+
     @Test
     void testToString_Long() {
-        Long number = null;
-        String expResult = "";
-        String result = Utils.toString(number);
-        Assertions.assertEquals(expResult, result);
-
+        Long number = 9L;
+        Assertions.assertEquals("9", Utils.toString(number));
     }
 
-    @Disabled
+
     @Test
     void testToString_List() {
         List<? extends Number> numbers = null;
@@ -535,23 +513,19 @@ class UtilsTest {
         Assertions.assertArrayEquals(expResult, result);
     }
 
-    @Disabled
+
     @Test
     void testToListInt() {
-        String array = "";
-        List<Integer> expResult = null;
-        List<Integer> result = Utils.toListInt(array);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertNotNull(Utils.toListInt("1,2,3"));
+        Assertions.assertArrayEquals(Arrays.asList(1,2,3).toArray(), Utils.toListInt("1,2,3").toArray());
 
     }
 
-    @Disabled
+
     @Test
     void testToListLong() {
-        String array = "";
-        List<Long> expResult = null;
-        List<Long> result = Utils.toListLong(array);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertNotNull(Utils.toListLong("1,2,3"));
+        Assertions.assertArrayEquals(Arrays.asList(1L,2L,3L).toArray(), Utils.toListLong("1,2,3").toArray());
 
     }
 
@@ -578,17 +552,17 @@ class UtilsTest {
         Assertions.assertFalse(Utils.isDateEquals(date1, date3));
     }
 
-    @Disabled
+
     @Test
     void testFileToString() throws Exception {
-        File textFile = null;
-        StringBuilder expResult = null;
-        StringBuilder result = Utils.fileToString(textFile);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertThrows(Exception.class, () -> {
+            Utils.fileToString(new File("not_found.txt"));
+        });
+        Assertions.assertEquals("test1\n", Utils.fileToString(new File("src/test/resources/test.txt")).toString());
 
     }
 
-    @Disabled
+
     @Test
     void testParseMoney2Long() {
         String text = "";
@@ -598,40 +572,33 @@ class UtilsTest {
 
     }
 
-    @Disabled
+
     @Test
     void testParseDouble2Integer() {
-        String text = "";
-        int expResult = 0;
-        int result = Utils.parseDouble2Integer(text);
-        Assertions.assertEquals(expResult, result);
+
+        Assertions.assertEquals(0, Utils.parseDouble2Integer(""));
+        Assertions.assertEquals(1, Utils.parseDouble2Integer("1.2"));
+        Assertions.assertEquals(9, Utils.parseDouble2Integer("9.9"));
 
     }
 
-    @Disabled
+
     @Test
     void testParseDouble2Long() {
-
-        String text = "";
-        long expResult = 0L;
-        long result = Utils.parseDouble2Long(text);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertEquals(0L, Utils.parseDouble2Long(""));
+        Assertions.assertEquals(1L, Utils.parseDouble2Long("1.2"));
+        Assertions.assertEquals(9L, Utils.parseDouble2Long("9.9"));
     }
 
-    @Disabled
+
     @Test
     void testParseLongDefault() {
-
-        String text = "";
-        long defaultValue = 0L;
-        Long expResult = null;
-        Long result = Utils.parseLongDefault(text, defaultValue);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertEquals(0, Utils.parseLongDefault("", 0));
+        Assertions.assertEquals(1, Utils.parseLongDefault("no-num", 1));
+        Assertions.assertEquals(9, Utils.parseLongDefault("9", 2));
     }
 
-    @Disabled
+
     @Test
     void testParseLong_String() {
 
@@ -642,7 +609,7 @@ class UtilsTest {
 
     }
 
-    @Disabled
+
     @Test
     void testParseLong_String_boolean() {
 
@@ -664,14 +631,10 @@ class UtilsTest {
 
     }
 
-    @Disabled
+
     @Test
     void testParseInt_String() {
-        String text = "";
-        Integer expResult = null;
-        Integer result = Utils.parseInt(text);
-        Assertions.assertEquals(expResult, result);
-
+        Assertions.assertEquals((Integer)1,  Utils.parseInt("1"));
     }
 
 
@@ -703,58 +666,36 @@ class UtilsTest {
         Assertions.assertEquals("1999", result2 + "");
     }
 
-    @Disabled
+
     @Test
     void testParseBigDecimal_Long() {
-
-        Long num = null;
-        BigDecimal expResult = null;
-        BigDecimal result = Utils.parseBigDecimal(num);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertEquals(new BigDecimal(1), Utils.parseBigDecimal(1L));
     }
 
-    @Disabled
+
     @Test
     void testParseBigDecimal_int() {
-        int num = 0;
-        BigDecimal expResult = null;
-        BigDecimal result = Utils.parseBigDecimal(num);
-        Assertions.assertEquals(expResult, result);
+        Assertions.assertEquals(new BigDecimal(1), Utils.parseBigDecimal(1));
     }
 
-    @Disabled
+
     @Test
     void testParseStringWriter() {
-        String text = "";
-        StringWriter expResult = null;
-        StringWriter result = Utils.parseStringWriter(text);
-        Assertions.assertEquals(expResult, result);
+        StringWriter expResult = new StringWriter();
+        expResult.append("text");
+        Assertions.assertEquals(expResult.toString(), Utils.parseStringWriter("text").toString());
     }
 
-    @Disabled
+
     @Test
-    void testParseEnum() {
+    void testGetCustomerN1A1A2() {
+        Assertions.assertEquals("Juan", Utils.getCustomerN1A1A2("Juan", 12));
+        Assertions.assertEquals("Juan Andres", Utils.getCustomerN1A1A2("Juan Andres", 12));
+        Assertions.assertEquals("Juan Perez", Utils.getCustomerN1A1A2("Juan Perez Coloma", 12));
+        Assertions.assertEquals("Juan Perez Coloma", Utils.getCustomerN1A1A2("Juan Andres Perez Coloma", 17));
+        Assertions.assertEquals("", Utils.getCustomerN1A1A2("", 12));
     }
 
-    @Disabled
-    @Test
-    void testValueOfEnum() {
-    }
-
-    @Disabled
-    @Test
-    void testGetClienteN1A1A2() {
-        String cliente = "";
-        int maxlength = 0;
-        String expResult = "";
-        String result = Utils.getClienteN1A1A2(cliente, maxlength);
-        Assertions.assertEquals(expResult, result);
-    }
-
-    @Disabled
-    @Test
-    void testChunkList() {
-    }
 
     @Test
     void testPutIntoArrayList() {
@@ -777,6 +718,23 @@ class UtilsTest {
         Assertions.assertEquals("two", items.get(1).getName());
         Assertions.assertEquals(3, items.get(2).getId());
         Assertions.assertEquals("three", items.get(2).getName());
+
+    }
+
+
+
+    static class EnumIdentifiableExample implements EnumIdentifiable<Long> {
+        private final Long id;
+
+        public EnumIdentifiableExample(Long id) {
+            this.id = id;
+        }
+
+        @Override
+        public Long getId() {
+            return id;
+        }
+
 
     }
 

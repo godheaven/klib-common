@@ -46,7 +46,7 @@ public class TreeHash implements Serializable {
     private final Map<String, NodeHash> hash = new HashMap<>();
     private TYPE_NODE_LIST lastRefresh = TYPE_NODE_LIST.ALL;
     private boolean refresh = false;
-    private List<NodeHash> nodeList = new ArrayList<>();
+    private transient List<NodeHash> nodeList = new ArrayList<>();
     public static final String KEY_ROOT = "root";
 
     public TreeHash() {
@@ -56,7 +56,6 @@ public class TreeHash implements Serializable {
 
     public final void add(NodeHash node) {
         if (hash.containsKey(node.getKey())) {
-            //Eliminar referencia del antiguo nodo padre (TODO: probar este reemplazo)
             NodeHash oldNode = hash.get(node.getKey());
             NodeHash oldParent = hash.get(oldNode.getKeyParent());
             if (oldParent != null) {

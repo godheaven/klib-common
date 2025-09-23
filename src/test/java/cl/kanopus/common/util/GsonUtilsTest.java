@@ -31,9 +31,6 @@ import java.util.Date;
 
 class GsonUtilsTest {
 
-    public GsonUtilsTest() {
-    }
-
     @Test
     void testSomeMethod() throws Exception {
         LocalDate localdate = Utils.getLocalDate("16/03/2021 00:00:00", "dd/MM/yyyy HH:mm:ss");
