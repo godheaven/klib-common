@@ -39,14 +39,14 @@ import java.util.List;
 
 public class GsonUtils {
 
-    private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-    private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     private GsonUtils() {
     }
 
     public static final Gson custom = new GsonBuilder()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss")
+            .setDateFormat(DATETIME_FORMAT)
             .registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
             .registerTypeAdapter(Date.class, new DateAdapter())
             .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
@@ -59,7 +59,9 @@ public class GsonUtils {
         public Date deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
             String date = element.getAsString();
             try {
-                return date.length() >= 19 ? DATETIME_FORMAT.parse(date) : DATE_FORMAT.parse(date);
+                SimpleDateFormat dtf = new SimpleDateFormat(DATETIME_FORMAT);
+                SimpleDateFormat fd = new SimpleDateFormat(DATE_FORMAT);
+                return date.length() >= 19 ? dtf.parse(date) : fd.parse(date);
             } catch (ParseException ex) {
                 throw new JsonParseException(ex);
             }
@@ -67,7 +69,8 @@ public class GsonUtils {
 
         @Override
         public JsonElement serialize(Date src, Type type, JsonSerializationContext context) {
-            return new JsonPrimitive(DATETIME_FORMAT.format(src));
+            SimpleDateFormat dtf = new SimpleDateFormat(DATETIME_FORMAT);
+            return new JsonPrimitive(dtf.format(src));
         }
     }
 

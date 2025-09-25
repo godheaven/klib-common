@@ -26,12 +26,12 @@ package cl.kanopus.common.util;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
 import java.util.stream.Collectors;
 
 public class FileUtils {
-
     private static String temporalFolder;
 
     private FileUtils() {
@@ -49,9 +49,9 @@ public class FileUtils {
         return text;
     }
 
-    public static boolean renameFile(File fileEnvioDTE, String filename) {
+    public static boolean renameFile(File file, String filename) {
         String newFilename = checkAndGetFullTemporalPath(filename);
-        return fileEnvioDTE.renameTo(new File(newFilename));
+        return file.renameTo(new File(newFilename));
     }
 
     public static File createFile(String text, String filename, Charset charset) throws IOException {
@@ -84,27 +84,26 @@ public class FileUtils {
         String path = checkAndGetFullTemporalPath(filename);
         File fileDir = new File(path);
 
-        InputStream in = null;
-        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileDir))) {
+        try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileDir)); InputStream in = inputStream) {
 
-            in = inputStream;
             byte[] buf = new byte[8192];
             int len;
             while ((len = in.read(buf)) > 0) {
                 out.write(buf, 0, len);
             }
-        } finally {
-
-            try {
-                if (in != null) {
-                    in.close();
-                }
-            } catch (IOException ex) {
-                // close streams, but don't mask original exception, if any
-            }
-
+        } catch (IOException ex) {
+            // close streams, but don't mask original exception, if any
         }
         return fileDir;
+    }
+
+    public static File createFile(URL url, String prefix, String suffix) throws IOException {
+        try (InputStream in = url.openStream()) {
+            File tmp = File.createTempFile(prefix, suffix);
+            tmp.deleteOnExit();
+            java.nio.file.Files.copy(in, tmp.toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+            return tmp;
+        }
     }
 
     private static String checkAndGetFullTemporalPath(String filename) {
@@ -129,18 +128,19 @@ public class FileUtils {
     public static File getFile(String... files) throws FileNotFoundException {
         StringBuilder sb = new StringBuilder();
         File file = null;
-        for (String f : files) {
-            //first attemtp
-            file = getFileAttemp1(f, sb);
+        for (String filename : files) {
 
-            //second attemtp
+            //first attempt
+            file = getFileAttempt1(filename, sb);
+
+            //second attempt
             if (file == null || !file.exists()) {
-                file = getFileAttemp2(f, sb);
+                file = getFileAttempt2(filename, sb);
             }
 
-            //third attemtp
+            //third attempt
             if (file == null || !file.exists()) {
-                file = getFileAttemp3(f, sb);
+                file = getFileAttempt3(filename, sb);
             }
 
             if (file != null && file.exists()) {
@@ -154,29 +154,19 @@ public class FileUtils {
         return file;
     }
 
-    private static File getFileAttemp1(String filename, StringBuilder messages) {
-        File file = null;
-        try {
-            URL resource = FileUtils.class.getResource(filename);
-            file = (resource != null) ? new File(resource.getFile()) : null;
-        } catch (Exception ex) {
-            messages.append(ex.getMessage());
-        }
-        return file;
-    }
 
-    private static File getFileAttemp2(String filename, StringBuilder messages) {
+    private static File getFileAttempt1(String filename, StringBuilder messages) {
         File file = null;
         try {
-            URL resource = Thread.currentThread().getContextClassLoader().getResource(filename);
-            file = (resource != null) ? new File(resource.getFile()) : null;
+            URL resource = Thread.currentThread().getContextClassLoader() != null ? Thread.currentThread().getContextClassLoader().getResource(filename) : null;
+            file = (resource != null) ? Paths.get(resource.toURI()).toFile() : null;
         } catch (Exception ex2) {
             messages.append(ex2.getMessage());
         }
         return file;
     }
 
-    private static File getFileAttemp3(String filename, StringBuilder messages) {
+    private static File getFileAttempt2(String filename, StringBuilder messages) {
         File file = null;
         try {
             file = new File(filename);
@@ -185,6 +175,17 @@ public class FileUtils {
         }
         return file;
     }
+
+    private static File getFileAttempt3(String filename, StringBuilder messages) {
+        File file = null;
+        try {
+            file = Paths.get(filename).toAbsolutePath().toFile();
+        } catch (Exception ex2) {
+            messages.append(ex2.getMessage());
+        }
+        return file;
+    }
+
 
     public static String prettyFileSize(long bytes) {
         long absB = bytes == Long.MIN_VALUE ? Long.MAX_VALUE : Math.abs(bytes);
