@@ -170,8 +170,6 @@ public class TreeHash implements Serializable {
     /**
      * Metodo que retorna todos los nodos contenidos en el TreeHash
      *
-     * @author Pablo Diaz Saavedra (pd47753)
-     *
      */
     public List<NodeHash> getNodeList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.ALL) {
@@ -188,8 +186,6 @@ public class TreeHash implements Serializable {
     /**
      * Metodo que retorna solo los nodos donde el padre sea visible dentro del
      * TreeHash
-     *
-     * @author Pablo Diaz Saavedra (pd47753)
      *
      */
     public List<NodeHash> getNodeVisibleList() {
