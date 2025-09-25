@@ -20,10 +20,11 @@ Allowing to group commonly used functionalities that can be applied to any new p
 To use this parent in your Maven project, add the following to your `pom.xml`:
 
 ```xml
+
 <parent>
-  <groupId>cl.kanopus.util</groupId>
-  <artifactId>klib-common</artifactId>
-  <version>3.0.0</version>
+	<groupId>cl.kanopus.util</groupId>
+	<artifactId>klib-common</artifactId>
+	<version>3.0.1</version>
 </parent>
 
 ```
