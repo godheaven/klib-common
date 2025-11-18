@@ -35,39 +35,47 @@ import java.util.Base64;
 import java.util.Objects;
 
 /**
- *
  * Utility class that allows information to be encrypted and decrypted based on
  * the use of seeds.
+ *
+ * <p>Provides AES-GCM symmetric encryption derived from a passphrase using PBKDF2,
+ * along with PBKDF2-based hashing (one-way) suitable for passwords/tokens.
  */
 public class CryptographyUtils {
 
-    // ===== Parámetros criptográficos =====
+    // ===== Cryptographic parameters =====
     private static final SecureRandom RNG = new SecureRandom();
     private static final String KDF_ALG = "PBKDF2WithHmacSHA256";
-    private static final int KDF_ITERATIONS = 210_000;         // ajusta según SLO
+    private static final int KDF_ITERATIONS = 210_000;         // adjust according to SLO
     private static final int KDF_KEY_LEN_BITS = 256;
 
     private static final String AES_TRANSFORM = "AES/GCM/NoPadding";
     private static final int GCM_TAG_LEN_BITS = 128;            // 16 bytes
-    private static final int SALT_LEN_BYTES = 16;               // por mensaje
-    private static final int IV_LEN_BYTES = 12;                 // recomendado para GCM
+    private static final int SALT_LEN_BYTES = 16;               // per-message salt
+    private static final int IV_LEN_BYTES = 12;                 // recommended for GCM
 
-    // Estado: passphrase (evita String si puedes; usa char[])
+    // State: passphrase (avoid String when possible; use char[])
     private static char[] encryptKey;
 
     private CryptographyUtils() {
     }
 
-    // ========= Configuración =========
+    // ========= Configuration =========
 
     /**
-     * Passphrase para derivar la clave. Idealmente venga de un Secret Manager.
+     * Set the passphrase used to derive encryption keys.
+     *
+     * <p>The passphrase should ideally be provided via a secure secret manager.
+     * The method copies the value into a char[] for reduced exposure in memory.
+     *
+     * @param passphrase the passphrase used to derive AES keys; must be non-empty
+     * @throws IllegalArgumentException if passphrase is null or blank
      */
     public static void setEncryptKey(String passphrase) {
         if (passphrase == null || passphrase.isBlank()) {
             throw new IllegalArgumentException("Encrypt key must be non-empty.");
         }
-        // Copia defensiva a char[]
+        // Defensive copy to char[]
         encryptKey = passphrase.toCharArray();
     }
 
@@ -77,10 +85,17 @@ public class CryptographyUtils {
         }
     }
 
-    // ========= Cifrado / Descifrado (AES-GCM) =========
+    // ========= Encryption / Decryption (AES-GCM) =========
 
     /**
-     * Cifra texto en formato: v1:pbkdf2:iter:saltB64:ivB64:cipherB64
+     * Encrypts plaintext and returns an encoded string with metadata.
+     *
+     * <p>Format: v1:pbkdf2:iter:saltB64:ivB64:cipherB64
+     *
+     * @param plaintext the UTF-8 plaintext to encrypt; must not be null
+     * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and ciphertext
+     * @throws IllegalStateException if the encryption passphrase has not been set
+     * @throws RuntimeException for internal encryption failures
      */
     public static String encrypt(String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
@@ -101,6 +116,15 @@ public class CryptographyUtils {
         return "v1:pbkdf2:" + KDF_ITERATIONS + ":" + saltB64 + ":" + ivB64 + ":" + cB64;
     }
 
+    /**
+     * Decrypts a string previously produced by {@link #encrypt(String)}.
+     *
+     * @param encoded the encoded ciphertext string produced by {@link #encrypt(String)}; must not be null
+     * @return the decrypted plaintext as a UTF-8 string
+     * @throws IllegalArgumentException if the input format is unsupported or malformed
+     * @throws IllegalStateException if the encryption passphrase has not been set
+     * @throws RuntimeException if decryption fails (possible tampering or wrong key)
+     */
     public static String decrypt(String encoded) {
         Objects.requireNonNull(encoded, "encoded");
         checkKey();
@@ -151,10 +175,14 @@ public class CryptographyUtils {
         }
     }
 
-    // ========= Hash/Verify (para contraseñas/tokens), NO cifrado =========
+    // ========= Hash/Verify (for passwords/tokens), NOT reversible =========
 
     /**
-     * Hash PBKDF2 (NO reversible). Formato: v1:pbkdf2:iter:saltB64:dkB64
+     * PBKDF2 hash (one-way). Format: v1:pbkdf2:iter:saltB64:dkB64
+     *
+     * @param input the input string to hash (e.g. a password); must not be null
+     * @return a string containing KDF parameters, salt and derived key in Base64
+     * @throws RuntimeException if hashing fails
      */
     public static String hash(String input) {
         Objects.requireNonNull(input, "input");
@@ -175,7 +203,11 @@ public class CryptographyUtils {
     }
 
     /**
-     * Verifica hash (tiempo constante).
+     * Verifies a PBKDF2 hash in constant time to prevent timing attacks.
+     *
+     * @param raw the raw input to verify (e.g. password)
+     * @param stored the stored hash produced by {@link #hash(String)}
+     * @return true if the raw input corresponds to the stored hash; false otherwise
      */
     public static boolean verifyHash(String raw, String stored) {
         Objects.requireNonNull(raw, "raw");
@@ -198,17 +230,21 @@ public class CryptographyUtils {
         }
     }
 
-    // ========= Compat: matches() antiguo =========
+    // ========= Compatibility: old matches() =========
 
     /**
-     * ❗️ANTES comparabas cifrando. Eso es mala práctica.
-     * Ahora interpretamos `encrypted` como *hash* PBKDF2.
+     * NOTE: Previously this library compared by encrypting (bad practice).
+     * Now we treat `encryptedOrHashed` as a PBKDF2 hash.
+     *
+     * @param raw the raw input to verify
+     * @param encryptedOrHashed the stored PBKDF2 hash
+     * @return true if verification succeeds, false otherwise
      */
     public static boolean matches(String raw, String encryptedOrHashed) {
         return verifyHash(raw, encryptedOrHashed);
     }
 
-    // ========= Utilidades =========
+    // ========= Utilities =========
     private static boolean constantTimeEquals(byte[] a, byte[] b) {
         if (a == null || b == null) return false;
         if (a.length != b.length) return false;
