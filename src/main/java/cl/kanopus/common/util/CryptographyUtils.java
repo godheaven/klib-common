@@ -95,7 +95,7 @@ public class CryptographyUtils {
      * @param plaintext the UTF-8 plaintext to encrypt; must not be null
      * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and ciphertext
      * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException for internal encryption failures
+     * @throws RuntimeException      for internal encryption failures
      */
     public static String encrypt(String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
@@ -122,8 +122,8 @@ public class CryptographyUtils {
      * @param encoded the encoded ciphertext string produced by {@link #encrypt(String)}; must not be null
      * @return the decrypted plaintext as a UTF-8 string
      * @throws IllegalArgumentException if the input format is unsupported or malformed
-     * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException if decryption fails (possible tampering or wrong key)
+     * @throws IllegalStateException    if the encryption passphrase has not been set
+     * @throws RuntimeException         if decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(String encoded) {
         Objects.requireNonNull(encoded, "encoded");
@@ -151,7 +151,7 @@ public class CryptographyUtils {
             byte[] key = skf.generateSecret(spec).getEncoded();
             return new SecretKeySpec(key, "AES");
         } catch (Exception e) {
-            throw new RuntimeException("KDF failed", e);
+            throw new CryptoException("KDF failed", e);
         }
     }
 
@@ -161,9 +161,10 @@ public class CryptographyUtils {
             cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LEN_BITS, iv));
             return cipher.doFinal(plaintext);
         } catch (Exception e) {
-            throw new RuntimeException("AES-GCM encrypt failed", e);
+            throw new CryptoException("AES-GCM encrypt failed", e);
         }
     }
+
 
     private static byte[] gcmDecrypt(SecretKey key, byte[] iv, byte[] ciphertext) {
         try {
@@ -171,7 +172,7 @@ public class CryptographyUtils {
             cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LEN_BITS, iv));
             return cipher.doFinal(ciphertext);
         } catch (Exception e) {
-            throw new RuntimeException("AES-GCM decrypt failed (tampered or wrong key)", e);
+            throw new CryptoException("AES-GCM decrypt failed (tampered or wrong key)", e);
         }
     }
 
@@ -198,14 +199,14 @@ public class CryptographyUtils {
             String dkB64 = Base64.getUrlEncoder().withoutPadding().encodeToString(dk);
             return "v1:pbkdf2:" + KDF_ITERATIONS + ":" + saltB64 + ":" + dkB64;
         } catch (Exception e) {
-            throw new RuntimeException("Hash failed", e);
+            throw new CryptoException("Hash failed", e);
         }
     }
 
     /**
      * Verifies a PBKDF2 hash in constant time to prevent timing attacks.
      *
-     * @param raw the raw input to verify (e.g. password)
+     * @param raw    the raw input to verify (e.g. password)
      * @param stored the stored hash produced by {@link #hash(String)}
      * @return true if the raw input corresponds to the stored hash; false otherwise
      */
@@ -236,7 +237,7 @@ public class CryptographyUtils {
      * NOTE: Previously this library compared by encrypting (bad practice).
      * Now we treat `encryptedOrHashed` as a PBKDF2 hash.
      *
-     * @param raw the raw input to verify
+     * @param raw               the raw input to verify
      * @param encryptedOrHashed the stored PBKDF2 hash
      * @return true if verification succeeds, false otherwise
      */
@@ -253,4 +254,20 @@ public class CryptographyUtils {
         return r == 0;
     }
 
+    /**
+     * Custom unchecked exception for cryptographic errors in the library.
+     */
+    static class CryptoException extends RuntimeException {
+        public CryptoException(String message) {
+            super(message);
+        }
+
+        public CryptoException(String message, Throwable cause) {
+            super(message, cause);
+        }
+
+        public CryptoException(Throwable cause) {
+            super(cause);
+        }
+    }
 }
