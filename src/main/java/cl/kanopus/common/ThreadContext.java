@@ -55,16 +55,17 @@ public class ThreadContext {
     }
 
     /**
-     * Entrega el threadId del Thread actual (currrentThread) pero que es unico,
-     * debido a que tiene concatenado la fecha de inicio del ThreadId
+     * Returns the unique threadId for the current thread. This value is unique
+     * because it includes the thread start timestamp concatenated with the
+     * thread name.
      *
-     * @return string con el long que representa el threadId.
+     * @return a string representing the thread's unique identifier.
      */
     public static String getThreadUniqueId() {
         String threadUniqueId = (String) getObject(KEY_THREAD_UNIQUE_ID);
         if (threadUniqueId == null) {
-            // En casos excepcionales donde no se ha inicializado el contexto,
-            // se inicia de esta forma.
+            // In exceptional cases where the context wasn't initialized,
+            // initialize it here.
             initContext();
             threadUniqueId = (String) getObject(KEY_THREAD_UNIQUE_ID);
         }

@@ -111,11 +111,11 @@ public class KanopusBeanUtils {
 
     private static void copyPropertiesRecursive(Object source, Object target, Map<String, String> propertiesTranslationMap, Map<String, BeanProperty> propertiesWithNewValuesMap) {
         if (target == null || source == null) {
-            return;//ninguno de los objetos debe ser null.
+            return; // none of the objects should be null.
         }
 
         if (target instanceof List && !(source instanceof List)) {
-            return;//no se pueden copiar los elementos si uno es lista y el otro no. (aun no implementado)
+            return; // Cannot copy elements when one side is a List and the other is not (not implemented yet)
         }
 
         //Copy StringWritter
@@ -139,22 +139,22 @@ public class KanopusBeanUtils {
             return;
         }
 
-        //si el mapa de transformacion de nombres de properties es nulo entonces buscamos si
-        //tiene un default seteado anteriormente en el mapa de mapas.
+        // If the property name translation map is null, try to find a default one
+        // previously set in the map of maps.
         if (propertiesTranslationMap == null) {
             propertiesTranslationMap = KanopusBeanUtils.getPropertiesTranslationMap(source.getClass(), target.getClass());
         }
 
-        //Esto solo funciona para los primeros elementos que entran, no para los atributos,
-        //pues cuando se examinan los atributos se ejecuta otra parte del codigo.
+        // This only works for the top-level elements; attributes are handled elsewhere
+        // when their properties are examined.
         if (target instanceof List && source instanceof List) {
             copyPropertiesRecursive((List<?>) source, (List<?>) target, null, propertiesTranslationMap, propertiesWithNewValuesMap);
             return;
         }
 
-        //si el source es una lista y el target es un arreglo.
+        // If the source is a list and the target is an array.
         if (target.getClass().isArray() && !source.getClass().isArray()) {
-            //no se puede copiar elementos de un objeto cualquiera a un array (aun no soportado)
+            // cannot copy arbitrary objects to an array (not supported yet)
             if (source instanceof List) {
                 Class targetElemType = target.getClass().getComponentType();
                 Object[] outArr = copyListToArray((List) source, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
@@ -166,15 +166,15 @@ public class KanopusBeanUtils {
             return;
         }
 
-        //Esto solo funciona para los primeros elementos que entran, no para los atributos,
-        //pues cuando se examinan los atributos se ejecuta otra parte del codigo.
+        // This only works for the top-level elements; attributes are handled elsewhere
+        // when their properties are examined.
         if (target.getClass().isArray() && source.getClass().isArray()) {
             Class tac = target.getClass().getComponentType();
 
             Object[] sourceArr = (Object[]) source;
             Object[] targetArr = (Object[]) target;
 
-            //como el Arrays.asList() no copia bien los elementos, lo hacemos a mano
+            // because Arrays.asList() does not copy elements reliably, copy manually
             List sourceList = new ArrayList();
             for (int i = 0; i < sourceArr.length; i++) {
                 sourceList.add(sourceArr[i]);
@@ -186,13 +186,12 @@ public class KanopusBeanUtils {
                 }
             }
 
-            //utilizamos el copiado de lista
+            // Use list-copying routine
             copyPropertiesRecursive(sourceList, targetList, tac, propertiesTranslationMap, propertiesWithNewValuesMap);
 
-            //como la lista de origen puede ser mayor que la lista de destino y por lo tanto el resultado
-            //de la copia puede ser que haya aumentado el tamaÃ±o del arreglo destino, creamos uno nuevo
-            //para copiar los elementos.
-            //Se respeta el tamaÃ±o del arreglo original para poder mantener el arreglo fuera de este metodo.
+            // Since source list can be larger than target list and copying may change
+            // the target length, prepare to copy elements into the original-sized array.
+            // The original array size is preserved to keep references outside this method stable.
             for (int i = 0; i < ((Object[]) target).length; i++) {
                 ((Object[]) target)[i] = targetList.get(i);
             }
@@ -203,18 +202,15 @@ public class KanopusBeanUtils {
         BeanWrapper targetBw = new BeanWrapperImpl(target);
 
         /*
-         * Para poder mapear tipos complejos a tipos simples y vice-versa
-         * se fusionaran los nombres de los properties de la clase source
-         * y los nombres de los properties llaves del mapa de traduccion
-         * de properties.
-         * Los nombres se guardaran en un mapa junto con el tipo del property
-         * si es que se encuentra dicho property.
+         * To map complex types to simple types and vice-versa, merge the
+         * property names from the source class with the keys from the
+         * property translation map. Names are stored in a map together with
+         * the property type when found.
          */
         Map<String, BeanProperty> sourcePropertiesMap = new HashMap<>();
-        //para poder ordenar los nombres de los properties declarados primero y despues
-        //los del mapa.
+        // To order property names: declared properties first, followed by those from the translation map.
         List<String> propNames = new ArrayList<>();
-        //obtenemos los nombres de los properties de la clase source y sus tipos.
+        // Obtain the property names of the source class and their types.
         PropertyDescriptor[] pds = sourceBw.getPropertyDescriptors();
         for (int j = 0; j < pds.length; j++) {
             String propName = pds[j].getName();
@@ -232,8 +228,7 @@ public class KanopusBeanUtils {
             propNames.add(pds[j].getName());
 
         }
-        //obtenemos los nombres y los tipos de los properties propuestos desde
-        //el mapa de transformacion.
+        // obtain the property names and types proposed by the translation map.
         if (propertiesTranslationMap != null) {
             for (Iterator iterator = propertiesTranslationMap.keySet().iterator(); iterator.hasNext(); ) {
                 String propName = (String) iterator.next();
@@ -248,7 +243,7 @@ public class KanopusBeanUtils {
                     propNames.add(propName);
 
                 } catch (Exception e) {
-                    //no se pudo accesar al property por lo que no se agrega al mapa
+                    // could not access the property, so it is not added to the map
                 }
             }
         }
@@ -262,26 +257,25 @@ public class KanopusBeanUtils {
             if (propertiesWithNewValuesMap != null && propertiesWithNewValuesMap.containsKey(sourcePropName)) {
                 BeanProperty newValue = propertiesWithNewValuesMap.get(sourcePropName);
                 if (sourcePropType == newValue.getType()) {
-                    //Se asigna nuevo valor automaticamente
+                    // Assign new value automatically
                     sourcePropValue = newValue.getValue();
                 }
             }
 
-            //si el valor del atributo de origen es null, entonces no se copia nada.
+            // If the source attribute value is null, nothing is copied.
             if (sourcePropValue == null) {
                 continue;
             }
 
             String targetPropName = sourcePropName;
-            //si viene un mapa de traduccion de nombres de atributos (propertiesTranslationMap)
-            //entonces lo uso para transformar el nombre del property.
+            // If a translation map for attribute names is provided, use it to
+            // transform the source property name.
             if (propertiesTranslationMap != null) {
                 if (propertiesTranslationMap.containsKey(sourcePropName)) {
                     targetPropName = propertiesTranslationMap.get(sourcePropName);
-                } //si existe un atributo en el target que sea igual al nombre del atributo del
-                //source, pero en el mapa existe una relacion con otro sourceAttribute, entonces
-                //si el sourceAtt del mapa es diferente del sourceAtt actualmente revisado, se
-                //salta esta copia de valores.
+                } // If the target has a property with the same name as the source but the
+                // translation map links that source attribute to a different target attribute,
+                // skip copying this source property.
                 else if (propertiesTranslationMap.containsValue(targetPropName)) {
                     continue;
                 }
@@ -289,7 +283,7 @@ public class KanopusBeanUtils {
 
             PropertyDescriptor targetDesc;
             try {
-                //separa el propertyName en un arreglo de elementos suponiendo el separador "."
+                // Split the propertyName into an array of elements using the "." separator
                 String[] props = targetPropName.split(PROPERTY_PATH_SEPARATOR_REGEXP);
                 String prop = "";
                 if (props.length > 0) {
@@ -322,7 +316,7 @@ public class KanopusBeanUtils {
                 continue;
             }
 
-            //si no puedo escribir en el atributo del target paso al siguiente.
+            // If the target attribute is not writable, move to the next one.
             if (targetDesc.getWriteMethod() == null) {
                 continue;
             }
@@ -333,33 +327,34 @@ public class KanopusBeanUtils {
 
                 try {
                     obj = org.springframework.beans.BeanUtils.instantiateClass(targetPropType);
-                    copyPropertiesRecursive(sourcePropValue, obj, null, propertiesWithNewValuesMap); //@TODO revisar porque no esta translationMap
+                    // TODO: review why translationMap is not passed here
+                    copyPropertiesRecursive(sourcePropValue, obj, null, propertiesWithNewValuesMap);
                 } catch (Exception e1) {
-                    //Si no puedo inicializar el target entonces sigo adelante, porque es un
-                    //objeto complejo pero que se puede copiar nomas, como un Date o BigInteger
-                    //Si no puedo copiarlo recursivamente despues se copiara simplemente o si
-                    //es lista entrara a copiarse como tal.
+                    // If target initialization fails, continue. The object may be
+                    // a complex but copyable type (e.g. Date or BigInteger).
+                    // If recursive copy fails, the value will be copied directly,
+                    // or if it is a list it will be copied as a list.
                 }
 
             }
 
             if (java.util.List.class.isAssignableFrom(targetPropType) && java.util.List.class.isAssignableFrom(sourcePropType)) {
-                //si el target es una lista y el source tambien...
+                // If target is a list and source is also a list...
                 Class targetElemType = KanopusBeanUtils.getGenericDeclaredType(targetBw.getWrappedClass(), targetPropName);
-                obj = new ArrayList();
+                obj = new ArrayList<>();
                 copyPropertiesRecursive((List) sourcePropValue, (List) obj, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
             } else if (java.util.List.class.isAssignableFrom(sourcePropType) && targetPropType.isArray()) {
-                //si el source es una lista y el target es un array de algun objeto...
+                // If source is a list and target is an object array...
                 Class targetElemType = targetPropType.getComponentType();
                 obj = copyListToArray((List) sourcePropValue, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
             } else if (sourcePropType.isEnum() && !targetPropType.isEnum() && (sourcePropValue instanceof EnumIdentifiable)) {
-                //si el source es implementa EnumIdentifiable
+                // If source implements EnumIdentifiable
                 obj = ((EnumIdentifiable) sourcePropValue).getId();
             } else if (targetPropType.isEnum() && !sourcePropType.isEnum() && EnumIdentifiable.class.isAssignableFrom(targetPropType)) {
-                //si el target implementa EnumIdentifiable
+                // If target implements EnumIdentifiable
                 obj = Utils.parseEnum(targetPropType, sourcePropValue);
             } else if (targetPropType.isEnum() && sourcePropType.isEnum() && sourcePropValue.getClass() != targetPropType.getClass() && EnumIdentifiable.class.isAssignableFrom(sourcePropValue.getClass())) {
-                //si el target implementa EnumIdentifiable
+                // If the target implements EnumIdentifiable
                 obj = Utils.parseEnum(targetPropType, ((EnumIdentifiable) sourcePropValue).getId());
             } else if (targetPropType == java.util.Date.class && sourcePropValue.getClass() == java.time.LocalDateTime.class) {
                 obj = java.sql.Timestamp.valueOf((LocalDateTime) sourcePropValue);
@@ -373,8 +368,8 @@ public class KanopusBeanUtils {
             }
 
             try {
-                //TODO aqui se puede completar para transformar tipos si es necesario.
-                //finalmente se copia el valor del atributo.
+                // TODO: Add additional type transformations here if necessary.
+                // Finally, copy the attribute value.
                 targetBw.setPropertyValue(targetPropName, obj);
             } catch (Exception ex) {
                 //Null value
@@ -387,13 +382,13 @@ public class KanopusBeanUtils {
         try {
             obj = Array.newInstance(targetClassType, sourceList.size());
         } catch (Exception e) {
-            return null;//no se pudo crear el arreglo.
+            return null; // could not create the array.
         }
         ArrayList<T> objList = new ArrayList<>();
         copyPropertiesRecursive(sourceList, objList, targetClassType, propertiesTranslationMap, propertiesWithNewValuesMap);
 
-        //como no tengo el tipo del arreglo apriori, no puedo hacer toArray();
-        //asi es que recorremos la lista llenando el arreglo.
+        // As the array type is not known a priori, cannot call toArray();
+        // so iterate the list and fill the array manually.
         T[] resultArray = (T[]) obj;
         for (int j = 0; j < objList.size(); j++) {
             resultArray[j] = objList.get(j);
@@ -405,8 +400,7 @@ public class KanopusBeanUtils {
         for (int i = 0; i < source.size(); i++) {
             S sourceElem = source.get(i);
 
-            //si la clase de destino es null, se asume que es del mismo tipo que la clase de los
-            //objetos de origen.
+            // If the target class is null, assume it is the same type as the source objects.
             Class<?> tClass;
             if (targetClass == null) {
                 tClass = sourceElem.getClass();

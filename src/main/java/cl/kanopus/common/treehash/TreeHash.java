@@ -66,7 +66,7 @@ public class TreeHash implements Serializable {
         if (node.getKeyParent() != null) {
             NodeHash nodeParent = hash.get(node.getKeyParent());
             if (nodeParent != null && !nodeParent.keyChildren.contains(node.getKey())) {
-                //Agregamos la key del hijo
+                // Add the child's key
                 nodeParent.keyChildren.add(node.getKey());
             }
         }
@@ -99,7 +99,7 @@ public class TreeHash implements Serializable {
                     removeNodeBranch(nodeParent.getKey());
                 } else if (nodeParent.keyChildren.size() > 1) {
                     for (int i = 0; i < nodeParent.keyChildren.size(); i++) {
-                        //eliminamos la rama completa
+                        // remove the entire branch
                         if (keyNode.equals(nodeParent.keyChildren.get(i))) {
                             remove(keyNode);
                             break;
@@ -116,7 +116,7 @@ public class TreeHash implements Serializable {
             NodeHash nodeParent = hash.get(node.getKeyParent());
             if (nodeParent != null) {
                 for (int i = 0; i < nodeParent.keyChildren.size(); i++) {
-                    //eliminamos referencia en nodo padre
+                    // remove reference from parent node
                     if (keyNode.equals(nodeParent.keyChildren.get(i))) {
                         nodeParent.keyChildren.remove(i);
                         break;
@@ -129,7 +129,7 @@ public class TreeHash implements Serializable {
     private void removeChildren(String keyNode, boolean root) {
         NodeHash node = hash.get(keyNode);
         if (node != null) {
-            //eliminamos nodos hijos recursivamente
+            // remove child nodes recursively
             for (String keyChildren : node.keyChildren) {
                 removeChildren(keyChildren, false);
             }
@@ -147,7 +147,7 @@ public class TreeHash implements Serializable {
         NodeHash node = hash.get(keyNode);
         if (node != null) {
             if (!TreeHash.KEY_ROOT.equals(keyNode)) {
-                //Solo se retorna en la listas los nodos distintos al root
+                // Only nodes other than the root are returned in the lists
                 node.setDepth(depth);
                 newNodeList.add(node);
                 depth++;
@@ -168,12 +168,12 @@ public class TreeHash implements Serializable {
     }
 
     /**
-     * Metodo que retorna todos los nodos contenidos en el TreeHash
+     * Method that returns all nodes contained in the TreeHash
      *
      */
     public List<NodeHash> getNodeList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.ALL) {
-            //Refrescamos la lista para retornar los nodos
+            // Refresh the list to return the nodes
             List<NodeHash> newNodeList = new ArrayList<>();
             fillNodeList(TreeHash.KEY_ROOT, 0, newNodeList, false);
             nodeList = newNodeList;
@@ -184,13 +184,12 @@ public class TreeHash implements Serializable {
     }
 
     /**
-     * Metodo que retorna solo los nodos donde el padre sea visible dentro del
-     * TreeHash
+     * Method that returns only nodes whose parent is visible within the TreeHash
      *
      */
     public List<NodeHash> getNodeVisibleList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.VISIBLE) {
-            //Refrescamos la lista para retornar los nodos
+            // Refresh the list to return the nodes
             List<NodeHash> newNodeList = new ArrayList<>();
             fillNodeList(TreeHash.KEY_ROOT, 0, newNodeList, true);
             nodeList = newNodeList;
@@ -202,7 +201,7 @@ public class TreeHash implements Serializable {
 
     public List<NodeHash> getNodeVisibleInSearchList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.VISIBLE) {
-            //Refrescamos la lista para retornar los nodos
+            // Refresh the list to return the nodes
             List<NodeHash> newNodeList = new ArrayList<>();
             fillNodeList(TreeHash.KEY_ROOT, 0, newNodeList, true);
 

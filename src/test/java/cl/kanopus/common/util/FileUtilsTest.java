@@ -58,9 +58,8 @@ class FileUtilsTest {
     @Test
     void testGetFile() throws FileNotFoundException {
 
-        Assertions.assertThrows(FileNotFoundException.class, () -> {
-            FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test-notfound.txt");
-        });
+        Assertions.assertThrows(FileNotFoundException.class,
+                () -> FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test-notfound.txt"));
 
         File f = FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test.txt");
         Assertions.assertTrue(f.exists());

@@ -66,7 +66,7 @@ class ChangeUtilsTest {
         List<Comparator<String>> merges = ChangeUtils.checkChangeOnList(original, target);
         Assertions.assertEquals(4, merges.size());
 
-        HashMap<String, ChangeAction> map = new HashMap();
+        HashMap<String, ChangeAction> map = new HashMap<>();
         map.put(merges.get(0).getValue(), merges.get(0).getAction());
         map.put(merges.get(1).getValue(), merges.get(1).getAction());
         map.put(merges.get(2).getValue(), merges.get(2).getAction());
@@ -159,6 +159,7 @@ class ChangeUtilsTest {
 
     }
 
+    @SuppressWarnings("unused")
     public static class ExampleTO {
 
         private long id;
@@ -215,6 +216,7 @@ class ChangeUtilsTest {
             this.complex = complex;
         }
 
+        @SuppressWarnings("unused")
         public static class OtherTO {
 
             private long id;
@@ -243,18 +245,14 @@ class ChangeUtilsTest {
 
             @Override
             public int hashCode() {
-                int hash = 7;
-                hash = 19 * hash + (int) (getId() ^ (getId() >>> 32));
-                return hash;
+                return Long.hashCode(getId());
             }
 
         }
 
         @Override
         public int hashCode() {
-            int hash = 7;
-            hash = 19 * hash + (int) (getId() ^ (getId() >>> 32));
-            return hash;
+            return Long.hashCode(getId());
         }
 
     }

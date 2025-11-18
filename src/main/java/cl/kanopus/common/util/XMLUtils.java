@@ -99,9 +99,7 @@ public class XMLUtils {
             int beginIndex = xml.indexOf("<" + tag);
             int endIndex = xml.indexOf("</" + tag + ">", beginIndex);
 
-            if (beginIndex != -1 && endIndex != -1) {
-                return true;
-            }
+            return beginIndex != -1 && endIndex != -1;
         }
         return false;
     }

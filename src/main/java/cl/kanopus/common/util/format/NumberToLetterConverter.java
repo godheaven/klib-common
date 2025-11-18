@@ -46,24 +46,23 @@ public abstract class NumberToLetterConverter {
     }
 
     /**
-     * Convierte a letras un numero de la forma $123,456.32
+     * Convert a numeric string into words (e.g. "$123,456.32").
      *
-     * @param number Numero en representacion texto
-     * @return Numero en letras
-     * @throws NumberFormatException Si valor del numero no es valido (fuera de
-     *                               rango o )
+     * @param number numeric string representation
+     * @return number spelled out in words (uppercase Spanish terms)
+     * @throws NumberFormatException if the number is invalid or out of range
      */
     public static String convertNumberToLetter(String number) throws NumberFormatException {
         return convertNumberToLetter(Double.parseDouble(number));
     }
 
     /**
-     * Convierte un numero en representacion numerica a uno en representacion de
-     * texto.El numero es valido si esta entre 0 y 999'999.999
+     * Convert a numeric value to its textual representation. The supported
+     * range is 0 to 999,999,999 (inclusive).
      *
-     * @param doubleNumber
-     * @return Numero convertido a texto
-     * @throws NumberFormatException Si el numero esta fuera del rango
+     * @param doubleNumber numeric value to convert
+     * @return number converted to words (uppercase Spanish terms)
+     * @throws NumberFormatException if the number is out of supported range
      */
     public static String convertNumberToLetter(double doubleNumber)
             throws NumberFormatException {
@@ -75,26 +74,23 @@ public abstract class NumberToLetterConverter {
         DecimalFormat format = new DecimalFormat(patternThreeDecimalPoints);
         format.setRoundingMode(RoundingMode.DOWN);
 
-        // formateamos el numero, para ajustarlo a el formato de tres puntos
-        // decimales
+        // Format the number to the pattern with three decimal places
         doubleNumber = Math.round(doubleNumber);
         String formatedDouble = format.format(doubleNumber);
         doubleNumber = Double.parseDouble(formatedDouble);
 
-        // Validamos que sea un numero legal
+        // Check bounds
         if (doubleNumber > 999999999) {
-            throw new NumberFormatException(
-                    "El numero es mayor de 999'999.999, "
-                            + "no es posible convertirlo");
+            throw new NumberFormatException("Number is greater than 999,999,999 and cannot be converted");
         }
 
         if (doubleNumber < 0) {
-            throw new NumberFormatException("El numero debe ser positivo");
+            throw new NumberFormatException("Number must be non-negative");
         }
 
         String[] splitNumber = String.valueOf(formatedDouble).replace('.', '#').split("#");
 
-        // Descompone el trio de millones
+        // Decompose the millions triplet
         int millon = Integer.parseInt(String.valueOf(getDigitAt(splitNumber[0],
                 8))
                 + String.valueOf(getDigitAt(splitNumber[0], 7))
@@ -105,7 +101,7 @@ public abstract class NumberToLetterConverter {
             converted.append(convertNumber(String.valueOf(millon))).append("MILLONES ");
         }
 
-        // Descompone el trio de miles
+        // Decompose the thousands triplet
         int miles = Integer.parseInt(String.valueOf(getDigitAt(splitNumber[0],
                 5))
                 + String.valueOf(getDigitAt(splitNumber[0], 4))
@@ -116,7 +112,7 @@ public abstract class NumberToLetterConverter {
             converted.append(convertNumber(String.valueOf(miles))).append("MIL ");
         }
 
-        // Descompone el ultimo trio de unidades
+        // Decompose the last units triplet
         int cientos = Integer.parseInt(String.valueOf(getDigitAt(
                 splitNumber[0], 2))
                 + String.valueOf(getDigitAt(splitNumber[0], 1))
@@ -148,10 +144,10 @@ public abstract class NumberToLetterConverter {
 
         if (number.length() > 3) {
             throw new NumberFormatException(
-                    "La longitud maxima debe ser 3 digitos");
+                    "Maximum length is 3 digits");
         }
 
-        // Caso especial con el 100
+        // Special case for 100
         if (number.equals("100")) {
             return "CIEN ";
         }
@@ -176,11 +172,11 @@ public abstract class NumberToLetterConverter {
     }
 
     /**
-     * Retorna el digito numerico en la posicion indicada de derecha a izquierda
+     * Return the numeric digit at the requested position counting from right to left.
      *
-     * @param origin   Cadena en la cual se busca el digito
-     * @param position Posicion de derecha a izquierda a retornar
-     * @return Digito ubicado en la posicion indicada
+     * @param origin   the source string
+     * @param position position from the right (0-based)
+     * @return digit at the specified position, or 0 if out of range
      */
     private static int getDigitAt(String origin, int position) {
         if (origin.length() > position && position >= 0) {

@@ -398,18 +398,24 @@ public class Utils {
         return ((text1 == null && text2 == null) || (text1 != null && text1.equals(text2)));
     }
 
+    /**
+     * Check whether a RUT (Rol Único Tributario) is valid.
+     *
+     * @param rut the RUT to check, in the form XXXXXXXX-Y
+     * @return true if the RUT is valid, false otherwise
+     */
     public static boolean isRut(String rut) {
         boolean valid = false;
         if (!rut.isEmpty()) {
-            // Creamos un arreglo con el rut y el digito verificador
+            // Create an array with the RUT and the verification digit
             String[] rutDv = rut.split("-");
-            // Las partes del rut (numero y dv) deben tener una longitud positiva
+            // The RUT parts (number and dv) must have a positive length
             if (rutDv.length == 2) {
-                // Capturamos error (al convertir un string a entero)
+                // Catch error when converting a string to integer
                 try {
                     int ru = Integer.parseInt(rutDv[0]);
                     char dv = rutDv[1].toUpperCase().charAt(0);
-                    // Validamos que sea un rut valid según la norma
+                    // Validate that it is a valid RUT according to the standard
                     valid = Utils.isRut(ru, dv);
                 } catch (Exception ex) {
                     valid = false;
@@ -419,6 +425,13 @@ public class Utils {
         return valid;
     }
 
+    /**
+     * Check whether an integer RUT and verification digit are valid.
+     *
+     * @param rut numeric part of the RUT
+     * @param dv verification character (digit or K)
+     * @return true if the RUT is valid according to the Chilean algorithm
+     */
     public static boolean isRut(int rut, char dv) {
         int m = 0;
         int s = 1;
@@ -488,6 +501,15 @@ public class Utils {
         return array;
     }
 
+    /**
+     * Split a text into multiple lines with a maximum number of characters per line.
+     * Preserves empty lines and trims whitespace.
+     *
+     * @param text            input text to split
+     * @param maxCharsPerLine maximum characters allowed on each line (>0)
+     * @return list of lines resulting from the split, or empty list if input is null/blank
+     * @throws IllegalArgumentException if maxCharsPerLine &lt;= 0
+     */
     public static List<String> splitText(String text, int maxCharsPerLine) {
         if (text == null || text.isBlank()) return List.of();
         if (maxCharsPerLine <= 0) throw new IllegalArgumentException("maxCharsPerLine must be > 0");
@@ -495,7 +517,7 @@ public class Utils {
         List<String> out = new ArrayList<>();
         for (String paragraph : NEWLINES.split(text.strip(), -1)) {
             String p = paragraph.trim();
-            if (p.isEmpty()) { // conserva líneas vacías
+            if (p.isEmpty()) { // preserve empty lines
                 out.add("");
                 continue;
             }
@@ -666,6 +688,12 @@ public class Utils {
         return list.stream().mapToLong(i -> i).toArray();
     }
 
+    /**
+     * Parse a comma-separated string into a list of integers. Invalid numbers are ignored.
+     *
+     * @param array comma-separated numeric string
+     * @return list of integers parsed from the string
+     */
     public static List<Integer> toListInt(String array) {
         List<Integer> integers = new ArrayList<>();
         if (array != null) {
@@ -674,13 +702,19 @@ public class Utils {
                 try {
                     integers.add(Integer.valueOf(s.trim()));
                 } catch (NumberFormatException ex) {
-                    //No se agrega nada
+                    // Nothing is added when parsing fails
                 }
             }
         }
         return integers;
     }
 
+    /**
+     * Parse a comma-separated string into a list of longs. Invalid numbers are ignored.
+     *
+     * @param array comma-separated numeric string
+     * @return list of longs parsed from the string
+     */
     public static List<Long> toListLong(String array) {
         List<Long> integers = new ArrayList<>();
         if (array != null) {
@@ -689,7 +723,7 @@ public class Utils {
                 try {
                     integers.add(Long.valueOf(s.trim()));
                 } catch (NumberFormatException ex) {
-                    //No se agrega nada
+                    // Nothing is added when parsing fails
                 }
             }
         }
@@ -698,7 +732,7 @@ public class Utils {
 
     public static boolean isDateBetween(Date fecha, Date fechaInicio, Date fechaFin) {
         if (fecha != null && fechaInicio != null && fechaFin != null) {
-            //fechaActual debe ser mayor o igual a fechaInicio y menor o igual a fechaFin
+            // The current date must be greater or equal to fechaInicio and less or equal to fechaFin
             boolean fechaActualMayorFechaInicio = (fecha.after(fechaInicio) || Utils.getDateFormat(fecha).equals(Utils.getDateFormat(fechaInicio)));
             boolean fechaActualMenorFechaFin = (fecha.before(fechaFin) || Utils.getDateFormat(fecha).equals(Utils.getDateFormat(fechaFin)));
             return fechaActualMenorFechaFin || (fechaActualMayorFechaInicio && fechaActualMenorFechaFin);
@@ -947,8 +981,14 @@ public class Utils {
         return chunkList;
     }
 
+    /**
+     * Convert text to camel case. (Not implemented yet)
+     *
+     * @param text input text
+     * @return the camel-cased text (currently returns unmodified or with underscores replaced by spaces)
+     */
     public static String toCamelCase(String text) {
-        //TODO: Se debe implementar
+        // TODO: Implement this
         if (!Utils.isNullOrEmpty(text)) {
             text = text.replace("_", " ");
         }
@@ -969,14 +1009,13 @@ public class Utils {
         return exist;
     }
 
-
     public static byte[] sha256(String value) {
         try {
-            // Uso de JCA estándar
+            // Use standard JCA
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
             return md.digest(value.getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
-            // No debería ocurrir
+            // Should not occur
             return new byte[0];
         }
     }
