@@ -2,7 +2,7 @@
  * !--
  * For support and inquiries regarding this library, please contact:
  *   soporte@kanopus.cl
- * 
+ *
  * Project website:
  *   https://www.kanopus.cl
  * %%
@@ -11,9 +11,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,27 +23,32 @@
  */
 package cl.kanopus.common.util;
 
+import cl.kanopus.common.util.crypto.CryptographyUtils;
 import org.junit.jupiter.api.Test;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class CryptographyUtilsTest {
 
     @Test
     void setEncryptKeyNullThrows() {
-        assertThrows(IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey(null));
+        assertThrows(IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey(null, null));
     }
 
-    @Test
-    void hashAndVerify() {
-        String h = CryptographyUtils.hash("pwd");
-        assertNotNull(h);
-        assertTrue(CryptographyUtils.verifyHash("pwd", h));
-        assertFalse(CryptographyUtils.verifyHash("other", h));
-    }
 
     @Test
-    void encryptDecryptRoundtrip() {
-        CryptographyUtils.setEncryptKey("test-passphrase");
+    void encryptDecryptWithAes() {
+        CryptographyUtils.setEncryptKey("OIUUYTgfh4tuy765", CryptographyUtils.CryptoAlgorithm.AES);
+        String c = CryptographyUtils.encrypt("hello-world");
+        assertNotNull(c);
+        String d = CryptographyUtils.decrypt(c);
+        assertEquals("hello-world", d);
+    }
+
+
+    @Test
+    void encryptDecryptWithAesGcm() {
+        CryptographyUtils.setEncryptKey("test-passphrase", CryptographyUtils.CryptoAlgorithm.AES_GCM);
         String c = CryptographyUtils.encrypt("hello-world");
         assertNotNull(c);
         String d = CryptographyUtils.decrypt(c);

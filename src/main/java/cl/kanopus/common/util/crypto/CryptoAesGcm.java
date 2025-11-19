@@ -2,7 +2,7 @@
  * !--
  * For support and inquiries regarding this library, please contact:
  *   soporte@kanopus.cl
- *
+ * 
  * Project website:
  *   https://www.kanopus.cl
  * %%
@@ -11,9 +11,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,7 +21,7 @@
  * limitations under the License.
  * --!
  */
-package cl.kanopus.common.util;
+package cl.kanopus.common.util.crypto;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -34,14 +34,7 @@ import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
 
-/**
- * Utility class that allows information to be encrypted and decrypted based on
- * the use of seeds.
- *
- * <p>Provides AES-GCM symmetric encryption derived from a passphrase using PBKDF2,
- * along with PBKDF2-based hashing (one-way) suitable for passwords/tokens.
- */
-public class CryptographyUtils {
+class CryptoAesGcm {
 
     // ===== Cryptographic parameters =====
     private static final SecureRandom RNG = new SecureRandom();
@@ -54,35 +47,7 @@ public class CryptographyUtils {
     private static final int SALT_LEN_BYTES = 16;               // per-message salt
     private static final int IV_LEN_BYTES = 12;                 // recommended for GCM
 
-    // State: passphrase (avoid String when possible; use char[])
-    private static char[] encryptKey;
-
-    private CryptographyUtils() {
-    }
-
-    // ========= Configuration =========
-
-    /**
-     * Set the passphrase used to derive encryption keys.
-     *
-     * <p>The passphrase should ideally be provided via a secure secret manager.
-     * The method copies the value into a char[] for reduced exposure in memory.
-     *
-     * @param passphrase the passphrase used to derive AES keys; must be non-empty
-     * @throws IllegalArgumentException if passphrase is null or blank
-     */
-    public static void setEncryptKey(String passphrase) {
-        if (passphrase == null || passphrase.isBlank()) {
-            throw new IllegalArgumentException("Encrypt key must be non-empty.");
-        }
-        // Defensive copy to char[]
-        encryptKey = passphrase.toCharArray();
-    }
-
-    private static void checkKey() {
-        if (encryptKey == null || encryptKey.length == 0) {
-            throw new IllegalStateException("You must set an encryption passphrase via setEncryptKey(...)");
-        }
+    private CryptoAesGcm() {
     }
 
     // ========= Encryption / Decryption (AES-GCM) =========
@@ -97,9 +62,9 @@ public class CryptographyUtils {
      * @throws IllegalStateException if the encryption passphrase has not been set
      * @throws RuntimeException      for internal encryption failures
      */
-    public static String encrypt(String plaintext) {
+    public static String encrypt(char[] encryptKey, String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
-        checkKey();
+        Objects.requireNonNull(encryptKey, "encrypt key is required in CryptoAesGcm.encryptKey");
 
         byte[] salt = new byte[SALT_LEN_BYTES];
         byte[] iv = new byte[IV_LEN_BYTES];
@@ -116,18 +81,19 @@ public class CryptographyUtils {
         return "v1:pbkdf2:" + KDF_ITERATIONS + ":" + saltB64 + ":" + ivB64 + ":" + cB64;
     }
 
+
     /**
-     * Decrypts a string previously produced by {@link #encrypt(String)}.
+     * Decrypts a string previously produced by {@link #encrypt(char[], String)}.
      *
-     * @param encoded the encoded ciphertext string produced by {@link #encrypt(String)}; must not be null
+     * @param encoded the encoded ciphertext string produced by {@link #encrypt(char[], String)}; must not be null
      * @return the decrypted plaintext as a UTF-8 string
      * @throws IllegalArgumentException if the input format is unsupported or malformed
      * @throws IllegalStateException    if the encryption passphrase has not been set
      * @throws RuntimeException         if decryption fails (possible tampering or wrong key)
      */
-    public static String decrypt(String encoded) {
+    public static String decrypt(char[] encryptKey, String encoded) {
         Objects.requireNonNull(encoded, "encoded");
-        checkKey();
+        Objects.requireNonNull(encryptKey, "encrypt key is required in CryptoAesGcm.decrypt");
 
         String[] parts = encoded.split(":");
         if (parts.length != 6 || !parts[0].equals("v1") || !parts[1].equals("pbkdf2")) {
@@ -143,6 +109,7 @@ public class CryptographyUtils {
         byte[] plain = gcmDecrypt(sk, iv, cipherBytes);
         return new String(plain, StandardCharsets.UTF_8);
     }
+
 
     private static SecretKey deriveAesKey(char[] pass, byte[] salt, int iterations) {
         try {
@@ -254,20 +221,5 @@ public class CryptographyUtils {
         return r == 0;
     }
 
-    /**
-     * Custom unchecked exception for cryptographic errors in the library.
-     */
-    static class CryptoException extends RuntimeException {
-        public CryptoException(String message) {
-            super(message);
-        }
 
-        public CryptoException(String message, Throwable cause) {
-            super(message, cause);
-        }
-
-        public CryptoException(Throwable cause) {
-            super(cause);
-        }
-    }
 }
