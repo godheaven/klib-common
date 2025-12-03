@@ -24,7 +24,7 @@ To use this parent in your Maven project, add the following to your `pom.xml`:
 <parent>
 	<groupId>cl.kanopus.util</groupId>
 	<artifactId>klib-common</artifactId>
-	<version>3.0.1</version>
+	<version>3.58.0</version>
 </parent>
 
 ```

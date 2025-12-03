@@ -92,22 +92,21 @@ public class TreeHash implements Serializable {
 
     public final void removeNodeBranch(String keyNode) {
         NodeHash node = hash.get(keyNode);
-        if (node != null) {
-            NodeHash nodeParent = hash.get(node.getKeyParent());
-            if (nodeParent != null) {
-                if (nodeParent.keyChildren.size() == 1) {
-                    removeNodeBranch(nodeParent.getKey());
-                } else if (nodeParent.keyChildren.size() > 1) {
-                    for (int i = 0; i < nodeParent.keyChildren.size(); i++) {
-                        // remove the entire branch
-                        if (keyNode.equals(nodeParent.keyChildren.get(i))) {
-                            remove(keyNode);
-                            break;
-                        }
+        NodeHash nodeParent = (node != null) ? hash.get(node.getKeyParent()) : null;
+        if (nodeParent != null) {
+            if (nodeParent.keyChildren.size() == 1) {
+                removeNodeBranch(nodeParent.getKey());
+            } else if (nodeParent.keyChildren.size() > 1) {
+                for (int i = 0; i < nodeParent.keyChildren.size(); i++) {
+                    // remove the entire branch
+                    if (keyNode.equals(nodeParent.keyChildren.get(i))) {
+                        remove(keyNode);
+                        break;
                     }
                 }
             }
         }
+
     }
 
     private void removeInParent(String keyNode) {
