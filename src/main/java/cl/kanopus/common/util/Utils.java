@@ -93,7 +93,7 @@ public class Utils {
      */
     private static SimpleDateFormat getDateFormatter(String pattern, Locale locale) {
         Map<String, SimpleDateFormat> cache = DATE_FORMAT_CACHE.get();
-        String key = pattern + "_" + (locale != null ? locale.toString() : "");
+        String key = locale != null ? pattern + '_' + locale.toString() : pattern;
         return cache.computeIfAbsent(key, k -> 
             locale != null ? new SimpleDateFormat(pattern, locale) : new SimpleDateFormat(pattern));
     }
