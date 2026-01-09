@@ -175,11 +175,11 @@ public class KanopusBeanUtils {
             Object[] targetArr = (Object[]) target;
 
             // because Arrays.asList() does not copy elements reliably, copy manually
-            List sourceList = new ArrayList();
+            List sourceList = new ArrayList<>();
             for (int i = 0; i < sourceArr.length; i++) {
                 sourceList.add(sourceArr[i]);
             }
-            List targetList = new ArrayList();
+            List targetList = new ArrayList<>();
             for (int i = 0; i < targetArr.length; i++) {
                 if (targetArr[i] != null) {
                     targetList.add(targetArr[i]);
@@ -368,7 +368,6 @@ public class KanopusBeanUtils {
             }
 
             try {
-                // TODO: Add additional type transformations here if necessary.
                 // Finally, copy the attribute value.
                 targetBw.setPropertyValue(targetPropName, obj);
             } catch (Exception ex) {
