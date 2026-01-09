@@ -56,17 +56,5 @@ class CryptographyUtilsTest {
     }
 
 
-    @Test
-    void encryptDecryptWithAesGcmxxx() {
-        CryptographyUtils.setEncryptKey("kanopus.prd.k744979577434-25i2t9lsqtjd1fmhtt1jli1vh1hivfut", CryptographyUtils.CryptoAlgorithm.AES_GCM);
-        String c = CryptographyUtils.encrypt("residente");
-        System.out.println(c);
-
-        //
-        String d = CryptographyUtils.encrypt("RESIDENTE");
-        System.out.println(d);
-
-    }
-
 }
 
