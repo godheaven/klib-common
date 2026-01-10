@@ -55,6 +55,10 @@ public class Utils {
     private static final SimpleDateFormat DATE_FORMAT;
     private static final SimpleDateFormat TIME_FORMAT;
     private static final SimpleDateFormat DATETIME_FORMAT;
+    
+    // ThreadLocal cache for SimpleDateFormat to avoid repeated instantiation
+    private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE = 
+        ThreadLocal.withInitial(HashMap::new);
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$"
@@ -81,6 +85,17 @@ public class Utils {
     }
 
     private Utils() {
+    }
+
+    /**
+     * Get or create a cached SimpleDateFormat for the given pattern.
+     * Uses ThreadLocal to ensure thread-safety without synchronization overhead.
+     */
+    private static SimpleDateFormat getDateFormatter(String pattern, Locale locale) {
+        Map<String, SimpleDateFormat> cache = DATE_FORMAT_CACHE.get();
+        String key = locale != null ? pattern + '_' + locale.toString() : pattern;
+        return cache.computeIfAbsent(key, k -> 
+            locale != null ? new SimpleDateFormat(pattern, locale) : new SimpleDateFormat(pattern));
     }
 
     public static StringBuilder printInfoKtools(String component, String version) {
@@ -151,11 +166,11 @@ public class Utils {
     }
 
     public static double parseDouble(long value) {
-        return Double.parseDouble(value + "");
+        return Double.parseDouble(String.valueOf(value));
     }
 
     public static double parseDouble(Object value) {
-        return Double.parseDouble(value + "");
+        return Double.parseDouble(String.valueOf(value));
     }
 
     public static <T extends Object> T defaultValue(T value, T defaultValue) {
@@ -247,8 +262,11 @@ public class Utils {
     }
 
     public static String getDateFormat(Date date, String pattern) {
-        SimpleDateFormat sdf = new SimpleDateFormat(pattern, new Locale("es", "ES"));
-        return (date != null) ? sdf.format(date).toUpperCase() : "";
+        if (date == null) {
+            return "";
+        }
+        SimpleDateFormat sdf = getDateFormatter(pattern, new Locale("es", "ES"));
+        return sdf.format(date).toUpperCase();
     }
 
     public static String getTimeFormat(Date date) {
@@ -294,7 +312,7 @@ public class Utils {
 
     public static Date getDate(String text, String pattern) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat(pattern);
+            SimpleDateFormat sdf = getDateFormatter(pattern, null);
             return sdf.parse(text);
         } catch (ParseException ex) {
             return null;
@@ -477,9 +495,7 @@ public class Utils {
     }
 
     public static boolean isValidRegex(String value, String regex) {
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(value);
-        return matcher.matches();
+        return Pattern.matches(regex, value);
     }
 
     public static boolean isValidEmail(String email) {
@@ -653,20 +669,14 @@ public class Utils {
 
     public static int[] toArrayInt(List<Integer> numbers) {
         int[] ret = new int[numbers.size()];
-        Iterator<Integer> iterator = numbers.iterator();
         for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next();
+            ret[i] = numbers.get(i);
         }
         return ret;
     }
 
     public static Integer[] toArrayInteger(List<Integer> numbers) {
-        Integer[] ret = new Integer[numbers.size()];
-        Iterator<Integer> iterator = numbers.iterator();
-        for (int i = 0; i < ret.length; i++) {
-            ret[i] = iterator.next();
-        }
-        return ret;
+        return numbers.toArray(new Integer[0]);
     }
 
     public static String[] toArrayString(List<? extends EnumIdentifiable> values) {
@@ -733,9 +743,10 @@ public class Utils {
     public static boolean isDateBetween(Date fecha, Date fechaInicio, Date fechaFin) {
         if (fecha != null && fechaInicio != null && fechaFin != null) {
             // The current date must be greater or equal to fechaInicio and less or equal to fechaFin
-            boolean fechaActualMayorFechaInicio = (fecha.after(fechaInicio) || Utils.getDateFormat(fecha).equals(Utils.getDateFormat(fechaInicio)));
-            boolean fechaActualMenorFechaFin = (fecha.before(fechaFin) || Utils.getDateFormat(fecha).equals(Utils.getDateFormat(fechaFin)));
-            return fechaActualMenorFechaFin || (fechaActualMayorFechaInicio && fechaActualMenorFechaFin);
+            // Use compareTo for more efficient date comparison
+            boolean fechaActualMayorFechaInicio = fecha.compareTo(fechaInicio) >= 0;
+            boolean fechaActualMenorFechaFin = fecha.compareTo(fechaFin) <= 0;
+            return fechaActualMayorFechaInicio && fechaActualMenorFechaFin;
         } else {
             return false;
         }

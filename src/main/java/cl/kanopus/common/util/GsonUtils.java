@@ -55,13 +55,14 @@ public class GsonUtils {
 
     private static class DateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
+        private static final ThreadLocal<SimpleDateFormat> DATETIME_FORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat(DATETIME_FORMAT));
+        private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat(DATE_FORMAT));
+
         @Override
         public Date deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
             String date = element.getAsString();
             try {
-                SimpleDateFormat dtf = new SimpleDateFormat(DATETIME_FORMAT);
-                SimpleDateFormat fd = new SimpleDateFormat(DATE_FORMAT);
-                return date.length() >= 19 ? dtf.parse(date) : fd.parse(date);
+                return date.length() >= 19 ? DATETIME_FORMATTER.get().parse(date) : DATE_FORMATTER.get().parse(date);
             } catch (ParseException ex) {
                 throw new JsonParseException(ex);
             }
@@ -69,8 +70,7 @@ public class GsonUtils {
 
         @Override
         public JsonElement serialize(Date src, Type type, JsonSerializationContext context) {
-            SimpleDateFormat dtf = new SimpleDateFormat(DATETIME_FORMAT);
-            return new JsonPrimitive(dtf.format(src));
+            return new JsonPrimitive(DATETIME_FORMATTER.get().format(src));
         }
     }
 
