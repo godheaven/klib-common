@@ -71,7 +71,6 @@ class UtilsTest {
     }
 
 
-
     @Test
     void testIsEqualsOne_Enum() {
         Assertions.assertTrue(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L)));
@@ -313,7 +312,7 @@ class UtilsTest {
     void testGetElapsedTime_LocalDateTime_LocalDateTime() {
         LocalDateTime start = LocalDateTime.of(2023, Month.JANUARY, 1, 10, 0);
         LocalDateTime end = LocalDateTime.of(2023, Month.JANUARY, 30, 10, 0);
-        Assertions.assertEquals("29d",  Utils.getElapsedTime(start, end));
+        Assertions.assertEquals("29d", Utils.getElapsedTime(start, end));
 
     }
 
@@ -351,7 +350,7 @@ class UtilsTest {
     void testIsNullOrEmpty_String() {
         Assertions.assertTrue(Utils.isNullOrEmpty(""));
         Assertions.assertTrue(Utils.isNullOrEmpty(" "));
-        Assertions.assertTrue(Utils.isNullOrEmpty((String)null));
+        Assertions.assertTrue(Utils.isNullOrEmpty((String) null));
         Assertions.assertFalse(Utils.isNullOrEmpty("Test"));
     }
 
@@ -461,21 +460,21 @@ class UtilsTest {
 
     @Test
     void testArrayToString_intArr() {
-        int[] numbers = {1,2,3,4,5};
+        int[] numbers = {1, 2, 3, 4, 5};
         Assertions.assertEquals("1,2,3,4,5", Utils.arrayToString(numbers));
     }
 
 
     @Test
     void testArrayToString_List() {
-        List<String> text =  Arrays.asList("1", "2", "3");
+        List<String> text = Arrays.asList("1", "2", "3");
         Assertions.assertEquals("1,2,3", Utils.arrayToString(text));
     }
 
 
     @Test
     void testArrayToString_List_String() {
-        List<String> text =  Arrays.asList("1", "2", "3");
+        List<String> text = Arrays.asList("1", "2", "3");
         String separator = "|";
         Assertions.assertEquals("1|2|3", Utils.arrayToString(text, separator));
     }
@@ -517,7 +516,7 @@ class UtilsTest {
     @Test
     void testToListInt() {
         Assertions.assertNotNull(Utils.toListInt("1,2,3"));
-        Assertions.assertArrayEquals(Arrays.asList(1,2,3).toArray(), Utils.toListInt("1,2,3").toArray());
+        Assertions.assertArrayEquals(Arrays.asList(1, 2, 3).toArray(), Utils.toListInt("1,2,3").toArray());
 
     }
 
@@ -525,7 +524,7 @@ class UtilsTest {
     @Test
     void testToListLong() {
         Assertions.assertNotNull(Utils.toListLong("1,2,3"));
-        Assertions.assertArrayEquals(Arrays.asList(1L,2L,3L).toArray(), Utils.toListLong("1,2,3").toArray());
+        Assertions.assertArrayEquals(Arrays.asList(1L, 2L, 3L).toArray(), Utils.toListLong("1,2,3").toArray());
 
     }
 
@@ -634,7 +633,7 @@ class UtilsTest {
 
     @Test
     void testParseInt_String() {
-        Assertions.assertEquals((Integer)1,  Utils.parseInt("1"));
+        Assertions.assertEquals((Integer) 1, Utils.parseInt("1"));
     }
 
 
@@ -722,7 +721,6 @@ class UtilsTest {
     }
 
 
-
     static class EnumIdentifiableExample implements EnumIdentifiable<Long> {
         private final Long id;
 
@@ -762,5 +760,21 @@ class UtilsTest {
             return (this.getName() != null && other != null && this.getName().equals(other.getName()));
         }
 
+    }
+
+    @Test
+    void arrayToString_and_toArray_conversions() {
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new int[]{1, 2, 3}));
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new long[]{1, 2, 3}));
+
+        List<Integer> ints = Arrays.asList(4, 5, 6);
+        Assertions.assertArrayEquals(new int[]{4, 5, 6}, Utils.toArrayInt(ints));
+        Assertions.assertArrayEquals(new Integer[]{4, 5, 6}, Utils.toArrayInteger(ints));
+    }
+
+    @Test
+    void mergeTextCustomSeparator_handlesEmptyAndNulls() {
+        Assertions.assertEquals("a b", Utils.mergeTextCustomSeparator(" ", "a", "", null, "b"));
+        Assertions.assertEquals("", Utils.mergeTextCustomSeparator(","));
     }
 }

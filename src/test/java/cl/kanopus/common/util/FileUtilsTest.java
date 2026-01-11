@@ -65,4 +65,34 @@ class FileUtilsTest {
         Assertions.assertTrue(f.exists());
         Assertions.assertEquals("test.txt", f.getName());
     }
+
+    @Test
+    void testCreateFileFromBytesAndToByteArray() throws Exception {
+        // use a temporary file path inside temp directory
+        File tmp = File.createTempFile("fu-test", ".bin");
+        tmp.deleteOnExit();
+
+        byte[] data = "payload-data".getBytes(java.nio.charset.StandardCharsets.UTF_8);
+        // Ensure FileUtils writes into the temp directory by setting temporalFolder
+        FileUtils.setTemporalFolder(tmp.getParent());
+        File out = FileUtils.createFile(data, tmp.getName());
+        Assertions.assertTrue(out.exists());
+
+        // read file using FileUtils.fileToString(String)
+        StringBuilder sb = FileUtils.fileToString(out.getAbsolutePath());
+        Assertions.assertTrue(sb.toString().contains("payload-data"));
+
+        // test toByteArray using an InputStream
+        try (java.io.InputStream in = new java.io.ByteArrayInputStream(data)) {
+            byte[] arr = FileUtils.toByteArray(in);
+            Assertions.assertArrayEquals(data, arr);
+        }
+    }
+
+    @Test
+    void testTemporalFolderPathResolution() throws Exception {
+        FileUtils.setTemporalFolder(System.getProperty("java.io.tmpdir"));
+        String path = FileUtils.createFile("x", "fu-test-tmp.txt", java.nio.charset.StandardCharsets.UTF_8).getAbsolutePath();
+        Assertions.assertTrue(path.contains(System.getProperty("java.io.tmpdir")));
+    }
 }
