@@ -43,8 +43,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 
 public class Utils {
 
@@ -55,10 +55,10 @@ public class Utils {
     private static final SimpleDateFormat DATE_FORMAT;
     private static final SimpleDateFormat TIME_FORMAT;
     private static final SimpleDateFormat DATETIME_FORMAT;
-    
+
     // ThreadLocal cache for SimpleDateFormat to avoid repeated instantiation
-    private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE = 
-        ThreadLocal.withInitial(HashMap::new);
+    private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE =
+            ThreadLocal.withInitial(HashMap::new);
 
     private static final Pattern EMAIL_PATTERN = Pattern.compile(
             "^[A-Za-z0-9+_.-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$"
@@ -67,7 +67,7 @@ public class Utils {
     private static final SecureRandom RNG = new SecureRandom();
     private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
     private static final Pattern NEWLINES = Pattern.compile("\\R");
-    private static final Pattern SPACES   = Pattern.compile("\\s+");
+    private static final Pattern SPACES = Pattern.compile("\\s+");
 
     static {
         DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
@@ -94,8 +94,8 @@ public class Utils {
     private static SimpleDateFormat getDateFormatter(String pattern, Locale locale) {
         Map<String, SimpleDateFormat> cache = DATE_FORMAT_CACHE.get();
         String key = locale != null ? pattern + '_' + locale.toString() : pattern;
-        return cache.computeIfAbsent(key, k -> 
-            locale != null ? new SimpleDateFormat(pattern, locale) : new SimpleDateFormat(pattern));
+        return cache.computeIfAbsent(key, k ->
+                locale != null ? new SimpleDateFormat(pattern, locale) : new SimpleDateFormat(pattern));
     }
 
     public static StringBuilder printInfoKtools(String component, String version) {
@@ -447,7 +447,7 @@ public class Utils {
      * Check whether an integer RUT and verification digit are valid.
      *
      * @param rut numeric part of the RUT
-     * @param dv verification character (digit or K)
+     * @param dv  verification character (digit or K)
      * @return true if the RUT is valid according to the Chilean algorithm
      */
     public static boolean isRut(int rut, char dv) {
@@ -804,7 +804,7 @@ public class Utils {
         long number = 0;
         if (text != null && !text.isEmpty()) {
             double mValue = Double.parseDouble(text);
-            number = (long)mValue;
+            number = (long) mValue;
         }
         return number;
     }
@@ -950,11 +950,11 @@ public class Utils {
         int n = parts.length;
         switch (n) {
             case 3:
-                candidates = new String[]{ parts[0], parts[1], parts[2] };
+                candidates = new String[]{parts[0], parts[1], parts[2]};
                 break;
             default:
                 candidates = (n > 3)
-                        ? new String[]{ parts[0], parts[n - 2], parts[n - 1] }
+                        ? new String[]{parts[0], parts[n - 2], parts[n - 1]}
                         : parts; // 1 or 2 names
                 break;
         }

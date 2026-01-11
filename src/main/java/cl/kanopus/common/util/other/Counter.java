@@ -23,16 +23,15 @@
  */
 package cl.kanopus.common.util.other;
 
+import lombok.Getter;
+
+@Getter
 public class Counter {
 
     private int value;
 
     public void increment() {
         value++;
-    }
-
-    public int getValue() {
-        return value;
     }
 
 }

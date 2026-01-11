@@ -23,6 +23,11 @@
  */
 package cl.kanopus.common.change;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class ChangeAudit {
 
     private ChangeAction action;
@@ -35,30 +40,6 @@ public class ChangeAudit {
     public ChangeAudit(ChangeAction action, String old, String value) {
         this.action = action;
         this.value = value;
-        this.old = old;
-    }
-
-    public ChangeAction getAction() {
-        return action;
-    }
-
-    public void setAction(ChangeAction action) {
-        this.action = action;
-    }
-
-    public String getValue() {
-        return value;
-    }
-
-    public void setValue(String value) {
-        this.value = value;
-    }
-
-    public String getOld() {
-        return old;
-    }
-
-    public void setOld(String old) {
         this.old = old;
     }
 

@@ -115,7 +115,7 @@ public class GsonUtils {
 
     public static <T> List<T> getList(String json, Class<T> clazz) {
         Type type = TypeToken.getParameterized(List.class, clazz).getType();
-        return (List<T>) (json != null ? GsonUtils.custom.fromJson(json, type) : new ArrayList<T>());
+        return json != null ? GsonUtils.custom.fromJson(json, type) : new ArrayList<T>();
     }
 
 }
