@@ -27,11 +27,17 @@ import java.util.Collection;
 
 public class AssertUtils {
 
-    private AssertUtils() {
-    }
+    private AssertUtils() {}
 
     public static void assertEquals(Object expected, Object actual) {
-        assertEquals(expected, actual, "[Assertion failed] - expected [" + expected + "] must be equals to actual [" + actual + "]");
+        assertEquals(
+                expected,
+                actual,
+                "[Assertion failed] - expected ["
+                        + expected
+                        + "] must be equals to actual ["
+                        + actual
+                        + "]");
     }
 
     public static void assertEquals(Object expected, Object actual, String message) {
@@ -41,7 +47,14 @@ public class AssertUtils {
     }
 
     public static void assertNotEquals(Object expected, Object actual) {
-        assertNotEquals(expected, actual, "[Assertion failed] - expected [" + expected + "] must be not equals to actual [" + actual + "]");
+        assertNotEquals(
+                expected,
+                actual,
+                "[Assertion failed] - expected ["
+                        + expected
+                        + "] must be not equals to actual ["
+                        + actual
+                        + "]");
     }
 
     public static void assertNotEquals(Object expected, Object actual, String message) {
@@ -71,7 +84,8 @@ public class AssertUtils {
     }
 
     public static void assertNotNull(Object object) {
-        assertNotNull(object, "[Assertion failed] - this argument is required; it must not be null");
+        assertNotNull(
+                object, "[Assertion failed] - this argument is required; it must not be null");
     }
 
     public static void assertNotNull(Object object, String message) {
@@ -91,7 +105,9 @@ public class AssertUtils {
     }
 
     public static void assertNotEmpty(Collection<?> collection) {
-        assertNotEmpty(collection, "[Assertion failed] - this collection must not be empty: it must contain at least 1 element");
+        assertNotEmpty(
+                collection,
+                "[Assertion failed] - this collection must not be empty: it must contain at least 1 element");
     }
 
     public static void assertNotEmpty(Collection<?> collection, String message) {
@@ -106,5 +122,4 @@ public class AssertUtils {
         }
         return obj1.equals(obj2);
     }
-
 }

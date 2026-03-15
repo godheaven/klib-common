@@ -28,9 +28,7 @@ public class Comparator<T extends Object> {
     private ChangeAction action;
     private T value;
 
-    public Comparator() {
-
-    }
+    public Comparator() {}
 
     public Comparator(ChangeAction action, T value) {
         this.action = action;
@@ -52,5 +50,4 @@ public class Comparator<T extends Object> {
     public void setValue(T value) {
         this.value = value;
     }
-
 }

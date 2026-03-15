@@ -25,7 +25,6 @@ package cl.kanopus.common.util;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
-
 import java.lang.reflect.Type;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,27 +41,32 @@ public class GsonUtils {
     private static final String DATETIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
-    private GsonUtils() {
-    }
+    private GsonUtils() {}
 
-    public static final Gson custom = new GsonBuilder()
-            .setDateFormat(DATETIME_FORMAT)
-            .registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
-            .registerTypeAdapter(Date.class, new DateAdapter())
-            .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
-            .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
-            .create();
+    public static final Gson custom =
+            new GsonBuilder()
+                    .setDateFormat(DATETIME_FORMAT)
+                    .registerTypeHierarchyAdapter(byte[].class, new ByteArrayToBase64TypeAdapter())
+                    .registerTypeAdapter(Date.class, new DateAdapter())
+                    .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                    .registerTypeAdapter(LocalDateTime.class, new LocalDateTimeAdapter())
+                    .create();
 
     private static class DateAdapter implements JsonSerializer<Date>, JsonDeserializer<Date> {
 
-        private static final ThreadLocal<SimpleDateFormat> DATETIME_FORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat(DATETIME_FORMAT));
-        private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER = ThreadLocal.withInitial(() -> new SimpleDateFormat(DATE_FORMAT));
+        private static final ThreadLocal<SimpleDateFormat> DATETIME_FORMATTER =
+                ThreadLocal.withInitial(() -> new SimpleDateFormat(DATETIME_FORMAT));
+        private static final ThreadLocal<SimpleDateFormat> DATE_FORMATTER =
+                ThreadLocal.withInitial(() -> new SimpleDateFormat(DATE_FORMAT));
 
         @Override
-        public Date deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2) throws JsonParseException {
+        public Date deserialize(JsonElement element, Type arg1, JsonDeserializationContext arg2)
+                throws JsonParseException {
             String date = element.getAsString();
             try {
-                return date.length() >= 19 ? DATETIME_FORMATTER.get().parse(date) : DATE_FORMATTER.get().parse(date);
+                return date.length() >= 19
+                        ? DATETIME_FORMATTER.get().parse(date)
+                        : DATE_FORMATTER.get().parse(date);
             } catch (ParseException ex) {
                 throw new JsonParseException(ex);
             }
@@ -74,10 +78,13 @@ public class GsonUtils {
         }
     }
 
-    private static class ByteArrayToBase64TypeAdapter implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
+    private static class ByteArrayToBase64TypeAdapter
+            implements JsonSerializer<byte[]>, JsonDeserializer<byte[]> {
 
         @Override
-        public byte[] deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        public byte[] deserialize(
+                JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
             return Base64.getDecoder().decode(json.getAsString());
         }
 
@@ -87,28 +94,37 @@ public class GsonUtils {
         }
     }
 
-    private static class LocalDateAdapter implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
+    private static class LocalDateAdapter
+            implements JsonSerializer<LocalDate>, JsonDeserializer<LocalDate> {
 
         @Override
-        public JsonElement serialize(LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
+        public JsonElement serialize(
+                LocalDate date, Type typeOfSrc, JsonSerializationContext context) {
             return new JsonPrimitive(date.format(DateTimeFormatter.ISO_LOCAL_DATE));
         }
 
         @Override
-        public LocalDate deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        public LocalDate deserialize(
+                JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
             return LocalDate.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE);
         }
     }
 
-    private static class LocalDateTimeAdapter implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
+    private static class LocalDateTimeAdapter
+            implements JsonSerializer<LocalDateTime>, JsonDeserializer<LocalDateTime> {
 
         @Override
-        public JsonElement serialize(LocalDateTime datetime, Type typeOfSrc, JsonSerializationContext context) {
-            return new JsonPrimitive(datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)); // "yyyy-MM-dd HH:mm"
+        public JsonElement serialize(
+                LocalDateTime datetime, Type typeOfSrc, JsonSerializationContext context) {
+            return new JsonPrimitive(
+                    datetime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)); // "yyyy-MM-dd HH:mm"
         }
 
         @Override
-        public LocalDateTime deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
+        public LocalDateTime deserialize(
+                JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                throws JsonParseException {
             return LocalDateTime.parse(json.getAsString(), DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         }
     }
@@ -117,5 +133,4 @@ public class GsonUtils {
         Type type = TypeToken.getParameterized(List.class, clazz).getType();
         return json != null ? GsonUtils.custom.fromJson(json, type) : new ArrayList<T>();
     }
-
 }

@@ -25,28 +25,29 @@ package cl.kanopus.common.util;
 
 import cl.kanopus.common.change.ChangeAction;
 import cl.kanopus.common.change.Comparator;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class ChangeUtilsTest {
 
     @Test
     void checkChangeOnList() {
 
-        List<ExampleTO> original = Arrays.asList(
-                new ExampleTO(1, "example1"), //NONE
-                new ExampleTO(2, "example2"), //DELETE
-                new ExampleTO(3, "example3")); //UPDATE
+        List<ExampleTO> original =
+                Arrays.asList(
+                        new ExampleTO(1, "example1"), // NONE
+                        new ExampleTO(2, "example2"), // DELETE
+                        new ExampleTO(3, "example3")); // UPDATE
 
-        List<ExampleTO> target = Arrays.asList(
-                new ExampleTO(1, "example1"), //NONE
-                //new ExampleTO(2, "example2"), //DELETE
-                new ExampleTO(3, "example3-updated"), //UPDATE
-                new ExampleTO(4, "example4")); //CREATE
+        List<ExampleTO> target =
+                Arrays.asList(
+                        new ExampleTO(1, "example1"), // NONE
+                        // new ExampleTO(2, "example2"), //DELETE
+                        new ExampleTO(3, "example3-updated"), // UPDATE
+                        new ExampleTO(4, "example4")); // CREATE
 
         List<Comparator<ExampleTO>> merges = ChangeUtils.checkChangeOnList(original, target);
         Assertions.assertEquals(4, merges.size());
@@ -54,7 +55,6 @@ class ChangeUtilsTest {
         Assertions.assertEquals(ChangeAction.DELETE, merges.get(1).getAction());
         Assertions.assertEquals(ChangeAction.UPDATE, merges.get(2).getAction());
         Assertions.assertEquals(ChangeAction.CREATE, merges.get(3).getAction());
-
     }
 
     @Test
@@ -76,7 +76,6 @@ class ChangeUtilsTest {
         Assertions.assertEquals(ChangeAction.DELETE, map.get("example2"));
         Assertions.assertEquals(ChangeAction.NONE, map.get("example3"));
         Assertions.assertEquals(ChangeAction.CREATE, map.get("example4"));
-
     }
 
     @Test
@@ -99,7 +98,6 @@ class ChangeUtilsTest {
         Assertions.assertEquals(ChangeAction.UPDATE, ChangeUtils.checkChange(original, updated));
         Assertions.assertEquals(ChangeAction.UPDATE, ChangeUtils.checkChange(original, updated2));
         Assertions.assertEquals(ChangeAction.UPDATE, ChangeUtils.checkChange(original, updated3));
-
     }
 
     @Test
@@ -144,7 +142,6 @@ class ChangeUtilsTest {
 
         Assertions.assertEquals(ChangeAction.NONE, ChangeUtils.checkChange(original, original));
         Assertions.assertEquals(ChangeAction.CREATE, ChangeUtils.checkChange(nullable, original));
-
     }
 
     @Test
@@ -156,7 +153,6 @@ class ChangeUtilsTest {
         ExampleTO nullable = null;
 
         Assertions.assertEquals(ChangeAction.DELETE, ChangeUtils.checkChange(original, nullable));
-
     }
 
     @SuppressWarnings("unused")
@@ -168,8 +164,7 @@ class ChangeUtilsTest {
         private OtherTO other;
         private List<OtherTO> complex;
 
-        public ExampleTO() {
-        }
+        public ExampleTO() {}
 
         public ExampleTO(long id, String name) {
             this.id = id;
@@ -247,14 +242,11 @@ class ChangeUtilsTest {
             public int hashCode() {
                 return Long.hashCode(getId());
             }
-
         }
 
         @Override
         public int hashCode() {
             return Long.hashCode(getId());
         }
-
     }
-
 }

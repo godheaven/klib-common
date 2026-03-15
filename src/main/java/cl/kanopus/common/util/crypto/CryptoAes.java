@@ -23,22 +23,21 @@
  */
 package cl.kanopus.common.util.crypto;
 
-import javax.crypto.Cipher;
-import javax.crypto.spec.SecretKeySpec;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Objects;
+import javax.crypto.Cipher;
+import javax.crypto.spec.SecretKeySpec;
 
 class CryptoAes {
 
     // ===== Cryptographic parameters =====
     private static final String AES_TRANSFORM = "AES";
 
-    private CryptoAes() {
-    }
+    private CryptoAes() {}
 
     public static String encrypt(char[] encryptKey, String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
@@ -82,6 +81,4 @@ class CryptoAes {
             throw new CryptoException("AES decrypt failed", ex);
         }
     }
-
-
 }

@@ -26,7 +26,6 @@ package cl.kanopus.common.validation.constraints;
 import cl.kanopus.common.validation.EmailCollectionValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
-
 import java.lang.annotation.*;
 
 @Target({ElementType.FIELD, ElementType.PARAMETER})

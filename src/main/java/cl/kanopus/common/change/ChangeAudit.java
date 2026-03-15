@@ -34,13 +34,11 @@ public class ChangeAudit {
     private String value;
     private String old;
 
-    public ChangeAudit() {
-    }
+    public ChangeAudit() {}
 
     public ChangeAudit(ChangeAction action, String old, String value) {
         this.action = action;
         this.value = value;
         this.old = old;
     }
-
 }

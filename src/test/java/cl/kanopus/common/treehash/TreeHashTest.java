@@ -23,10 +23,9 @@
  */
 package cl.kanopus.common.treehash;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-
-import java.util.List;
 
 class TreeHashTest {
 
@@ -64,7 +63,7 @@ class TreeHashTest {
         Assertions.assertNull(tree.getNodeHash("c2_2"));
         Assertions.assertTrue(tree.getNodeHash("p2").getKeyChildren().isEmpty());
     }
-    
+
     @Test
     void getNodeList_and_visibleLists_and_depths() {
         TreeHash tree = new TreeHash();
@@ -139,4 +138,3 @@ class TreeHashTest {
         Assertions.assertTrue(tree.getNodeHash("p4").isSelected());
     }
 }
-

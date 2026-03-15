@@ -30,15 +30,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- *
- * Clase utilitaria que permite generar un arbol de objetos y ademas tiene la
- * capacidad de retornarlos en forma de Lista.
- *
+ * Clase utilitaria que permite generar un arbol de objetos y ademas tiene la capacidad de
+ * retornarlos en forma de Lista.
  */
 public class TreeHash implements Serializable {
 
     private enum TYPE_NODE_LIST {
-
         ALL,
         VISIBLE
     }
@@ -106,7 +103,6 @@ public class TreeHash implements Serializable {
                 }
             }
         }
-
     }
 
     private void removeInParent(String keyNode) {
@@ -142,7 +138,8 @@ public class TreeHash implements Serializable {
         return hash.get(key);
     }
 
-    private void fillNodeList(String keyNode, int depth, List<NodeHash> newNodeList, boolean onlyVisible) {
+    private void fillNodeList(
+            String keyNode, int depth, List<NodeHash> newNodeList, boolean onlyVisible) {
         NodeHash node = hash.get(keyNode);
         if (node != null) {
             if (!TreeHash.KEY_ROOT.equals(keyNode)) {
@@ -166,10 +163,7 @@ public class TreeHash implements Serializable {
         }
     }
 
-    /**
-     * Method that returns all nodes contained in the TreeHash
-     *
-     */
+    /** Method that returns all nodes contained in the TreeHash */
     public List<NodeHash> getNodeList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.ALL) {
             // Refresh the list to return the nodes
@@ -182,10 +176,7 @@ public class TreeHash implements Serializable {
         return nodeList;
     }
 
-    /**
-     * Method that returns only nodes whose parent is visible within the TreeHash
-     *
-     */
+    /** Method that returns only nodes whose parent is visible within the TreeHash */
     public List<NodeHash> getNodeVisibleList() {
         if (refresh || lastRefresh != TYPE_NODE_LIST.VISIBLE) {
             // Refresh the list to return the nodes
@@ -257,5 +248,4 @@ public class TreeHash implements Serializable {
             }
         }
     }
-
 }

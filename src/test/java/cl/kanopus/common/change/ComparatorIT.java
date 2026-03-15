@@ -21,27 +21,18 @@
  * limitations under the License.
  * --!
  */
-package cl.kanopus.common.data;
+package cl.kanopus.common.change;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
-class SearcherTest {
+class ComparatorIT {
 
     @Test
-    void basicFields() {
-        Searcher<String> s = new Searcher<>();
-        s.setText("hello");
-        s.setOffset(10);
-        s.setLimit(50);
-        s.setSortField("name");
-        s.setSortOrder(cl.kanopus.common.data.enums.SortOrder.ASCENDING);
-
-        assertEquals("hello", s.getText());
-        assertEquals(10, s.getOffset());
-        assertEquals(50, s.getLimit());
-        assertEquals("name", s.getSortField());
-        assertEquals(cl.kanopus.common.data.enums.SortOrder.ASCENDING, s.getSortOrder());
+    void comparatorStoresActionAndValue() {
+        Comparator<String> c = new Comparator<>(ChangeAction.CREATE, "x");
+        assertEquals("x", c.getValue());
+        assertEquals(ChangeAction.CREATE, c.getAction());
     }
 }

@@ -23,12 +23,11 @@
  */
 package cl.kanopus.common;
 
-import org.slf4j.MDC;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.MDC;
 
 public class ThreadContext {
 
@@ -56,9 +55,8 @@ public class ThreadContext {
     }
 
     /**
-     * Returns the unique threadId for the current thread. This value is unique
-     * because it includes the thread start timestamp concatenated with the
-     * thread name.
+     * Returns the unique threadId for the current thread. This value is unique because it includes
+     * the thread start timestamp concatenated with the thread name.
      *
      * @return a string representing the thread's unique identifier.
      */
@@ -123,14 +121,13 @@ public class ThreadContext {
     }
 
     /**
-     * <p>
      * Retorna el mapa de contexto para el current Thread
      *
      * @return
      */
     public static Map getContextMap() {
-        //revisamos si existia el mapa viendo si al traerlo retorna null.
-        //Esto es mas eficiente que preguntar primero, antes de traer efectivamente el dato.
+        // revisamos si existia el mapa viendo si al traerlo retorna null.
+        // Esto es mas eficiente que preguntar primero, antes de traer efectivamente el dato.
         Map contextMap = getInstance().map.get(getThreadId());
         if (contextMap == null) {
             contextMap = Collections.synchronizedMap(new HashMap<>());
@@ -139,9 +136,7 @@ public class ThreadContext {
     }
 
     /**
-     * <p>
-     * Agrega un objeto al mapa de contexto del current Thread dada una llave
-     * especifica.
+     * Agrega un objeto al mapa de contexto del current Thread dada una llave especifica.
      *
      * @param objectKey
      * @param objectToInsert
@@ -154,16 +149,15 @@ public class ThreadContext {
     }
 
     /**
-     * <p>
-     * Retorna el objeto almacenado en el mapa del contexto asociado al current
-     * Thread y que tenga como llave <code>objectName</code>
+     * Retorna el objeto almacenado en el mapa del contexto asociado al current Thread y que tenga
+     * como llave <code>objectName</code>
      *
-     * @param objectName nombre del objeto guardado. Usualmente sera el nombre
-     *                   de la clase del objeto con la primera letra en minuscula.
+     * @param objectName nombre del objeto guardado. Usualmente sera el nombre de la clase del
+     *     objeto con la primera letra en minuscula.
      * @return Objeto almacenado en el ThreadContext del thread actual
      */
     public static Object getObject(String objectName) {
-        Map contextMap = getContextMap();        //
+        Map contextMap = getContextMap(); //
         return contextMap.get(objectName);
     }
 
@@ -184,10 +178,7 @@ public class ThreadContext {
         MDC.put(KEY_THREAD_UNIQUE_ID, threadUniqueId);
     }
 
-    /**
-     * <p>
-     * Remueve el mapa con el contexto del thread actual.
-     */
+    /** Remueve el mapa con el contexto del thread actual. */
     public static void destroyContext() {
         if (getInstance().map.containsKey(getThreadId())) {
             getInstance().map.remove(getThreadId());
@@ -195,5 +186,4 @@ public class ThreadContext {
             MDC.remove(KEY_THREAD_APP_KEY);
         }
     }
-
 }

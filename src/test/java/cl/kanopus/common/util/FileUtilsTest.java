@@ -23,11 +23,10 @@
  */
 package cl.kanopus.common.util;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.FileNotFoundException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class FileUtilsTest {
     static final long KB = 1024;
@@ -58,7 +57,8 @@ class FileUtilsTest {
     @Test
     void testGetFile() throws FileNotFoundException {
 
-        Assertions.assertThrows(FileNotFoundException.class,
+        Assertions.assertThrows(
+                FileNotFoundException.class,
                 () -> FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test-notfound.txt"));
 
         File f = FileUtils.getFile("not-exist1.txt", "not-exist2.txt", "test.txt");
@@ -92,7 +92,10 @@ class FileUtilsTest {
     @Test
     void testTemporalFolderPathResolution() throws Exception {
         FileUtils.setTemporalFolder(System.getProperty("java.io.tmpdir"));
-        String path = FileUtils.createFile("x", "fu-test-tmp.txt", java.nio.charset.StandardCharsets.UTF_8).getAbsolutePath();
+        String path =
+                FileUtils.createFile(
+                                "x", "fu-test-tmp.txt", java.nio.charset.StandardCharsets.UTF_8)
+                        .getAbsolutePath();
         Assertions.assertTrue(path.contains(System.getProperty("java.io.tmpdir")));
     }
 }

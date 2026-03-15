@@ -23,15 +23,12 @@
  */
 package cl.kanopus.common.util;
 
-import org.junit.jupiter.api.Test;
-
-import java.util.Date;
-
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Performance tests for GsonUtils class to ensure optimizations are working
- */
+import java.util.Date;
+import org.junit.jupiter.api.Test;
+
+/** Performance tests for GsonUtils class to ensure optimizations are working */
 class GsonUtilsPerformanceTest {
 
     private static final int ITERATIONS = 1000;
@@ -63,7 +60,7 @@ class GsonUtilsPerformanceTest {
         TestData data = new TestData();
         data.setTimestamp(new Date());
         data.setName("Test");
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             String json = GsonUtils.custom.toJson(data);
@@ -71,7 +68,7 @@ class GsonUtilsPerformanceTest {
             assertTrue(json.contains("timestamp"));
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Date serialization should complete successfully");
     }
 
@@ -79,7 +76,7 @@ class GsonUtilsPerformanceTest {
     void testDateDeserializationPerformance() {
         // Test that repeated deserialization with cached formatters is fast
         String json = "{\"timestamp\":\"2025-01-09T10:30:45\",\"name\":\"Test\"}";
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             TestData data = GsonUtils.custom.fromJson(json, TestData.class);
@@ -88,7 +85,7 @@ class GsonUtilsPerformanceTest {
             assertEquals("Test", data.getName());
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Date deserialization should complete successfully");
     }
 
@@ -98,7 +95,7 @@ class GsonUtilsPerformanceTest {
         TestData original = new TestData();
         original.setTimestamp(new Date());
         original.setName("RoundTrip");
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             String json = GsonUtils.custom.toJson(original);
@@ -107,7 +104,7 @@ class GsonUtilsPerformanceTest {
             assertEquals(original.getName(), deserialized.getName());
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Round-trip conversion should complete successfully");
     }
 }

@@ -46,5 +46,4 @@ public class Paginator<T> {
     public void setTotalRecords(long totalRecords) {
         this.totalRecords = totalRecords;
     }
-
 }

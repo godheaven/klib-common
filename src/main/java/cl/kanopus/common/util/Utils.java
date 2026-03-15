@@ -25,7 +25,6 @@ package cl.kanopus.common.util;
 
 import cl.kanopus.common.enums.EnumIdentifiable;
 import cl.kanopus.common.util.format.PaddingDecimalFormat;
-
 import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -45,7 +44,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
-
 public class Utils {
 
     private static final PaddingDecimalFormat NUMBER_FORMAT;
@@ -60,12 +58,13 @@ public class Utils {
     private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE =
             ThreadLocal.withInitial(HashMap::new);
 
-    private static final Pattern EMAIL_PATTERN = Pattern.compile(
-            "^[A-Za-z0-9+_.-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$"
-    );
+    private static final Pattern EMAIL_PATTERN =
+            Pattern.compile(
+                    "^[A-Za-z0-9+_.-]+@(?:[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?\\.)+[A-Za-z]{2,}$");
 
     private static final SecureRandom RNG = new SecureRandom();
-    private static final char[] ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
+    private static final char[] ALPHABET =
+            "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_".toCharArray();
     private static final Pattern NEWLINES = Pattern.compile("\\R");
     private static final Pattern SPACES = Pattern.compile("\\s+");
 
@@ -81,21 +80,23 @@ public class Utils {
         DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
         TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
         DATETIME_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-
     }
 
-    private Utils() {
-    }
+    private Utils() {}
 
     /**
-     * Get or create a cached SimpleDateFormat for the given pattern.
-     * Uses ThreadLocal to ensure thread-safety without synchronization overhead.
+     * Get or create a cached SimpleDateFormat for the given pattern. Uses ThreadLocal to ensure
+     * thread-safety without synchronization overhead.
      */
     private static SimpleDateFormat getDateFormatter(String pattern, Locale locale) {
         Map<String, SimpleDateFormat> cache = DATE_FORMAT_CACHE.get();
         String key = locale != null ? pattern + '_' + locale.toString() : pattern;
-        return cache.computeIfAbsent(key, k ->
-                locale != null ? new SimpleDateFormat(pattern, locale) : new SimpleDateFormat(pattern));
+        return cache.computeIfAbsent(
+                key,
+                k ->
+                        locale != null
+                                ? new SimpleDateFormat(pattern, locale)
+                                : new SimpleDateFormat(pattern));
     }
 
     public static StringBuilder printInfoKtools(String component, String version) {
@@ -108,7 +109,11 @@ public class Utils {
         info.append("██  ██     ██    ██    ██ ██    ██ ██           ██\n");
         info.append("██   ██    ██     ██████   ██████  ███████ ███████\n");
         info.append("\n");
-        info.append(" :: ").append(String.format("%-31s", component)).append("::  (").append(version).append(") \n");
+        info.append(" :: ")
+                .append(String.format("%-31s", component))
+                .append("::  (")
+                .append(version)
+                .append(") \n");
         info.append(" :: Developed By Kanopus\n");
         info.append(" :: https://github.com/godheaven/\n");
 
@@ -154,15 +159,17 @@ public class Utils {
     }
 
     public static LocalDate getLocalDate(Date date) {
-        return (date != null) ? Instant.ofEpochMilli(date.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDate() : null;
+        return (date != null)
+                ? Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate()
+                : null;
     }
 
     public static LocalDateTime getLocalDateTime(Date date) {
-        return (date != null) ? Instant.ofEpochMilli(date.getTime())
-                .atZone(ZoneId.systemDefault())
-                .toLocalDateTime() : null;
+        return (date != null)
+                ? Instant.ofEpochMilli(date.getTime())
+                        .atZone(ZoneId.systemDefault())
+                        .toLocalDateTime()
+                : null;
     }
 
     public static double parseDouble(long value) {
@@ -179,10 +186,10 @@ public class Utils {
         } else {
             return (value != null) ? value : defaultValue;
         }
-
     }
 
-    public static <T extends Object> T defaultValue(Map<Integer, T> array, int index, T defaultValue) {
+    public static <T extends Object> T defaultValue(
+            Map<Integer, T> array, int index, T defaultValue) {
         T result = defaultValue;
         if (array != null) {
             result = defaultValue(array.get(index), defaultValue);
@@ -239,8 +246,11 @@ public class Utils {
         return getNumberFormat(number, true, padding);
     }
 
-    public static String getNumberFormat(double number, boolean includeSeparatorMiles, int padding) {
-        return (includeSeparatorMiles) ? NUMBER_FORMAT.format(number, padding) : NUMBER_FORMAT_WITH_MILES.format(number, padding);
+    public static String getNumberFormat(
+            double number, boolean includeSeparatorMiles, int padding) {
+        return (includeSeparatorMiles)
+                ? NUMBER_FORMAT.format(number, padding)
+                : NUMBER_FORMAT_WITH_MILES.format(number, padding);
     }
 
     public static String getDecimalFormat(double number) {
@@ -274,7 +284,9 @@ public class Utils {
     }
 
     public static String getTimeFormat(LocalDateTime localDateTime) {
-        return (localDateTime != null) ? localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")) : "";
+        return (localDateTime != null)
+                ? localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss"))
+                : "";
     }
 
     public static String getDateTimeFormat(Date date) {
@@ -303,7 +315,6 @@ public class Utils {
         return includeDots
                 ? Utils.getNumberFormat(Double.parseDouble(part1)) + "-" + part2
                 : part1 + "-" + part2;
-
     }
 
     public static Date getDate(String text) throws ParseException {
@@ -328,7 +339,6 @@ public class Utils {
             return "0d";
         }
         return days + "d";
-
     }
 
     public static String getElapsedTime(LocalDateTime start, LocalDateTime end) {
@@ -360,7 +370,6 @@ public class Utils {
         } catch (Exception ex) {
             return null;
         }
-
     }
 
     public static Date getDate(LocalDate localdate) {
@@ -383,7 +392,7 @@ public class Utils {
                 isNumber = true;
             }
         } catch (NumberFormatException e) {
-            //Is not a number
+            // Is not a number
         }
         return isNumber;
     }
@@ -447,7 +456,7 @@ public class Utils {
      * Check whether an integer RUT and verification digit are valid.
      *
      * @param rut numeric part of the RUT
-     * @param dv  verification character (digit or K)
+     * @param dv verification character (digit or K)
      * @return true if the RUT is valid according to the Chilean algorithm
      */
     public static boolean isRut(int rut, char dv) {
@@ -476,7 +485,9 @@ public class Utils {
 
             // Run through and put digits into multiplication table
             for (i = 0; i < (gtinLength - 1); i++) {
-                checkDigitArray[modifier + i] = Integer.parseInt(barcodeArray[i]);  // Add barcode digits to Multiplication Table
+                checkDigitArray[modifier + i] =
+                        Integer.parseInt(
+                                barcodeArray[i]); // Add barcode digits to Multiplication Table
             }
 
             // Calculate "Sum" of barcode digits
@@ -485,11 +496,11 @@ public class Utils {
             }
 
             // Difference from Rounded-Up-To-Nearest-10 - Fianl Check Digit Calculation
-            tmpCheckDigit = (int) ((Math.ceil((float) tmpCheckSum / (float) 10) * 10) - tmpCheckSum);
+            tmpCheckDigit =
+                    (int) ((Math.ceil((float) tmpCheckSum / (float) 10) * 10) - tmpCheckSum);
 
             // Check if last digit is same as calculated check digit
             valid = (gtinCheckDigit == tmpCheckDigit);
-
         }
         return valid;
     }
@@ -518,10 +529,10 @@ public class Utils {
     }
 
     /**
-     * Split a text into multiple lines with a maximum number of characters per line.
-     * Preserves empty lines and trims whitespace.
+     * Split a text into multiple lines with a maximum number of characters per line. Preserves
+     * empty lines and trims whitespace.
      *
-     * @param text            input text to split
+     * @param text input text to split
      * @param maxCharsPerLine maximum characters allowed on each line (>0)
      * @return list of lines resulting from the split, or empty list if input is null/blank
      * @throws IllegalArgumentException if maxCharsPerLine &lt;= 0
@@ -742,7 +753,8 @@ public class Utils {
 
     public static boolean isDateBetween(Date fecha, Date fechaInicio, Date fechaFin) {
         if (fecha != null && fechaInicio != null && fechaFin != null) {
-            // The current date must be greater or equal to fechaInicio and less or equal to fechaFin
+            // The current date must be greater or equal to fechaInicio and less or equal to
+            // fechaFin
             // Use compareTo for more efficient date comparison
             boolean fechaActualMayorFechaInicio = fecha.compareTo(fechaInicio) >= 0;
             boolean fechaActualMenorFechaFin = fecha.compareTo(fechaFin) <= 0;
@@ -756,7 +768,6 @@ public class Utils {
         boolean equals = false;
         if (date1 != null && date2 != null) {
             equals = date1.equals(date2);
-
         }
         return equals;
     }
@@ -816,7 +827,7 @@ public class Utils {
                 num = Long.valueOf(text.trim());
             }
         } catch (NumberFormatException ex) {
-            //Is not a number
+            // Is not a number
         }
 
         return num != null ? num : defaultValue;
@@ -836,7 +847,7 @@ public class Utils {
                     num = Long.valueOf(text.trim());
                 }
             } catch (NumberFormatException ex) {
-                //Is not a number
+                // Is not a number
             }
         }
         return num;
@@ -849,7 +860,7 @@ public class Utils {
                 num = Integer.valueOf(text.trim());
             }
         } catch (NumberFormatException ex) {
-            //Is not a number
+            // Is not a number
         }
 
         return num != null ? num : defaultValue;
@@ -869,7 +880,7 @@ public class Utils {
                     num = Integer.valueOf(text);
                 }
             } catch (NumberFormatException ex) {
-                //Is not a number
+                // Is not a number
             }
         }
         return num;
@@ -882,7 +893,7 @@ public class Utils {
                 num = BigInteger.valueOf(parseLong(text.trim()));
             }
         } catch (Exception ex) {
-            //Is not a number
+            // Is not a number
         }
         return num;
     }
@@ -926,7 +937,8 @@ public class Utils {
         return null;
     }
 
-    public static <T extends Enum<T> & EnumIdentifiable<S>, S> T valueOfEnum(Class<T> type, String name) {
+    public static <T extends Enum<T> & EnumIdentifiable<S>, S> T valueOfEnum(
+            Class<T> type, String name) {
         for (T t : type.getEnumConstants()) {
             if (t.name().equals(name)) {
                 return t;
@@ -950,12 +962,13 @@ public class Utils {
         int n = parts.length;
         switch (n) {
             case 3:
-                candidates = new String[]{parts[0], parts[1], parts[2]};
+                candidates = new String[] {parts[0], parts[1], parts[2]};
                 break;
             default:
-                candidates = (n > 3)
-                        ? new String[]{parts[0], parts[n - 2], parts[n - 1]}
-                        : parts; // 1 or 2 names
+                candidates =
+                        (n > 3)
+                                ? new String[] {parts[0], parts[n - 2], parts[n - 1]}
+                                : parts; // 1 or 2 names
                 break;
         }
 
@@ -974,10 +987,9 @@ public class Utils {
     }
 
     /**
-     * Returns List of the List argument passed to this function with size =
-     * chunkSize
+     * Returns List of the List argument passed to this function with size = chunkSize
      *
-     * @param list      Generic type of the List
+     * @param list Generic type of the List
      * @param chunkSize maximum size of each partition
      * @return A list of Lists which is portioned from the original list
      */
@@ -987,7 +999,8 @@ public class Utils {
         }
         List<List<T>> chunkList = new ArrayList<>(list.size() / chunkSize);
         for (int i = 0; i < list.size(); i += chunkSize) {
-            chunkList.add(list.subList(i, i + chunkSize >= list.size() ? list.size() : i + chunkSize));
+            chunkList.add(
+                    list.subList(i, i + chunkSize >= list.size() ? list.size() : i + chunkSize));
         }
         return chunkList;
     }
@@ -996,7 +1009,8 @@ public class Utils {
      * Convert text to camel case. (Not implemented yet)
      *
      * @param text input text
-     * @return the camel-cased text (currently returns unmodified or with underscores replaced by spaces)
+     * @return the camel-cased text (currently returns unmodified or with underscores replaced by
+     *     spaces)
      */
     public static String toCamelCase(String text) {
         // TODO: Implement this

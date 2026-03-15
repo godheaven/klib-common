@@ -26,10 +26,6 @@ package cl.kanopus.common.util;
 import cl.kanopus.common.data.ImageBase64;
 import cl.kanopus.common.data.Paginator;
 import cl.kanopus.common.enums.EnumIdentifiable;
-import org.springframework.beans.BeanWrapper;
-import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.InvalidPropertyException;
-
 import java.beans.PropertyDescriptor;
 import java.io.StringWriter;
 import java.lang.reflect.Array;
@@ -40,6 +36,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.InvalidPropertyException;
 
 @SuppressWarnings("UseSpecificCatch")
 public class KanopusBeanUtils {
@@ -49,8 +48,7 @@ public class KanopusBeanUtils {
 
     private static Map<String, Map> propTranslateMaps = new HashMap<>();
 
-    private KanopusBeanUtils() {
-    }
+    private KanopusBeanUtils() {}
 
     public static <T> List<T> mergeList(List<T> source, List<T> target) {
         List<T> merged = source;
@@ -89,7 +87,8 @@ public class KanopusBeanUtils {
         copyPropertiesRecursive(source, target, null, propertiesWithNewValuesMap);
     }
 
-    public static <T, S> Paginator<T> copyPaginator(Paginator<S> sourceList, Class<T> targetClassType) {
+    public static <T, S> Paginator<T> copyPaginator(
+            Paginator<S> sourceList, Class<T> targetClassType) {
         Paginator<T> records = new Paginator<>();
         for (S source : sourceList.getRecords()) {
             T target = KanopusBeanUtils.copyProperties(source, targetClassType);
@@ -103,22 +102,36 @@ public class KanopusBeanUtils {
         return copyList(sourceList, targetClassType, null, null);
     }
 
-    public static <T, S> List<T> copyList(List<S> sourceList, Class<T> targetClassType, Map<String, String> propertiesTranslationMap, Map<String, BeanProperty> propertiesWithNewValuesMap) {
+    public static <T, S> List<T> copyList(
+            List<S> sourceList,
+            Class<T> targetClassType,
+            Map<String, String> propertiesTranslationMap,
+            Map<String, BeanProperty> propertiesWithNewValuesMap) {
         ArrayList<T> objList = new ArrayList<>();
-        copyPropertiesRecursive(sourceList, objList, targetClassType, propertiesTranslationMap, propertiesWithNewValuesMap);
+        copyPropertiesRecursive(
+                sourceList,
+                objList,
+                targetClassType,
+                propertiesTranslationMap,
+                propertiesWithNewValuesMap);
         return objList;
     }
 
-    private static void copyPropertiesRecursive(Object source, Object target, Map<String, String> propertiesTranslationMap, Map<String, BeanProperty> propertiesWithNewValuesMap) {
+    private static void copyPropertiesRecursive(
+            Object source,
+            Object target,
+            Map<String, String> propertiesTranslationMap,
+            Map<String, BeanProperty> propertiesWithNewValuesMap) {
         if (target == null || source == null) {
             return; // none of the objects should be null.
         }
 
         if (target instanceof List && !(source instanceof List)) {
-            return; // Cannot copy elements when one side is a List and the other is not (not implemented yet)
+            return; // Cannot copy elements when one side is a List and the other is not (not
+            // implemented yet)
         }
 
-        //Copy StringWritter
+        // Copy StringWritter
         if (source.getClass() == StringWriter.class && target.getClass() == StringWriter.class) {
             StringWriter so = (StringWriter) source;
             StringWriter ta = (StringWriter) target;
@@ -132,7 +145,7 @@ public class KanopusBeanUtils {
             return;
         }
 
-        //Copy ImageBase64
+        // Copy ImageBase64
         if (source.getClass() == byte[].class && target.getClass() == ImageBase64.class) {
             ImageBase64 ta = (ImageBase64) target;
             ta.setData(Base64.getEncoder().encodeToString((byte[]) source));
@@ -142,13 +155,20 @@ public class KanopusBeanUtils {
         // If the property name translation map is null, try to find a default one
         // previously set in the map of maps.
         if (propertiesTranslationMap == null) {
-            propertiesTranslationMap = KanopusBeanUtils.getPropertiesTranslationMap(source.getClass(), target.getClass());
+            propertiesTranslationMap =
+                    KanopusBeanUtils.getPropertiesTranslationMap(
+                            source.getClass(), target.getClass());
         }
 
         // This only works for the top-level elements; attributes are handled elsewhere
         // when their properties are examined.
         if (target instanceof List && source instanceof List) {
-            copyPropertiesRecursive((List<?>) source, (List<?>) target, null, propertiesTranslationMap, propertiesWithNewValuesMap);
+            copyPropertiesRecursive(
+                    (List<?>) source,
+                    (List<?>) target,
+                    null,
+                    propertiesTranslationMap,
+                    propertiesWithNewValuesMap);
             return;
         }
 
@@ -157,8 +177,16 @@ public class KanopusBeanUtils {
             // cannot copy arbitrary objects to an array (not supported yet)
             if (source instanceof List) {
                 Class targetElemType = target.getClass().getComponentType();
-                Object[] outArr = copyListToArray((List) source, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
-                int len = outArr.length > ((Object[]) target).length ? ((Object[]) target).length : outArr.length;
+                Object[] outArr =
+                        copyListToArray(
+                                (List) source,
+                                targetElemType,
+                                propertiesTranslationMap,
+                                propertiesWithNewValuesMap);
+                int len =
+                        outArr.length > ((Object[]) target).length
+                                ? ((Object[]) target).length
+                                : outArr.length;
                 for (int i = 0; i < len; i++) {
                     ((Object[]) target)[i] = outArr[i];
                 }
@@ -187,7 +215,12 @@ public class KanopusBeanUtils {
             }
 
             // Use list-copying routine
-            copyPropertiesRecursive(sourceList, targetList, tac, propertiesTranslationMap, propertiesWithNewValuesMap);
+            copyPropertiesRecursive(
+                    sourceList,
+                    targetList,
+                    tac,
+                    propertiesTranslationMap,
+                    propertiesWithNewValuesMap);
 
             // Since source list can be larger than target list and copying may change
             // the target length, prepare to copy elements into the original-sized array.
@@ -208,7 +241,8 @@ public class KanopusBeanUtils {
          * the property type when found.
          */
         Map<String, BeanProperty> sourcePropertiesMap = new HashMap<>();
-        // To order property names: declared properties first, followed by those from the translation map.
+        // To order property names: declared properties first, followed by those from the
+        // translation map.
         List<String> propNames = new ArrayList<>();
         // Obtain the property names of the source class and their types.
         PropertyDescriptor[] pds = sourceBw.getPropertyDescriptors();
@@ -226,11 +260,11 @@ public class KanopusBeanUtils {
             BeanProperty bp = new BeanProperty(propName, pds[j].getPropertyType(), propValue);
             sourcePropertiesMap.put(pds[j].getName(), bp);
             propNames.add(pds[j].getName());
-
         }
         // obtain the property names and types proposed by the translation map.
         if (propertiesTranslationMap != null) {
-            for (Iterator iterator = propertiesTranslationMap.keySet().iterator(); iterator.hasNext(); ) {
+            for (Iterator iterator = propertiesTranslationMap.keySet().iterator();
+                    iterator.hasNext(); ) {
                 String propName = (String) iterator.next();
                 try {
                     Object value = sourceBw.getPropertyValue(propName);
@@ -254,7 +288,8 @@ public class KanopusBeanUtils {
             Class sourcePropType = bp.getType();
             Object sourcePropValue = bp.getValue();
 
-            if (propertiesWithNewValuesMap != null && propertiesWithNewValuesMap.containsKey(sourcePropName)) {
+            if (propertiesWithNewValuesMap != null
+                    && propertiesWithNewValuesMap.containsKey(sourcePropName)) {
                 BeanProperty newValue = propertiesWithNewValuesMap.get(sourcePropName);
                 if (sourcePropType == newValue.getType()) {
                     // Assign new value automatically
@@ -302,7 +337,7 @@ public class KanopusBeanUtils {
                         try {
                             oldValue = targetBw.getPropertyValue(prop);
                         } catch (InvalidPropertyException e) {
-                            //Null value
+                            // Null value
                         }
                         if (oldValue == null) {
                             Object obj = org.springframework.beans.BeanUtils.instantiateClass(type);
@@ -335,35 +370,64 @@ public class KanopusBeanUtils {
                     // If recursive copy fails, the value will be copied directly,
                     // or if it is a list it will be copied as a list.
                 }
-
             }
 
-            if (java.util.List.class.isAssignableFrom(targetPropType) && java.util.List.class.isAssignableFrom(sourcePropType)) {
+            if (java.util.List.class.isAssignableFrom(targetPropType)
+                    && java.util.List.class.isAssignableFrom(sourcePropType)) {
                 // If target is a list and source is also a list...
-                Class targetElemType = KanopusBeanUtils.getGenericDeclaredType(targetBw.getWrappedClass(), targetPropName);
+                Class targetElemType =
+                        KanopusBeanUtils.getGenericDeclaredType(
+                                targetBw.getWrappedClass(), targetPropName);
                 obj = new ArrayList<>();
-                copyPropertiesRecursive((List) sourcePropValue, (List) obj, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
-            } else if (java.util.List.class.isAssignableFrom(sourcePropType) && targetPropType.isArray()) {
+                copyPropertiesRecursive(
+                        (List) sourcePropValue,
+                        (List) obj,
+                        targetElemType,
+                        propertiesTranslationMap,
+                        propertiesWithNewValuesMap);
+            } else if (java.util.List.class.isAssignableFrom(sourcePropType)
+                    && targetPropType.isArray()) {
                 // If source is a list and target is an object array...
                 Class targetElemType = targetPropType.getComponentType();
-                obj = copyListToArray((List) sourcePropValue, targetElemType, propertiesTranslationMap, propertiesWithNewValuesMap);
-            } else if (sourcePropType.isEnum() && !targetPropType.isEnum() && (sourcePropValue instanceof EnumIdentifiable)) {
+                obj =
+                        copyListToArray(
+                                (List) sourcePropValue,
+                                targetElemType,
+                                propertiesTranslationMap,
+                                propertiesWithNewValuesMap);
+            } else if (sourcePropType.isEnum()
+                    && !targetPropType.isEnum()
+                    && (sourcePropValue instanceof EnumIdentifiable)) {
                 // If source implements EnumIdentifiable
                 obj = ((EnumIdentifiable) sourcePropValue).getId();
-            } else if (targetPropType.isEnum() && !sourcePropType.isEnum() && EnumIdentifiable.class.isAssignableFrom(targetPropType)) {
+            } else if (targetPropType.isEnum()
+                    && !sourcePropType.isEnum()
+                    && EnumIdentifiable.class.isAssignableFrom(targetPropType)) {
                 // If target implements EnumIdentifiable
                 obj = Utils.parseEnum(targetPropType, sourcePropValue);
-            } else if (targetPropType.isEnum() && sourcePropType.isEnum() && sourcePropValue.getClass() != targetPropType.getClass() && EnumIdentifiable.class.isAssignableFrom(sourcePropValue.getClass())) {
+            } else if (targetPropType.isEnum()
+                    && sourcePropType.isEnum()
+                    && sourcePropValue.getClass() != targetPropType.getClass()
+                    && EnumIdentifiable.class.isAssignableFrom(sourcePropValue.getClass())) {
                 // If the target implements EnumIdentifiable
                 obj = Utils.parseEnum(targetPropType, ((EnumIdentifiable) sourcePropValue).getId());
-            } else if (targetPropType == java.util.Date.class && sourcePropValue.getClass() == java.time.LocalDateTime.class) {
+            } else if (targetPropType == java.util.Date.class
+                    && sourcePropValue.getClass() == java.time.LocalDateTime.class) {
                 obj = java.sql.Timestamp.valueOf((LocalDateTime) sourcePropValue);
-            } else if (sourcePropType == java.util.Date.class && targetPropType == java.time.LocalDateTime.class) {
-                obj = Instant.ofEpochMilli(((Date) sourcePropValue).getTime()).atZone(ZoneId.systemDefault()).toLocalDateTime();
-            } else if (sourcePropValue.getClass() == ImageBase64.class && targetPropType == byte[].class) {
+            } else if (sourcePropType == java.util.Date.class
+                    && targetPropType == java.time.LocalDateTime.class) {
+                obj =
+                        Instant.ofEpochMilli(((Date) sourcePropValue).getTime())
+                                .atZone(ZoneId.systemDefault())
+                                .toLocalDateTime();
+            } else if (sourcePropValue.getClass() == ImageBase64.class
+                    && targetPropType == byte[].class) {
                 ImageBase64 so = (ImageBase64) sourcePropValue;
                 obj = Base64.getDecoder().decode(so.getData());
-            } else if (targetPropType == java.util.Date.class && (sourcePropType != java.util.Date.class && sourcePropValue.getClass() != java.util.Date.class && sourcePropValue.getClass() != java.sql.Timestamp.class)) {
+            } else if (targetPropType == java.util.Date.class
+                    && (sourcePropType != java.util.Date.class
+                            && sourcePropValue.getClass() != java.util.Date.class
+                            && sourcePropValue.getClass() != java.sql.Timestamp.class)) {
                 continue;
             }
 
@@ -371,12 +435,16 @@ public class KanopusBeanUtils {
                 // Finally, copy the attribute value.
                 targetBw.setPropertyValue(targetPropName, obj);
             } catch (Exception ex) {
-                //Null value
+                // Null value
             }
         }
     }
 
-    private static <T, S> T[] copyListToArray(List<S> sourceList, Class<T> targetClassType, Map<String, String> propertiesTranslationMap, Map<String, BeanProperty> propertiesWithNewValuesMap) {
+    private static <T, S> T[] copyListToArray(
+            List<S> sourceList,
+            Class<T> targetClassType,
+            Map<String, String> propertiesTranslationMap,
+            Map<String, BeanProperty> propertiesWithNewValuesMap) {
         Object obj;
         try {
             obj = Array.newInstance(targetClassType, sourceList.size());
@@ -384,7 +452,12 @@ public class KanopusBeanUtils {
             return null; // could not create the array.
         }
         ArrayList<T> objList = new ArrayList<>();
-        copyPropertiesRecursive(sourceList, objList, targetClassType, propertiesTranslationMap, propertiesWithNewValuesMap);
+        copyPropertiesRecursive(
+                sourceList,
+                objList,
+                targetClassType,
+                propertiesTranslationMap,
+                propertiesWithNewValuesMap);
 
         // As the array type is not known a priori, cannot call toArray();
         // so iterate the list and fill the array manually.
@@ -395,7 +468,12 @@ public class KanopusBeanUtils {
         return resultArray;
     }
 
-    private static <T, S> void copyPropertiesRecursive(List<S> source, List<T> target, Class<T> targetClass, Map propertiesTranslationMap, Map<String, BeanProperty> propertiesWithNewValuesMap) {
+    private static <T, S> void copyPropertiesRecursive(
+            List<S> source,
+            List<T> target,
+            Class<T> targetClass,
+            Map propertiesTranslationMap,
+            Map<String, BeanProperty> propertiesWithNewValuesMap) {
         for (int i = 0; i < source.size(); i++) {
             S sourceElem = source.get(i);
 
@@ -413,7 +491,11 @@ public class KanopusBeanUtils {
             } else {
                 try {
                     targetElem = (T) org.springframework.beans.BeanUtils.instantiateClass(tClass);
-                    copyPropertiesRecursive(sourceElem, targetElem, propertiesTranslationMap, propertiesWithNewValuesMap);
+                    copyPropertiesRecursive(
+                            sourceElem,
+                            targetElem,
+                            propertiesTranslationMap,
+                            propertiesWithNewValuesMap);
                 } catch (Exception e2) {
                     targetElem = (T) sourceElem;
                 }
@@ -443,7 +525,8 @@ public class KanopusBeanUtils {
         return Object.class;
     }
 
-    private static Map<String, String> getPropertiesTranslationMap(Class sourceClass, Class targetClass) {
+    private static Map<String, String> getPropertiesTranslationMap(
+            Class sourceClass, Class targetClass) {
         String key = sourceClass.getSimpleName() + "_" + targetClass.getSimpleName();
         return propTranslateMaps.get(key);
     }
@@ -454,8 +537,7 @@ public class KanopusBeanUtils {
         private Class type;
         private Object value;
 
-        public BeanProperty() {
-        }
+        public BeanProperty() {}
 
         public BeanProperty(String name, Class type, Object value) {
             this.name = name;
@@ -505,5 +587,4 @@ public class KanopusBeanUtils {
             this.value = value;
         }
     }
-
 }

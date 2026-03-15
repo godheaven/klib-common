@@ -47,9 +47,11 @@ public class EnumValueValidator implements ConstraintValidator<EnumValue, Object
         boolean isValid = parseValue != null;
         if (!isValid) {
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext.buildConstraintViolationWithTemplate(String.format(annotation.message(), object)).addConstraintViolation();
+            constraintContext
+                    .buildConstraintViolationWithTemplate(
+                            String.format(annotation.message(), object))
+                    .addConstraintViolation();
         }
         return isValid;
     }
-
 }

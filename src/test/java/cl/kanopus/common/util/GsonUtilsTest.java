@@ -23,11 +23,10 @@
  */
 package cl.kanopus.common.util;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.time.LocalDate;
 import java.util.Date;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class GsonUtilsTest {
 
@@ -43,7 +42,8 @@ class GsonUtilsTest {
         test.setFechaSql(sql);
 
         String result = GsonUtils.custom.toJson(test);
-        String expected = "{\"fecha1\":\"2021-03-16T00:00:00\",\"fecha2\":\"2021-03-16T00:00:00\",\"fecha3\":\"2021-03-16T00:00:00\",\"fechaSql\":\"2021-03-16T00:00:00\"}";
+        String expected =
+                "{\"fecha1\":\"2021-03-16T00:00:00\",\"fecha2\":\"2021-03-16T00:00:00\",\"fecha3\":\"2021-03-16T00:00:00\",\"fechaSql\":\"2021-03-16T00:00:00\"}";
 
         Assertions.assertEquals(expected, result);
     }
@@ -86,6 +86,5 @@ class GsonUtilsTest {
         public void setFechaSql(java.sql.Date fechaSql) {
             this.fechaSql = fechaSql;
         }
-
     }
 }

@@ -23,12 +23,11 @@
  */
 package cl.kanopus.common.util;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Collections;
-
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class AssertUtilsTest {
 
@@ -45,7 +44,9 @@ class AssertUtilsTest {
 
     @Test
     void assertNotEmptyThrows() {
-        assertThrows(IllegalArgumentException.class, () -> AssertUtils.assertNotEmpty(Collections.emptyList()));
+        assertThrows(
+                IllegalArgumentException.class,
+                () -> AssertUtils.assertNotEmpty(Collections.emptyList()));
     }
 
     @Test
@@ -56,6 +57,7 @@ class AssertUtilsTest {
 
     @Test
     void assertNotEqualsThrows() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> AssertUtils.assertNotEquals("a", "a"));
+        Assertions.assertThrows(
+                IllegalArgumentException.class, () -> AssertUtils.assertNotEquals("a", "a"));
     }
 }

@@ -2,7 +2,7 @@
  * !--
  * For support and inquiries regarding this library, please contact:
  *   soporte@kanopus.cl
- * 
+ *
  * Project website:
  *   https://www.kanopus.cl
  * %%
@@ -11,9 +11,9 @@
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *      http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -23,32 +23,31 @@
  */
 package cl.kanopus.common.util.crypto;
 
+import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
+import java.util.Base64;
+import java.util.Objects;
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
-import java.security.SecureRandom;
-import java.util.Base64;
-import java.util.Objects;
 
 class CryptoAesGcm {
 
     // ===== Cryptographic parameters =====
     private static final SecureRandom RNG = new SecureRandom();
     private static final String KDF_ALG = "PBKDF2WithHmacSHA256";
-    private static final int KDF_ITERATIONS = 210_000;         // adjust according to SLO
+    private static final int KDF_ITERATIONS = 210_000; // adjust according to SLO
     private static final int KDF_KEY_LEN_BITS = 256;
 
     private static final String AES_TRANSFORM = "AES/GCM/NoPadding";
-    private static final int GCM_TAG_LEN_BITS = 128;            // 16 bytes
-    private static final int SALT_LEN_BYTES = 16;               // per-message salt
-    private static final int IV_LEN_BYTES = 12;                 // recommended for GCM
+    private static final int GCM_TAG_LEN_BITS = 128; // 16 bytes
+    private static final int SALT_LEN_BYTES = 16; // per-message salt
+    private static final int IV_LEN_BYTES = 12; // recommended for GCM
 
-    private CryptoAesGcm() {
-    }
+    private CryptoAesGcm() {}
 
     // ========= Encryption / Decryption (AES-GCM) =========
 
@@ -58,9 +57,10 @@ class CryptoAesGcm {
      * <p>Format: v1:pbkdf2:iter:saltB64:ivB64:cipherB64
      *
      * @param plaintext the UTF-8 plaintext to encrypt; must not be null
-     * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and ciphertext
+     * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and
+     *     ciphertext
      * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException      for internal encryption failures
+     * @throws RuntimeException for internal encryption failures
      */
     public static String encrypt(char[] encryptKey, String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
@@ -81,15 +81,15 @@ class CryptoAesGcm {
         return "v1:pbkdf2:" + KDF_ITERATIONS + ":" + saltB64 + ":" + ivB64 + ":" + cB64;
     }
 
-
     /**
      * Decrypts a string previously produced by {@link #encrypt(char[], String)}.
      *
-     * @param encoded the encoded ciphertext string produced by {@link #encrypt(char[], String)}; must not be null
+     * @param encoded the encoded ciphertext string produced by {@link #encrypt(char[], String)};
+     *     must not be null
      * @return the decrypted plaintext as a UTF-8 string
      * @throws IllegalArgumentException if the input format is unsupported or malformed
-     * @throws IllegalStateException    if the encryption passphrase has not been set
-     * @throws RuntimeException         if decryption fails (possible tampering or wrong key)
+     * @throws IllegalStateException if the encryption passphrase has not been set
+     * @throws RuntimeException if decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(char[] encryptKey, String encoded) {
         Objects.requireNonNull(encoded, "encoded");
@@ -109,7 +109,6 @@ class CryptoAesGcm {
         byte[] plain = gcmDecrypt(sk, iv, cipherBytes);
         return new String(plain, StandardCharsets.UTF_8);
     }
-
 
     private static SecretKey deriveAesKey(char[] pass, byte[] salt, int iterations) {
         try {
@@ -131,7 +130,6 @@ class CryptoAesGcm {
             throw new CryptoException("AES-GCM encrypt failed", e);
         }
     }
-
 
     private static byte[] gcmDecrypt(SecretKey key, byte[] iv, byte[] ciphertext) {
         try {
@@ -173,7 +171,7 @@ class CryptoAesGcm {
     /**
      * Verifies a PBKDF2 hash in constant time to prevent timing attacks.
      *
-     * @param raw    the raw input to verify (e.g. password)
+     * @param raw the raw input to verify (e.g. password)
      * @param stored the stored hash produced by {@link #hash(String)}
      * @return true if the raw input corresponds to the stored hash; false otherwise
      */
@@ -189,7 +187,8 @@ class CryptoAesGcm {
         byte[] dkStored = Base64.getUrlDecoder().decode(parts[4]);
 
         try {
-            PBEKeySpec spec = new PBEKeySpec(raw.toCharArray(), salt, iterations, dkStored.length * 8);
+            PBEKeySpec spec =
+                    new PBEKeySpec(raw.toCharArray(), salt, iterations, dkStored.length * 8);
             SecretKeyFactory skf = SecretKeyFactory.getInstance(KDF_ALG);
             byte[] dk = skf.generateSecret(spec).getEncoded();
             return constantTimeEquals(dk, dkStored);
@@ -201,10 +200,10 @@ class CryptoAesGcm {
     // ========= Compatibility: old matches() =========
 
     /**
-     * NOTE: Previously this library compared by encrypting (bad practice).
-     * Now we treat `encryptedOrHashed` as a PBKDF2 hash.
+     * NOTE: Previously this library compared by encrypting (bad practice). Now we treat
+     * `encryptedOrHashed` as a PBKDF2 hash.
      *
-     * @param raw               the raw input to verify
+     * @param raw the raw input to verify
      * @param encryptedOrHashed the stored PBKDF2 hash
      * @return true if verification succeeds, false otherwise
      */
@@ -220,6 +219,4 @@ class CryptoAesGcm {
         for (int i = 0; i < a.length; i++) r |= a[i] ^ b[i];
         return r == 0;
     }
-
-
 }

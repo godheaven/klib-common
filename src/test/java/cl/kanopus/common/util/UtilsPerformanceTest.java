@@ -23,17 +23,14 @@
  */
 package cl.kanopus.common.util;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-/**
- * Performance tests for Utils class to ensure optimizations are working
- */
+/** Performance tests for Utils class to ensure optimizations are working */
 class UtilsPerformanceTest {
 
     private static final int ITERATIONS = 1000;
@@ -43,14 +40,14 @@ class UtilsPerformanceTest {
         // Test that repeated calls with same pattern are fast (cached)
         Date testDate = new Date();
         String pattern = "yyyy-MM-dd HH:mm:ss";
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             String result = Utils.getDateFormat(testDate, pattern);
             assertNotNull(result);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         // Just ensure it completes without error
         assertTrue(duration > 0, "Date formatting should complete successfully");
     }
@@ -60,14 +57,14 @@ class UtilsPerformanceTest {
         // Test that regex validation is efficient
         String testValue = "test@example.com";
         String regex = "^[a-zA-Z0-9@.]+$";
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             boolean result = Utils.isValidRegex(testValue, regex);
             assertTrue(result);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Regex validation should complete successfully");
     }
 
@@ -77,14 +74,14 @@ class UtilsPerformanceTest {
         Date start = new Date(System.currentTimeMillis() - 86400000L); // Yesterday
         Date end = new Date(System.currentTimeMillis() + 86400000L); // Tomorrow
         Date test = new Date(); // Today
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             boolean result = Utils.isDateBetween(test, start, end);
             assertTrue(result);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Date comparison should complete successfully");
     }
 
@@ -95,14 +92,14 @@ class UtilsPerformanceTest {
         for (int i = 0; i < 100; i++) {
             numbers.add(i);
         }
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             int[] result = Utils.toArrayInt(numbers);
             assertEquals(100, result.length);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Array conversion should complete successfully");
     }
 
@@ -115,7 +112,7 @@ class UtilsPerformanceTest {
             assertEquals(123.0, result, 0.001);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "ParseDouble should complete successfully");
     }
 
@@ -123,13 +120,8 @@ class UtilsPerformanceTest {
     void testDateFormatterMultiplePatterns() {
         // Test caching with multiple different patterns
         Date testDate = new Date();
-        String[] patterns = {
-            "yyyy-MM-dd",
-            "dd/MM/yyyy",
-            "MM-dd-yyyy HH:mm",
-            "yyyy.MM.dd"
-        };
-        
+        String[] patterns = {"yyyy-MM-dd", "dd/MM/yyyy", "MM-dd-yyyy HH:mm", "yyyy.MM.dd"};
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             for (String pattern : patterns) {
@@ -138,7 +130,7 @@ class UtilsPerformanceTest {
             }
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "Multiple pattern formatting should complete successfully");
     }
 
@@ -149,14 +141,14 @@ class UtilsPerformanceTest {
         for (int i = 0; i < 100; i++) {
             numbers.add(i);
         }
-        
+
         long startTime = System.nanoTime();
         for (int i = 0; i < ITERATIONS; i++) {
             Integer[] result = Utils.toArrayInteger(numbers);
             assertEquals(100, result.length);
         }
         long duration = System.nanoTime() - startTime;
-        
+
         assertTrue(duration > 0, "ToArrayInteger should complete successfully");
     }
 }

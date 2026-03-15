@@ -23,9 +23,11 @@
  */
 package cl.kanopus.common.util;
 
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
+import java.io.File;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.XMLConstants;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
@@ -37,18 +39,15 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 public class XMLUtils {
 
-    private XMLUtils() {
-    }
+    private XMLUtils() {}
 
-    public static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
+    public static final String XML_DECLARATION =
+            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
 
     public static void validateXMLSchema(File xsd, File xml) throws SAXException, IOException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -127,7 +126,8 @@ public class XMLUtils {
         return value;
     }
 
-    public static StringWriter parse(Document doc, boolean includeXmlDeclaration) throws TransformerException {
+    public static StringWriter parse(Document doc, boolean includeXmlDeclaration)
+            throws TransformerException {
 
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");
@@ -141,5 +141,4 @@ public class XMLUtils {
         t.transform(new DOMSource(doc), new StreamResult(sw));
         return sw;
     }
-
 }

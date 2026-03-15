@@ -24,9 +24,6 @@
 package cl.kanopus.common.util;
 
 import cl.kanopus.common.enums.EnumIdentifiable;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-
 import java.io.File;
 import java.io.StringWriter;
 import java.math.BigDecimal;
@@ -38,6 +35,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 class UtilsTest {
 
@@ -70,11 +69,18 @@ class UtilsTest {
         Assertions.assertEquals("2d 5h 30m", result);
     }
 
-
     @Test
     void testIsEqualsOne_Enum() {
-        Assertions.assertTrue(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L)));
-        Assertions.assertFalse(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L), new EnumIdentifiableExample(3L)));
+        Assertions.assertTrue(
+                Utils.isEqualsOne(
+                        new EnumIdentifiableExample(1L),
+                        new EnumIdentifiableExample(1L),
+                        new EnumIdentifiableExample(2L)));
+        Assertions.assertFalse(
+                Utils.isEqualsOne(
+                        new EnumIdentifiableExample(1L),
+                        new EnumIdentifiableExample(2L),
+                        new EnumIdentifiableExample(3L)));
     }
 
     @Test
@@ -227,7 +233,6 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.getDateFormat(date, pattern);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -236,7 +241,6 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.getTimeFormat(date);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -245,7 +249,6 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.getTimeFormat(localDateTime);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -254,14 +257,13 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.getDateTimeFormat(date);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
     void testGetDateTimeFormat_LocalDateTime() {
         LocalDateTime localDateTime = LocalDateTime.of(2023, Month.FEBRUARY, 1, 10, 2, 3);
         String expResult = "01/02/2023 10:02:03";
-        String result = Utils.getDateTimeFormat(localDateTime); //dd/MM/yyyy HH:mm:ss
+        String result = Utils.getDateTimeFormat(localDateTime); // dd/MM/yyyy HH:mm:ss
         Assertions.assertEquals(expResult, result);
     }
 
@@ -286,7 +288,6 @@ class UtilsTest {
         Date expResult = null;
         Date result = Utils.getDate(text);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -296,9 +297,7 @@ class UtilsTest {
         Date expResult = null;
         Date result = Utils.getDate(text, pattern);
         Assertions.assertEquals(expResult, result);
-
     }
-
 
     @Test
     void testGetElapsedTime_LocalDate_LocalDate() {
@@ -307,15 +306,12 @@ class UtilsTest {
         Assertions.assertEquals("29d", Utils.getElapsedTime(start, end));
     }
 
-
     @Test
     void testGetElapsedTime_LocalDateTime_LocalDateTime() {
         LocalDateTime start = LocalDateTime.of(2023, Month.JANUARY, 1, 10, 0);
         LocalDateTime end = LocalDateTime.of(2023, Month.JANUARY, 30, 10, 0);
         Assertions.assertEquals("29d", Utils.getElapsedTime(start, end));
-
     }
-
 
     @Test
     void testGetDate_LocalDate() {
@@ -325,9 +321,7 @@ class UtilsTest {
 
         Assertions.assertNotNull(result);
         Assertions.assertEquals("30/01/2023", Utils.getDateFormat(result));
-
     }
-
 
     @Test
     void testSubstring() {
@@ -338,13 +332,11 @@ class UtilsTest {
         Assertions.assertEquals(expResult, result);
     }
 
-
     @Test
     void testIsNumber() {
         Assertions.assertTrue(Utils.isNumber("8"));
         Assertions.assertFalse(Utils.isNumber("eight"));
     }
-
 
     @Test
     void testIsNullOrEmpty_String() {
@@ -354,13 +346,11 @@ class UtilsTest {
         Assertions.assertFalse(Utils.isNullOrEmpty("Test"));
     }
 
-
     @Test
     void testIsNullOrEmpty_StringArr() {
-        String[] text = new String[]{"", null};
+        String[] text = new String[] {"", null};
         Assertions.assertTrue(Utils.isNullOrEmpty(text));
     }
-
 
     @Test
     void testIsNullOrEmpty_List() {
@@ -382,7 +372,6 @@ class UtilsTest {
         boolean expResult = false;
         boolean result = Utils.isRut(rut, dv);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -400,12 +389,10 @@ class UtilsTest {
         Assertions.assertTrue(Utils.isGTIN("7809591400113"));
     }
 
-
     @Test
     void testIsValidRegex() {
         Assertions.assertTrue(Utils.isValidRegex("abc123", "^[a-z]+[0-9]+$"));
         Assertions.assertFalse(Utils.isValidRegex("123abc", "^[a-z]+[0-9]+$"));
-
     }
 
     @Test
@@ -423,7 +410,6 @@ class UtilsTest {
         Assertions.assertFalse(Utils.isValidEmail("test@gmail .com"));
     }
 
-
     @Test
     void testRoundUp() {
         Assertions.assertEquals(2, Utils.roundUp(8, 5));
@@ -439,14 +425,15 @@ class UtilsTest {
         Assertions.assertEquals(expResult, result);
     }
 
-
     @Test
     void testSplitText() {
-        Assertions.assertLinesMatch(Arrays.asList("123 456", "789 0 123", "ABC DEF", "GHI"), Utils.splitText("123 456 789 0 123 ABC DEF GHI", 10));
+        Assertions.assertLinesMatch(
+                Arrays.asList("123 456", "789 0 123", "ABC DEF", "GHI"),
+                Utils.splitText("123 456 789 0 123 ABC DEF GHI", 10));
         Assertions.assertLinesMatch(Arrays.asList("123456789"), Utils.splitText("123456789", 5));
-        Assertions.assertLinesMatch(Arrays.asList("123", "456", "789"), Utils.splitText("123 456 789", 3));
+        Assertions.assertLinesMatch(
+                Arrays.asList("123", "456", "789"), Utils.splitText("123 456 789", 3));
     }
-
 
     @Test
     void testReplaceAll() {
@@ -454,9 +441,9 @@ class UtilsTest {
         String toReplace = "test";
         String replacement = "kanopus";
         Utils.replaceAll(sb, toReplace, replacement);
-        Assertions.assertEquals("This is a kanopus. This kanopus is only a kanopus.", sb.toString());
+        Assertions.assertEquals(
+                "This is a kanopus. This kanopus is only a kanopus.", sb.toString());
     }
-
 
     @Test
     void testArrayToString_intArr() {
@@ -464,13 +451,11 @@ class UtilsTest {
         Assertions.assertEquals("1,2,3,4,5", Utils.arrayToString(numbers));
     }
 
-
     @Test
     void testArrayToString_List() {
         List<String> text = Arrays.asList("1", "2", "3");
         Assertions.assertEquals("1,2,3", Utils.arrayToString(text));
     }
-
 
     @Test
     void testArrayToString_List_String() {
@@ -479,13 +464,11 @@ class UtilsTest {
         Assertions.assertEquals("1|2|3", Utils.arrayToString(text, separator));
     }
 
-
     @Test
     void testToString_Long() {
         Long number = 9L;
         Assertions.assertEquals("9", Utils.toString(number));
     }
-
 
     @Test
     void testToString_List() {
@@ -493,7 +476,6 @@ class UtilsTest {
         String expResult = "";
         String result = Utils.toString(numbers);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -512,20 +494,18 @@ class UtilsTest {
         Assertions.assertArrayEquals(expResult, result);
     }
 
-
     @Test
     void testToListInt() {
         Assertions.assertNotNull(Utils.toListInt("1,2,3"));
-        Assertions.assertArrayEquals(Arrays.asList(1, 2, 3).toArray(), Utils.toListInt("1,2,3").toArray());
-
+        Assertions.assertArrayEquals(
+                Arrays.asList(1, 2, 3).toArray(), Utils.toListInt("1,2,3").toArray());
     }
-
 
     @Test
     void testToListLong() {
         Assertions.assertNotNull(Utils.toListLong("1,2,3"));
-        Assertions.assertArrayEquals(Arrays.asList(1L, 2L, 3L).toArray(), Utils.toListLong("1,2,3").toArray());
-
+        Assertions.assertArrayEquals(
+                Arrays.asList(1L, 2L, 3L).toArray(), Utils.toListLong("1,2,3").toArray());
     }
 
     @Test
@@ -551,16 +531,16 @@ class UtilsTest {
         Assertions.assertFalse(Utils.isDateEquals(date1, date3));
     }
 
-
     @Test
     void testFileToString() throws Exception {
-        Assertions.assertThrows(Exception.class, () -> {
-            Utils.fileToString(new File("not_found.txt"));
-        });
-        Assertions.assertEquals("test1\n", Utils.fileToString(new File("src/test/resources/test.txt")).toString());
-
+        Assertions.assertThrows(
+                Exception.class,
+                () -> {
+                    Utils.fileToString(new File("not_found.txt"));
+                });
+        Assertions.assertEquals(
+                "test1\n", Utils.fileToString(new File("src/test/resources/test.txt")).toString());
     }
-
 
     @Test
     void testParseMoney2Long() {
@@ -568,9 +548,7 @@ class UtilsTest {
         long expResult = 0L;
         long result = Utils.parseMoney2Long(text);
         Assertions.assertEquals(expResult, result);
-
     }
-
 
     @Test
     void testParseDouble2Integer() {
@@ -578,9 +556,7 @@ class UtilsTest {
         Assertions.assertEquals(0, Utils.parseDouble2Integer(""));
         Assertions.assertEquals(1, Utils.parseDouble2Integer("1.2"));
         Assertions.assertEquals(9, Utils.parseDouble2Integer("9.9"));
-
     }
-
 
     @Test
     void testParseDouble2Long() {
@@ -589,14 +565,12 @@ class UtilsTest {
         Assertions.assertEquals(9L, Utils.parseDouble2Long("9.9"));
     }
 
-
     @Test
     void testParseLongDefault() {
         Assertions.assertEquals(0, Utils.parseLongDefault("", 0));
         Assertions.assertEquals(1, Utils.parseLongDefault("no-num", 1));
         Assertions.assertEquals(9, Utils.parseLongDefault("9", 2));
     }
-
 
     @Test
     void testParseLong_String() {
@@ -605,9 +579,7 @@ class UtilsTest {
         Long expResult = null;
         Long result = Utils.parseLong(text);
         Assertions.assertEquals(expResult, result);
-
     }
-
 
     @Test
     void testParseLong_String_boolean() {
@@ -617,7 +589,6 @@ class UtilsTest {
         Long expResult = null;
         Long result = Utils.parseLong(text, required);
         Assertions.assertEquals(expResult, result);
-
     }
 
     @Test
@@ -627,15 +598,12 @@ class UtilsTest {
         Integer expResult = defaultValue;
         Integer result = Utils.parseIntDefault(text, defaultValue);
         Assertions.assertEquals(expResult, result);
-
     }
-
 
     @Test
     void testParseInt_String() {
         Assertions.assertEquals((Integer) 1, Utils.parseInt("1"));
     }
-
 
     @Test
     void testParseInt_String_boolean() {
@@ -654,7 +622,6 @@ class UtilsTest {
         Assertions.assertEquals(BigInteger.valueOf(1), Utils.parseBigInteger((double) 1));
     }
 
-
     @Test
     void testParseBigDecimal_Double() {
         BigDecimal result = Utils.parseBigDecimal(1);
@@ -665,18 +632,15 @@ class UtilsTest {
         Assertions.assertEquals("1999", result2 + "");
     }
 
-
     @Test
     void testParseBigDecimal_Long() {
         Assertions.assertEquals(new BigDecimal(1), Utils.parseBigDecimal(1L));
     }
 
-
     @Test
     void testParseBigDecimal_int() {
         Assertions.assertEquals(new BigDecimal(1), Utils.parseBigDecimal(1));
     }
-
 
     @Test
     void testParseStringWriter() {
@@ -685,16 +649,15 @@ class UtilsTest {
         Assertions.assertEquals(expResult.toString(), Utils.parseStringWriter("text").toString());
     }
 
-
     @Test
     void testGetCustomerN1A1A2() {
         Assertions.assertEquals("Juan", Utils.getCustomerN1A1A2("Juan", 12));
         Assertions.assertEquals("Juan Andres", Utils.getCustomerN1A1A2("Juan Andres", 12));
         Assertions.assertEquals("Juan Perez", Utils.getCustomerN1A1A2("Juan Perez Coloma", 12));
-        Assertions.assertEquals("Juan Perez Coloma", Utils.getCustomerN1A1A2("Juan Andres Perez Coloma", 17));
+        Assertions.assertEquals(
+                "Juan Perez Coloma", Utils.getCustomerN1A1A2("Juan Andres Perez Coloma", 17));
         Assertions.assertEquals("", Utils.getCustomerN1A1A2("", 12));
     }
-
 
     @Test
     void testPutIntoArrayList() {
@@ -717,9 +680,7 @@ class UtilsTest {
         Assertions.assertEquals("two", items.get(1).getName());
         Assertions.assertEquals(3, items.get(2).getId());
         Assertions.assertEquals("three", items.get(2).getName());
-
     }
-
 
     static class EnumIdentifiableExample implements EnumIdentifiable<Long> {
         private final Long id;
@@ -732,8 +693,6 @@ class UtilsTest {
         public Long getId() {
             return id;
         }
-
-
     }
 
     public static class ExampleTO {
@@ -757,19 +716,20 @@ class UtilsTest {
         @Override
         public boolean equals(Object obj) {
             ExampleTO other = (ExampleTO) obj;
-            return (this.getName() != null && other != null && this.getName().equals(other.getName()));
+            return (this.getName() != null
+                    && other != null
+                    && this.getName().equals(other.getName()));
         }
-
     }
 
     @Test
     void arrayToString_and_toArray_conversions() {
-        Assertions.assertEquals("1,2,3", Utils.arrayToString(new int[]{1, 2, 3}));
-        Assertions.assertEquals("1,2,3", Utils.arrayToString(new long[]{1, 2, 3}));
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new int[] {1, 2, 3}));
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new long[] {1, 2, 3}));
 
         List<Integer> ints = Arrays.asList(4, 5, 6);
-        Assertions.assertArrayEquals(new int[]{4, 5, 6}, Utils.toArrayInt(ints));
-        Assertions.assertArrayEquals(new Integer[]{4, 5, 6}, Utils.toArrayInteger(ints));
+        Assertions.assertArrayEquals(new int[] {4, 5, 6}, Utils.toArrayInt(ints));
+        Assertions.assertArrayEquals(new Integer[] {4, 5, 6}, Utils.toArrayInteger(ints));
     }
 
     @Test

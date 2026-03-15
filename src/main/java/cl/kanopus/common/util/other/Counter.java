@@ -33,5 +33,4 @@ public class Counter {
     public void increment() {
         value++;
     }
-
 }

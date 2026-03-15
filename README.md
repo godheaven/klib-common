@@ -1,6 +1,7 @@
 ![Logo](https://www.kanopus.cl/assets/kanopus-grey.png)
 
-[![Maven Central](https://img.shields.io/maven-central/v/cl.kanopus.util/klib-common.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/cl.kanopus.util/klib-common)
+[![Maven Central](https://img.shields.io/maven-central/v/cl.kanopus.util/klib-deploy-sql.svg?label=Maven%20Central)](https://central.sonatype.com/artifact/cl.kanopus.util/klib-common)
+[![Apache License 2.0](https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg)](https://opensource.org/license/apache-2-0)
 
 # klib-common
 
@@ -24,7 +25,7 @@ To use this parent in your Maven project, add the following to your `pom.xml`:
 <parent>
 	<groupId>cl.kanopus.util</groupId>
 	<artifactId>klib-common</artifactId>
-	<version>3.59.0</version>
+	<version>4.03.0</version>
 </parent>
 
 ```

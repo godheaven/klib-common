@@ -31,12 +31,18 @@ class NumberToLetterConverterTest {
     @Test
     void testPrettyFileSize() {
 
-
-        Assertions.assertEquals("MIL PESOS", NumberToLetterConverter.convertNumberToLetter((double) 1000));
-        Assertions.assertEquals("CUARENTA Y CINCO MIL PESOS", NumberToLetterConverter.convertNumberToLetter((double) 45000));
-        Assertions.assertEquals("TRESCIENTOS MIL OCHOCIENTOS NOVENTA Y SIETE PESOS", NumberToLetterConverter.convertNumberToLetter((double) 300897));
-        Assertions.assertEquals("UN MILLON QUINIENTOS PESOS", NumberToLetterConverter.convertNumberToLetter((double) 1000500));
-        Assertions.assertEquals("CINCUENTA PESOS", NumberToLetterConverter.convertNumberToLetter((double) 50));
+        Assertions.assertEquals(
+                "MIL PESOS", NumberToLetterConverter.convertNumberToLetter((double) 1000));
+        Assertions.assertEquals(
+                "CUARENTA Y CINCO MIL PESOS",
+                NumberToLetterConverter.convertNumberToLetter((double) 45000));
+        Assertions.assertEquals(
+                "TRESCIENTOS MIL OCHOCIENTOS NOVENTA Y SIETE PESOS",
+                NumberToLetterConverter.convertNumberToLetter((double) 300897));
+        Assertions.assertEquals(
+                "UN MILLON QUINIENTOS PESOS",
+                NumberToLetterConverter.convertNumberToLetter((double) 1000500));
+        Assertions.assertEquals(
+                "CINCUENTA PESOS", NumberToLetterConverter.convertNumberToLetter((double) 50));
     }
-
 }
