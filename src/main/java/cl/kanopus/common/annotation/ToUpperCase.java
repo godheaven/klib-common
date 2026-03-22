@@ -25,10 +25,10 @@ package cl.kanopus.common.annotation;
 
 import cl.kanopus.common.annotation.impl.ToUpperCaseConverter;
 import com.fasterxml.jackson.annotation.JacksonAnnotationsInside;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import tools.jackson.databind.annotation.JsonDeserialize;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 @Retention(RetentionPolicy.RUNTIME)
 @JacksonAnnotationsInside

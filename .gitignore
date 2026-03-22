@@ -1,90 +1,34 @@
-# .gitignore para proyectos Java (Maven / Gradle / IDEs)
-# Incluye exclusión explícita de copilot*.md
+**/target/
+**/nbproject/
+**/.idea/
+**/nb-configuration.xml
+**/nbactions*.xml
 
-# Compiled class files
-*.class
-
-# Log files
-*.log
-logs/
-
-# Package files
-*.jar
-*.war
-*.ear
-
-# Maven
-target/
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-release.properties
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-
-# Gradle
-.gradle/
-build/
-
-# IntelliJ IDEA
-.idea/
-*.iml
-out/
-
-# Eclipse
 .project
 .classpath
-.settings/
-.recommenders/
+.settings
 
-# NetBeans
-nbproject/private/
-nbbuild/
-dist/
-nbdist/
-.nb-gradle/
+# Compiled class file
+*.class
 
-# VS Code
-.vscode/
+# Log file
+*.log
 
-# macOS
-.DS_Store
+# BlueJ files
+*.ctxt
 
-# Windows thumbnail/cache files
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
 
-# Test / coverage
-coverage/
-*.lcov
-jacoco.exec
-target/site/jacoco/
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Temporary files
-*.tmp
-*.swp
-*~
-.#*
-
-# Local environment / secrets
-local.properties
-.env
-.env.local
-
-# Generated sources
-generated-sources/
-
-# Maven wrapper
-.mvn/wrapper/maven-wrapper.jar
-
-# Other
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
-# Archivos markdown generados por Copilot — excluir
-copilot*.md
-
-# Fin de .gitignore
-
+replay_pid*

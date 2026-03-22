@@ -23,7 +23,7 @@
  */
 package cl.kanopus.common.annotation.impl;
 
-import com.fasterxml.jackson.databind.util.StdConverter;
+import tools.jackson.databind.util.StdConverter;
 
 public class ToLowerCaseConverter extends StdConverter<String, String> {
 
