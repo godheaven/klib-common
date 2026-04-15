@@ -26,7 +26,7 @@ Add the dependency to your `pom.xml`:
 <dependency>
 	<groupId>cl.kanopus.util</groupId>
 	<artifactId>klib-common</artifactId>
-	<version>4.04.0</version>
+	<version>4.05.0</version>
 </dependency>
 ```
 
