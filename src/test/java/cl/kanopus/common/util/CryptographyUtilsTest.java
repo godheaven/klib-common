@@ -23,10 +23,10 @@
  */
 package cl.kanopus.common.util;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import cl.kanopus.common.util.crypto.CryptographyUtils;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class CryptographyUtilsTest {
 
