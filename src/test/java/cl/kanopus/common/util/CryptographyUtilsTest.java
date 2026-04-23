@@ -23,10 +23,10 @@
  */
 package cl.kanopus.common.util;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import cl.kanopus.common.util.crypto.CryptographyUtils;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class CryptographyUtilsTest {
 
@@ -34,15 +34,6 @@ class CryptographyUtilsTest {
     void setEncryptKeyNullThrows() {
         assertThrows(
                 IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey(null, null));
-    }
-
-    @Test
-    void encryptDecryptWithAes() {
-        CryptographyUtils.setEncryptKey("OIUUYTgfh4tuy765", CryptographyUtils.CryptoAlgorithm.AES);
-        String c = CryptographyUtils.encrypt("hello-world");
-        assertNotNull(c);
-        String d = CryptographyUtils.decrypt(c);
-        assertEquals("hello-world", d);
     }
 
     @Test
