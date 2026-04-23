@@ -35,7 +35,8 @@ public class CryptographyUtils {
     private static char[] encryptKey;
     private static CryptoAlgorithm algorithm;
 
-    private CryptographyUtils() {}
+    private CryptographyUtils() {
+    }
 
     // ========= Configuration =========
 
@@ -66,15 +67,13 @@ public class CryptographyUtils {
      *
      * @param plaintext the UTF-8 plaintext to encrypt; must not be null
      * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and
-     *     ciphertext
+     * ciphertext
      * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException for internal encryption failures
+     * @throws RuntimeException      for internal encryption failures
      */
     public static String encrypt(String plaintext) {
         if (algorithm == CryptoAlgorithm.AES_GCM) {
             return CryptoAesGcm.encrypt(encryptKey, plaintext);
-        } else if (algorithm == CryptoAlgorithm.AES) {
-            return CryptoAes.encrypt(encryptKey, plaintext);
         } else {
             throw new IllegalStateException("Unsupported encryption algorithm: " + algorithm);
         }
@@ -84,24 +83,21 @@ public class CryptographyUtils {
      * Decrypts a string previously produced by {@link #encrypt(String)}.
      *
      * @param encoded the encoded ciphertext string produced by {@link #encrypt(String)}; must not
-     *     be null
+     *                be null
      * @return the decrypted plaintext as a UTF-8 string
      * @throws IllegalArgumentException if the input format is unsupported or malformed
-     * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException if decryption fails (possible tampering or wrong key)
+     * @throws IllegalStateException    if the encryption passphrase has not been set
+     * @throws RuntimeException         if decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(String encoded) {
         if (algorithm == CryptoAlgorithm.AES_GCM) {
             return CryptoAesGcm.decrypt(encryptKey, encoded);
-        } else if (algorithm == CryptoAlgorithm.AES) {
-            return CryptoAes.decrypt(encryptKey, encoded);
         } else {
             throw new IllegalStateException("Unsupported encryption algorithm: " + algorithm);
         }
     }
 
     public enum CryptoAlgorithm {
-        AES_GCM,
-        AES;
+        AES_GCM
     }
 }
