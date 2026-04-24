@@ -120,26 +120,27 @@ public class ThreadContext {
     }
 
     /**
-      /**
-       * Returns the context map for the current thread.
-       *
-       * @return the context map for the current thread
-       */
-      public static Map getContextMap() {
-          // Check if the map exists by retrieving it and checking for null.
-          // This is more efficient than checking before fetching the value.
-          Map contextMap = getInstance().map.get(getThreadId());
-          if (contextMap == null) {
-              contextMap = Collections.synchronizedMap(new HashMap<>());
-          }
-          return contextMap;
-      }
+     * Returns the context map for the current thread.
+     *
+     * @return the context map for the current thread
+     */
+    public static Map getContextMap() {
+        // Check if the map exists by retrieving it and checking for null.
+        // This is more efficient than checking before fetching the value.
+        Map contextMap = getInstance().map.get(getThreadId());
+        if (contextMap == null) {
+            contextMap = Collections.synchronizedMap(new HashMap<>());
+        }
+        return contextMap;
+    }
 
     /**
      * Adds an object to the current thread's context map under the specified key.
      *
-     * @param objectKey the key under which to store the object
-     * @param objectToInsert the object to store
+     * @param objectKey
+     *            the key under which to store the object
+     * @param objectToInsert
+     *            the object to store
      */
     public static void addObject(String objectKey, Object objectToInsert) {
         String threadId = getThreadId();
@@ -151,7 +152,8 @@ public class ThreadContext {
     /**
      * Returns the object stored in the current thread's context map associated with the given key.
      *
-     * @param objectName the name/key of the stored object. Usually the class name starting with a lowercase letter.
+     * @param objectName
+     *            the name/key of the stored object. Usually the class name starting with a lowercase letter.
      * @return the object stored in the current thread's ThreadContext, or null if not present
      */
     public static Object getObject(String objectName) {
@@ -176,7 +178,9 @@ public class ThreadContext {
         MDC.put(KEY_THREAD_UNIQUE_ID, threadUniqueId);
     }
 
-    /** Removes the context map for the current thread. */
+    /**
+     * Removes the context map for the current thread.
+     */
     public static void destroyContext() {
         if (getInstance().map.containsKey(getThreadId())) {
             getInstance().map.remove(getThreadId());
