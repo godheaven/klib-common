@@ -34,4 +34,5 @@ import tools.jackson.databind.annotation.JsonSerialize;
 @JacksonAnnotationsInside
 @JsonSerialize(converter = ToLowerCaseConverter.class)
 @JsonDeserialize(converter = ToLowerCaseConverter.class)
-public @interface ToLowerCase {}
+public @interface ToLowerCase {
+}

@@ -42,8 +42,7 @@ class GsonUtilsTest {
         test.setFechaSql(sql);
 
         String result = GsonUtils.custom.toJson(test);
-        String expected =
-                "{\"fecha1\":\"2021-03-16T00:00:00\",\"fecha2\":\"2021-03-16T00:00:00\",\"fecha3\":\"2021-03-16T00:00:00\",\"fechaSql\":\"2021-03-16T00:00:00\"}";
+        String expected = "{\"fecha1\":\"2021-03-16T00:00:00\",\"fecha2\":\"2021-03-16T00:00:00\",\"fecha3\":\"2021-03-16T00:00:00\",\"fechaSql\":\"2021-03-16T00:00:00\"}";
 
         Assertions.assertEquals(expected, result);
     }

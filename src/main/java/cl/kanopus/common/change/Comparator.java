@@ -28,7 +28,8 @@ public class Comparator<T extends Object> {
     private ChangeAction action;
     private T value;
 
-    public Comparator() {}
+    public Comparator() {
+    }
 
     public Comparator(ChangeAction action, T value) {
         this.action = action;

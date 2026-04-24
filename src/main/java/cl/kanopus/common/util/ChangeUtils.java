@@ -31,20 +31,19 @@ import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
 
 /**
- * This class allows you to merge or mix 2 objects, consolidating its information and indicating for
- * each data type AbstractChangeTO, which kind of change has been made between the compared objects.
+ * This class allows you to merge or mix 2 objects, consolidating its information and indicating for each data type AbstractChangeTO, which kind of change has been made between the compared objects.
  */
 @SuppressWarnings("all")
 public class ChangeUtils {
 
-    private ChangeUtils() {}
+    private ChangeUtils() {
+    }
 
     public static <T> boolean hasChanges(T source, T target) {
         return (checkChange(source, target) != ChangeAction.NONE);
     }
 
-    public static <T> List<Comparator<T>> checkChangeOnList(
-            List<T> sourceList, List<T> targetList) {
+    public static <T> List<Comparator<T>> checkChangeOnList(List<T> sourceList, List<T> targetList) {
 
         HashMap<Integer, Integer> mapIds = new HashMap<>();
         HashMap<Integer, T> mapSource = new HashMap<>();
@@ -102,15 +101,13 @@ public class ChangeUtils {
                     int level = 1;
                     List<Field> fields = getAllFields(source.getClass(), level);
 
-                    iterationFields:
-                    for (Field f : fields) {
+                    iterationFields : for (Field f : fields) {
                         f.setAccessible(true);
                         if (BeanUtils.isSimpleProperty(f.getType())) {
                             Object sourceValue = f.get(source);
                             Object targetValue = f.get(target);
 
-                            if (!((sourceValue == null && targetValue == null)
-                                    || (sourceValue != null && sourceValue.equals(targetValue)))) {
+                            if (!((sourceValue == null && targetValue == null) || (sourceValue != null && sourceValue.equals(targetValue)))) {
                                 action = ChangeAction.UPDATE;
                                 break;
                             }
@@ -118,17 +115,13 @@ public class ChangeUtils {
                             Object sourceValue = f.get(source);
                             Object targetValue = f.get(target);
 
-                            boolean isList =
-                                    ((sourceValue instanceof List)
-                                            || (targetValue instanceof List));
+                            boolean isList = ((sourceValue instanceof List) || (targetValue instanceof List));
 
                             if (isList) {
                                 List list1 = (List) sourceValue;
                                 List list2 = (List) targetValue;
 
-                                if (list1 != null
-                                        && list2 != null
-                                        && list1.size() != list2.size()) {
+                                if (list1 != null && list2 != null && list1.size() != list2.size()) {
                                     action = ChangeAction.UPDATE;
                                     break;
                                 } else {
@@ -166,16 +159,12 @@ public class ChangeUtils {
     }
 
     private static List<Field> getAllFields(Class clazz, int level) {
-        if (clazz == null
-                || clazz == Object.class
-                || clazz.getName().equals("cl.kanopus.jdbc.entity.Mapping")
-                || level == 3) {
+        if (clazz == null || clazz == Object.class || clazz.getName().equals("cl.kanopus.jdbc.entity.Mapping") || level == 3) {
             return Collections.emptyList();
         }
 
         List<Field> result = new ArrayList<>(getAllFields(clazz.getSuperclass(), level + 1));
-        List<Field> filteredFields =
-                Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
+        List<Field> filteredFields = Arrays.stream(clazz.getDeclaredFields()).collect(Collectors.toList());
         result.addAll(filteredFields);
         return result;
     }

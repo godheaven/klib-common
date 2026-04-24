@@ -44,9 +44,7 @@ class AssertUtilsTest {
 
     @Test
     void assertNotEmptyThrows() {
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> AssertUtils.assertNotEmpty(Collections.emptyList()));
+        assertThrows(IllegalArgumentException.class, () -> AssertUtils.assertNotEmpty(Collections.emptyList()));
     }
 
     @Test
@@ -57,7 +55,6 @@ class AssertUtilsTest {
 
     @Test
     void assertNotEqualsThrows() {
-        Assertions.assertThrows(
-                IllegalArgumentException.class, () -> AssertUtils.assertNotEquals("a", "a"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> AssertUtils.assertNotEquals("a", "a"));
     }
 }

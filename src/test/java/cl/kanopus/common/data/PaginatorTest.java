@@ -37,7 +37,7 @@ class PaginatorTest {
         p.getRecords().addAll(Arrays.asList("a", "b", "c"));
         p.setTotalRecords(3L);
 
-        assertArrayEquals(new String[] {"a", "b", "c"}, p.getRecords().toArray(new String[0]));
+        assertArrayEquals(new String[]{"a", "b", "c"}, p.getRecords().toArray(new String[0]));
         assertEquals(3L, p.getTotalRecords());
     }
 }

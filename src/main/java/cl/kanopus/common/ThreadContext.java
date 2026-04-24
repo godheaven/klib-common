@@ -55,8 +55,7 @@ public class ThreadContext {
     }
 
     /**
-     * Returns the unique threadId for the current thread. This value is unique because it includes
-     * the thread start timestamp concatenated with the thread name.
+     * Returns the unique threadId for the current thread. This value is unique because it includes the thread start timestamp concatenated with the thread name.
      *
      * @return a string representing the thread's unique identifier.
      */
@@ -121,25 +120,26 @@ public class ThreadContext {
     }
 
     /**
-     * Retorna el mapa de contexto para el current Thread
-     *
-     * @return
-     */
-    public static Map getContextMap() {
-        // revisamos si existia el mapa viendo si al traerlo retorna null.
-        // Esto es mas eficiente que preguntar primero, antes de traer efectivamente el dato.
-        Map contextMap = getInstance().map.get(getThreadId());
-        if (contextMap == null) {
-            contextMap = Collections.synchronizedMap(new HashMap<>());
-        }
-        return contextMap;
-    }
+      /**
+       * Returns the context map for the current thread.
+       *
+       * @return the context map for the current thread
+       */
+      public static Map getContextMap() {
+          // Check if the map exists by retrieving it and checking for null.
+          // This is more efficient than checking before fetching the value.
+          Map contextMap = getInstance().map.get(getThreadId());
+          if (contextMap == null) {
+              contextMap = Collections.synchronizedMap(new HashMap<>());
+          }
+          return contextMap;
+      }
 
     /**
-     * Agrega un objeto al mapa de contexto del current Thread dada una llave especifica.
+     * Adds an object to the current thread's context map under the specified key.
      *
-     * @param objectKey
-     * @param objectToInsert
+     * @param objectKey the key under which to store the object
+     * @param objectToInsert the object to store
      */
     public static void addObject(String objectKey, Object objectToInsert) {
         String threadId = getThreadId();
@@ -149,15 +149,13 @@ public class ThreadContext {
     }
 
     /**
-     * Retorna el objeto almacenado en el mapa del contexto asociado al current Thread y que tenga
-     * como llave <code>objectName</code>
+     * Returns the object stored in the current thread's context map associated with the given key.
      *
-     * @param objectName nombre del objeto guardado. Usualmente sera el nombre de la clase del
-     *     objeto con la primera letra en minuscula.
-     * @return Objeto almacenado en el ThreadContext del thread actual
+     * @param objectName the name/key of the stored object. Usually the class name starting with a lowercase letter.
+     * @return the object stored in the current thread's ThreadContext, or null if not present
      */
     public static Object getObject(String objectName) {
-        Map contextMap = getContextMap(); //
+        Map contextMap = getContextMap();
         return contextMap.get(objectName);
     }
 
@@ -178,7 +176,7 @@ public class ThreadContext {
         MDC.put(KEY_THREAD_UNIQUE_ID, threadUniqueId);
     }
 
-    /** Remueve el mapa con el contexto del thread actual. */
+    /** Removes the context map for the current thread. */
     public static void destroyContext() {
         if (getInstance().map.containsKey(getThreadId())) {
             getInstance().map.remove(getThreadId());

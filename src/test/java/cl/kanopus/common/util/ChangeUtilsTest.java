@@ -36,18 +36,14 @@ class ChangeUtilsTest {
     @Test
     void checkChangeOnList() {
 
-        List<ExampleTO> original =
-                Arrays.asList(
-                        new ExampleTO(1, "example1"), // NONE
-                        new ExampleTO(2, "example2"), // DELETE
-                        new ExampleTO(3, "example3")); // UPDATE
+        List<ExampleTO> original = Arrays.asList(new ExampleTO(1, "example1"), // NONE
+                new ExampleTO(2, "example2"), // DELETE
+                new ExampleTO(3, "example3")); // UPDATE
 
-        List<ExampleTO> target =
-                Arrays.asList(
-                        new ExampleTO(1, "example1"), // NONE
-                        // new ExampleTO(2, "example2"), //DELETE
-                        new ExampleTO(3, "example3-updated"), // UPDATE
-                        new ExampleTO(4, "example4")); // CREATE
+        List<ExampleTO> target = Arrays.asList(new ExampleTO(1, "example1"), // NONE
+                // new ExampleTO(2, "example2"), //DELETE
+                new ExampleTO(3, "example3-updated"), // UPDATE
+                new ExampleTO(4, "example4")); // CREATE
 
         List<Comparator<ExampleTO>> merges = ChangeUtils.checkChangeOnList(original, target);
         Assertions.assertEquals(4, merges.size());
@@ -164,7 +160,8 @@ class ChangeUtilsTest {
         private OtherTO other;
         private List<OtherTO> complex;
 
-        public ExampleTO() {}
+        public ExampleTO() {
+        }
 
         public ExampleTO(long id, String name) {
             this.id = id;

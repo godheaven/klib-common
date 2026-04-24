@@ -71,16 +71,8 @@ class UtilsTest {
 
     @Test
     void testIsEqualsOne_Enum() {
-        Assertions.assertTrue(
-                Utils.isEqualsOne(
-                        new EnumIdentifiableExample(1L),
-                        new EnumIdentifiableExample(1L),
-                        new EnumIdentifiableExample(2L)));
-        Assertions.assertFalse(
-                Utils.isEqualsOne(
-                        new EnumIdentifiableExample(1L),
-                        new EnumIdentifiableExample(2L),
-                        new EnumIdentifiableExample(3L)));
+        Assertions.assertTrue(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L)));
+        Assertions.assertFalse(Utils.isEqualsOne(new EnumIdentifiableExample(1L), new EnumIdentifiableExample(2L), new EnumIdentifiableExample(3L)));
     }
 
     @Test
@@ -348,7 +340,7 @@ class UtilsTest {
 
     @Test
     void testIsNullOrEmpty_StringArr() {
-        String[] text = new String[] {"", null};
+        String[] text = new String[]{"", null};
         Assertions.assertTrue(Utils.isNullOrEmpty(text));
     }
 
@@ -427,12 +419,9 @@ class UtilsTest {
 
     @Test
     void testSplitText() {
-        Assertions.assertLinesMatch(
-                Arrays.asList("123 456", "789 0 123", "ABC DEF", "GHI"),
-                Utils.splitText("123 456 789 0 123 ABC DEF GHI", 10));
+        Assertions.assertLinesMatch(Arrays.asList("123 456", "789 0 123", "ABC DEF", "GHI"), Utils.splitText("123 456 789 0 123 ABC DEF GHI", 10));
         Assertions.assertLinesMatch(Arrays.asList("123456789"), Utils.splitText("123456789", 5));
-        Assertions.assertLinesMatch(
-                Arrays.asList("123", "456", "789"), Utils.splitText("123 456 789", 3));
+        Assertions.assertLinesMatch(Arrays.asList("123", "456", "789"), Utils.splitText("123 456 789", 3));
     }
 
     @Test
@@ -441,8 +430,7 @@ class UtilsTest {
         String toReplace = "test";
         String replacement = "kanopus";
         Utils.replaceAll(sb, toReplace, replacement);
-        Assertions.assertEquals(
-                "This is a kanopus. This kanopus is only a kanopus.", sb.toString());
+        Assertions.assertEquals("This is a kanopus. This kanopus is only a kanopus.", sb.toString());
     }
 
     @Test
@@ -497,15 +485,13 @@ class UtilsTest {
     @Test
     void testToListInt() {
         Assertions.assertNotNull(Utils.toListInt("1,2,3"));
-        Assertions.assertArrayEquals(
-                Arrays.asList(1, 2, 3).toArray(), Utils.toListInt("1,2,3").toArray());
+        Assertions.assertArrayEquals(Arrays.asList(1, 2, 3).toArray(), Utils.toListInt("1,2,3").toArray());
     }
 
     @Test
     void testToListLong() {
         Assertions.assertNotNull(Utils.toListLong("1,2,3"));
-        Assertions.assertArrayEquals(
-                Arrays.asList(1L, 2L, 3L).toArray(), Utils.toListLong("1,2,3").toArray());
+        Assertions.assertArrayEquals(Arrays.asList(1L, 2L, 3L).toArray(), Utils.toListLong("1,2,3").toArray());
     }
 
     @Test
@@ -533,13 +519,10 @@ class UtilsTest {
 
     @Test
     void testFileToString() throws Exception {
-        Assertions.assertThrows(
-                Exception.class,
-                () -> {
-                    Utils.fileToString(new File("not_found.txt"));
-                });
-        Assertions.assertEquals(
-                "test1\n", Utils.fileToString(new File("src/test/resources/test.txt")).toString());
+        Assertions.assertThrows(Exception.class, () -> {
+            Utils.fileToString(new File("not_found.txt"));
+        });
+        Assertions.assertEquals("test1\n", Utils.fileToString(new File("src/test/resources/test.txt")).toString());
     }
 
     @Test
@@ -654,8 +637,7 @@ class UtilsTest {
         Assertions.assertEquals("Juan", Utils.getCustomerN1A1A2("Juan", 12));
         Assertions.assertEquals("Juan Andres", Utils.getCustomerN1A1A2("Juan Andres", 12));
         Assertions.assertEquals("Juan Perez", Utils.getCustomerN1A1A2("Juan Perez Coloma", 12));
-        Assertions.assertEquals(
-                "Juan Perez Coloma", Utils.getCustomerN1A1A2("Juan Andres Perez Coloma", 17));
+        Assertions.assertEquals("Juan Perez Coloma", Utils.getCustomerN1A1A2("Juan Andres Perez Coloma", 17));
         Assertions.assertEquals("", Utils.getCustomerN1A1A2("", 12));
     }
 
@@ -716,20 +698,18 @@ class UtilsTest {
         @Override
         public boolean equals(Object obj) {
             ExampleTO other = (ExampleTO) obj;
-            return (this.getName() != null
-                    && other != null
-                    && this.getName().equals(other.getName()));
+            return (this.getName() != null && other != null && this.getName().equals(other.getName()));
         }
     }
 
     @Test
     void arrayToString_and_toArray_conversions() {
-        Assertions.assertEquals("1,2,3", Utils.arrayToString(new int[] {1, 2, 3}));
-        Assertions.assertEquals("1,2,3", Utils.arrayToString(new long[] {1, 2, 3}));
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new int[]{1, 2, 3}));
+        Assertions.assertEquals("1,2,3", Utils.arrayToString(new long[]{1, 2, 3}));
 
         List<Integer> ints = Arrays.asList(4, 5, 6);
-        Assertions.assertArrayEquals(new int[] {4, 5, 6}, Utils.toArrayInt(ints));
-        Assertions.assertArrayEquals(new Integer[] {4, 5, 6}, Utils.toArrayInteger(ints));
+        Assertions.assertArrayEquals(new int[]{4, 5, 6}, Utils.toArrayInt(ints));
+        Assertions.assertArrayEquals(new Integer[]{4, 5, 6}, Utils.toArrayInteger(ints));
     }
 
     @Test

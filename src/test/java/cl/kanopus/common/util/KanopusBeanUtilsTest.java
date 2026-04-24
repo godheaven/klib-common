@@ -146,7 +146,7 @@ class KanopusBeanUtilsTest {
         }
 
         Src s = new Src();
-        s.setData(new byte[] {10, 20, 30});
+        s.setData(new byte[]{10, 20, 30});
         Dst d = new Dst();
         d.setData(new cl.kanopus.common.data.ImageBase64());
 

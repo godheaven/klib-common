@@ -42,14 +42,12 @@ class RutValidatorTest {
     @Test
     void invalidBuildsViolation() {
         RutValidator v = new RutValidator();
-        cl.kanopus.common.validation.constraints.Rut ann =
-                mock(cl.kanopus.common.validation.constraints.Rut.class);
+        cl.kanopus.common.validation.constraints.Rut ann = mock(cl.kanopus.common.validation.constraints.Rut.class);
         when(ann.message()).thenReturn("El rut [%s] no es vlido");
         v.initialize(ann);
 
         ConstraintValidatorContext ctx = mock(ConstraintValidatorContext.class);
-        ConstraintValidatorContext.ConstraintViolationBuilder builder =
-                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(ctx.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         boolean ok = v.isValid("bad-rut", ctx);

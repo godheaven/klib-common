@@ -57,8 +57,7 @@ class EnumValueValidatorTest {
     @Test
     void validIdReturnsTrue() {
         EnumValueValidator v = new EnumValueValidator();
-        cl.kanopus.common.validation.constraints.EnumValue ann =
-                mock(cl.kanopus.common.validation.constraints.EnumValue.class);
+        cl.kanopus.common.validation.constraints.EnumValue ann = mock(cl.kanopus.common.validation.constraints.EnumValue.class);
         when(ann.type()).thenReturn((Class<?>) TestEnum.class);
         v.initialize(ann);
 
@@ -70,15 +69,13 @@ class EnumValueValidatorTest {
     @Test
     void invalidBuildsViolation() {
         EnumValueValidator v = new EnumValueValidator();
-        cl.kanopus.common.validation.constraints.EnumValue ann =
-                mock(cl.kanopus.common.validation.constraints.EnumValue.class);
+        cl.kanopus.common.validation.constraints.EnumValue ann = mock(cl.kanopus.common.validation.constraints.EnumValue.class);
         when(ann.type()).thenReturn((Class<?>) TestEnum.class);
         when(ann.message()).thenReturn("El valor [%s] no es vlido");
         v.initialize(ann);
 
         ConstraintValidatorContext ctx = mock(ConstraintValidatorContext.class);
-        ConstraintValidatorContext.ConstraintViolationBuilder builder =
-                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(ctx.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         boolean ok = v.isValid("nope", ctx);

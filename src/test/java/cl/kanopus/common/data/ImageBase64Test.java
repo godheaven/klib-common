@@ -31,7 +31,7 @@ class ImageBase64Test {
 
     @Test
     void roundtripData() {
-        byte[] data = new byte[] {1, 2, 3, 4};
+        byte[] data = new byte[]{1, 2, 3, 4};
         ImageBase64 ib = new ImageBase64();
         ib.setData(java.util.Base64.getEncoder().encodeToString(data));
         assertNotNull(ib.getData());

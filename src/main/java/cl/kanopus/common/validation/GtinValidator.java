@@ -46,10 +46,7 @@ public class GtinValidator implements ConstraintValidator<Gtin, String> {
         boolean isValid = Utils.isGTIN(object);
         if (!isValid) {
             constraintContext.disableDefaultConstraintViolation();
-            constraintContext
-                    .buildConstraintViolationWithTemplate(
-                            String.format(annotation.message(), object))
-                    .addConstraintViolation();
+            constraintContext.buildConstraintViolationWithTemplate(String.format(annotation.message(), object)).addConstraintViolation();
         }
         return isValid;
     }

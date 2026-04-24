@@ -26,8 +26,7 @@ package cl.kanopus.common.data;
 import cl.kanopus.common.data.enums.SortOrder;
 
 /**
- * This class stores information related to search engines. information is transported to classes of
- * the DAO type.
+ * This class stores information related to search engines. information is transported to classes of the DAO type.
  *
  * @param <T>
  */

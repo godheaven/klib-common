@@ -29,8 +29,7 @@ import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import java.util.Collection;
 
-public class EmailCollectionValidator
-        implements ConstraintValidator<EmailCollection, Collection<String>> {
+public class EmailCollectionValidator implements ConstraintValidator<EmailCollection, Collection<String>> {
 
     private EmailCollection annotation;
 
@@ -49,10 +48,7 @@ public class EmailCollectionValidator
         for (String email : value) {
             if (!Utils.isValidEmail(email)) {
                 constraintContext.disableDefaultConstraintViolation();
-                constraintContext
-                        .buildConstraintViolationWithTemplate(
-                                String.format(annotation.message(), email))
-                        .addConstraintViolation();
+                constraintContext.buildConstraintViolationWithTemplate(String.format(annotation.message(), email)).addConstraintViolation();
                 return false;
             }
         }

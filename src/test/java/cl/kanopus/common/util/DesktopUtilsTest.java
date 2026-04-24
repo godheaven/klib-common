@@ -32,8 +32,7 @@ class DesktopUtilsTest {
     @Test
     void unixCommandExistsFalseForUnknown() {
         try {
-            java.lang.reflect.Method m =
-                    DesktopUtils.class.getDeclaredMethod("unixCommandExists", String.class);
+            java.lang.reflect.Method m = DesktopUtils.class.getDeclaredMethod("unixCommandExists", String.class);
             m.setAccessible(true);
             Boolean exists = (Boolean) m.invoke(null, "command-that-does-not-exist-xyz");
             assertFalse(exists);

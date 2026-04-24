@@ -32,14 +32,12 @@ class CryptographyUtilsTest {
 
     @Test
     void setEncryptKeyNullThrows() {
-        assertThrows(
-                IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey(null, null));
+        assertThrows(IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey(null, null));
     }
 
     @Test
     void encryptDecryptWithAesGcm() {
-        CryptographyUtils.setEncryptKey(
-                "test-passphrase", CryptographyUtils.CryptoAlgorithm.AES_GCM);
+        CryptographyUtils.setEncryptKey("test-passphrase", CryptographyUtils.CryptoAlgorithm.AES_GCM);
         String c = CryptographyUtils.encrypt("hello-world");
         assertNotNull(c);
         String d = CryptographyUtils.decrypt(c);

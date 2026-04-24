@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Clase utilitaria que permite generar un arbol de objetos y ademas tiene la capacidad de
- * retornarlos en forma de Lista.
+ * Clase utilitaria que permite generar un arbol de objetos y ademas tiene la capacidad de retornarlos en forma de Lista.
  */
 public class TreeHash implements Serializable {
 
@@ -138,8 +137,7 @@ public class TreeHash implements Serializable {
         return hash.get(key);
     }
 
-    private void fillNodeList(
-            String keyNode, int depth, List<NodeHash> newNodeList, boolean onlyVisible) {
+    private void fillNodeList(String keyNode, int depth, List<NodeHash> newNodeList, boolean onlyVisible) {
         NodeHash node = hash.get(keyNode);
         if (node != null) {
             if (!TreeHash.KEY_ROOT.equals(keyNode)) {

@@ -42,14 +42,12 @@ class GtinValidatorTest {
     @Test
     void invalidBuildsViolation() {
         GtinValidator v = new GtinValidator();
-        cl.kanopus.common.validation.constraints.Gtin ann =
-                mock(cl.kanopus.common.validation.constraints.Gtin.class);
+        cl.kanopus.common.validation.constraints.Gtin ann = mock(cl.kanopus.common.validation.constraints.Gtin.class);
         when(ann.message()).thenReturn("El cdigo GTIN no es vlido");
         v.initialize(ann);
 
         ConstraintValidatorContext ctx = mock(ConstraintValidatorContext.class);
-        ConstraintValidatorContext.ConstraintViolationBuilder builder =
-                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(ctx.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         boolean ok = v.isValid("bad-gtin", ctx);

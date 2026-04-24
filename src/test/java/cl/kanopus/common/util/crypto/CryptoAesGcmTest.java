@@ -44,8 +44,7 @@ class CryptoAesGcmTest {
     @Test
     void decrypt_badFormat_throwsIllegalArgumentException() {
         char[] key = "0123456789012345".toCharArray();
-        Assertions.assertThrows(
-                IllegalArgumentException.class, () -> CryptoAesGcm.decrypt(key, "bad-format"));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> CryptoAesGcm.decrypt(key, "bad-format"));
     }
 
     @Test

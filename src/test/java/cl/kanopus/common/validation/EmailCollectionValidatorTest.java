@@ -43,14 +43,12 @@ class EmailCollectionValidatorTest {
     @Test
     void invalidEmailBuildsViolation() {
         EmailCollectionValidator v = new EmailCollectionValidator();
-        cl.kanopus.common.validation.constraints.EmailCollection ann =
-                mock(cl.kanopus.common.validation.constraints.EmailCollection.class);
+        cl.kanopus.common.validation.constraints.EmailCollection ann = mock(cl.kanopus.common.validation.constraints.EmailCollection.class);
         when(ann.message()).thenReturn("El email [%s] no es vlido");
         v.initialize(ann);
 
         ConstraintValidatorContext ctx = mock(ConstraintValidatorContext.class);
-        ConstraintValidatorContext.ConstraintViolationBuilder builder =
-                mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
+        ConstraintValidatorContext.ConstraintViolationBuilder builder = mock(ConstraintValidatorContext.ConstraintViolationBuilder.class);
         when(ctx.buildConstraintViolationWithTemplate(anyString())).thenReturn(builder);
 
         boolean ok = v.isValid(Arrays.asList("ok@example.com", "bad-email"), ctx);

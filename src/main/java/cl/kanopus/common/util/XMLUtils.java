@@ -44,10 +44,10 @@ import org.xml.sax.SAXException;
 
 public class XMLUtils {
 
-    private XMLUtils() {}
+    private XMLUtils() {
+    }
 
-    public static final String XML_DECLARATION =
-            "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
+    public static final String XML_DECLARATION = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
 
     public static void validateXMLSchema(File xsd, File xml) throws SAXException, IOException {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -126,8 +126,7 @@ public class XMLUtils {
         return value;
     }
 
-    public static StringWriter parse(Document doc, boolean includeXmlDeclaration)
-            throws TransformerException {
+    public static StringWriter parse(Document doc, boolean includeXmlDeclaration) throws TransformerException {
 
         Transformer t = TransformerFactory.newInstance().newTransformer();
         t.setOutputProperty(OutputKeys.ENCODING, "ISO-8859-1");

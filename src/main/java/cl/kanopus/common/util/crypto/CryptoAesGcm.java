@@ -47,20 +47,24 @@ class CryptoAesGcm {
     private static final int SALT_LEN_BYTES = 16; // per-message salt
     private static final int IV_LEN_BYTES = 12; // recommended for GCM
 
-    private CryptoAesGcm() {}
+    private CryptoAesGcm() {
+    }
 
     // ========= Encryption / Decryption (AES-GCM) =========
 
     /**
      * Encrypts plaintext and returns an encoded string with metadata.
      *
-     * <p>Format: v1:pbkdf2:iter:saltB64:ivB64:cipherB64
+     * <p>
+     * Format: v1:pbkdf2:iter:saltB64:ivB64:cipherB64
      *
-     * @param plaintext the UTF-8 plaintext to encrypt; must not be null
-     * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and
-     *     ciphertext
-     * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException for internal encryption failures
+     * @param plaintext
+     *            the UTF-8 plaintext to encrypt; must not be null
+     * @return a compact encoded ciphertext string containing KDF parameters, salt, iv and ciphertext
+     * @throws IllegalStateException
+     *             if the encryption passphrase has not been set
+     * @throws RuntimeException
+     *             for internal encryption failures
      */
     public static String encrypt(char[] encryptKey, String plaintext) {
         Objects.requireNonNull(plaintext, "plaintext");
@@ -84,12 +88,15 @@ class CryptoAesGcm {
     /**
      * Decrypts a string previously produced by {@link #encrypt(char[], String)}.
      *
-     * @param encoded the encoded ciphertext string produced by {@link #encrypt(char[], String)};
-     *     must not be null
+     * @param encoded
+     *            the encoded ciphertext string produced by {@link #encrypt(char[], String)}; must not be null
      * @return the decrypted plaintext as a UTF-8 string
-     * @throws IllegalArgumentException if the input format is unsupported or malformed
-     * @throws IllegalStateException if the encryption passphrase has not been set
-     * @throws RuntimeException if decryption fails (possible tampering or wrong key)
+     * @throws IllegalArgumentException
+     *             if the input format is unsupported or malformed
+     * @throws IllegalStateException
+     *             if the encryption passphrase has not been set
+     * @throws RuntimeException
+     *             if decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(char[] encryptKey, String encoded) {
         Objects.requireNonNull(encoded, "encoded");
@@ -146,9 +153,11 @@ class CryptoAesGcm {
     /**
      * PBKDF2 hash (one-way). Format: v1:pbkdf2:iter:saltB64:dkB64
      *
-     * @param input the input string to hash (e.g. a password); must not be null
+     * @param input
+     *            the input string to hash (e.g. a password); must not be null
      * @return a string containing KDF parameters, salt and derived key in Base64
-     * @throws RuntimeException if hashing fails
+     * @throws RuntimeException
+     *             if hashing fails
      */
     public static String hash(String input) {
         Objects.requireNonNull(input, "input");
@@ -171,8 +180,10 @@ class CryptoAesGcm {
     /**
      * Verifies a PBKDF2 hash in constant time to prevent timing attacks.
      *
-     * @param raw the raw input to verify (e.g. password)
-     * @param stored the stored hash produced by {@link #hash(String)}
+     * @param raw
+     *            the raw input to verify (e.g. password)
+     * @param stored
+     *            the stored hash produced by {@link #hash(String)}
      * @return true if the raw input corresponds to the stored hash; false otherwise
      */
     public static boolean verifyHash(String raw, String stored) {
@@ -180,15 +191,15 @@ class CryptoAesGcm {
         Objects.requireNonNull(stored, "stored");
 
         String[] parts = stored.split(":");
-        if (parts.length != 5 || !parts[0].equals("v1") || !parts[1].equals("pbkdf2")) return false;
+        if (parts.length != 5 || !parts[0].equals("v1") || !parts[1].equals("pbkdf2"))
+            return false;
 
         int iterations = Integer.parseInt(parts[2]);
         byte[] salt = Base64.getUrlDecoder().decode(parts[3]);
         byte[] dkStored = Base64.getUrlDecoder().decode(parts[4]);
 
         try {
-            PBEKeySpec spec =
-                    new PBEKeySpec(raw.toCharArray(), salt, iterations, dkStored.length * 8);
+            PBEKeySpec spec = new PBEKeySpec(raw.toCharArray(), salt, iterations, dkStored.length * 8);
             SecretKeyFactory skf = SecretKeyFactory.getInstance(KDF_ALG);
             byte[] dk = skf.generateSecret(spec).getEncoded();
             return constantTimeEquals(dk, dkStored);
@@ -200,11 +211,12 @@ class CryptoAesGcm {
     // ========= Compatibility: old matches() =========
 
     /**
-     * NOTE: Previously this library compared by encrypting (bad practice). Now we treat
-     * `encryptedOrHashed` as a PBKDF2 hash.
+     * NOTE: Previously this library compared by encrypting (bad practice). Now we treat `encryptedOrHashed` as a PBKDF2 hash.
      *
-     * @param raw the raw input to verify
-     * @param encryptedOrHashed the stored PBKDF2 hash
+     * @param raw
+     *            the raw input to verify
+     * @param encryptedOrHashed
+     *            the stored PBKDF2 hash
      * @return true if verification succeeds, false otherwise
      */
     public static boolean matches(String raw, String encryptedOrHashed) {
@@ -213,10 +225,13 @@ class CryptoAesGcm {
 
     // ========= Utilities =========
     private static boolean constantTimeEquals(byte[] a, byte[] b) {
-        if (a == null || b == null) return false;
-        if (a.length != b.length) return false;
+        if (a == null || b == null)
+            return false;
+        if (a.length != b.length)
+            return false;
         int r = 0;
-        for (int i = 0; i < a.length; i++) r |= a[i] ^ b[i];
+        for (int i = 0; i < a.length; i++)
+            r |= a[i] ^ b[i];
         return r == 0;
     }
 }

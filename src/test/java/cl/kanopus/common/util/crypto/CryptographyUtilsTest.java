@@ -30,8 +30,7 @@ class CryptographyUtilsTest {
 
     @Test
     void encryptDecrypt_withAlgorithmAESGCM_roundtrip() {
-        CryptographyUtils.setEncryptKey(
-                "my-secret-passphrase", CryptographyUtils.CryptoAlgorithm.AES_GCM);
+        CryptographyUtils.setEncryptKey("my-secret-passphrase", CryptographyUtils.CryptoAlgorithm.AES_GCM);
         String plain = "Data to encrypt";
         String encoded = CryptographyUtils.encrypt(plain);
         Assertions.assertNotNull(encoded);
@@ -41,11 +40,7 @@ class CryptographyUtilsTest {
 
     @Test
     void setEncryptKey_withBlank_throwsIllegalArgumentException() {
-        Assertions.assertThrows(
-                IllegalArgumentException.class,
-                () ->
-                        CryptographyUtils.setEncryptKey(
-                                "  ", CryptographyUtils.CryptoAlgorithm.AES_GCM));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> CryptographyUtils.setEncryptKey("  ", CryptographyUtils.CryptoAlgorithm.AES_GCM));
     }
 
     @Test
@@ -64,8 +59,7 @@ class CryptographyUtilsTest {
             key.setAccessible(true);
             key.set(null, "x".toCharArray());
 
-            Assertions.assertThrows(
-                    IllegalStateException.class, () -> CryptographyUtils.encrypt("ok"));
+            Assertions.assertThrows(IllegalStateException.class, () -> CryptographyUtils.encrypt("ok"));
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
