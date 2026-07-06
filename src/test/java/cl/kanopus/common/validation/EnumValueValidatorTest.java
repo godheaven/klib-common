@@ -26,7 +26,7 @@ package cl.kanopus.common.validation;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidatorContext;
 import org.junit.jupiter.api.Test;
 
 class EnumValueValidatorTest {

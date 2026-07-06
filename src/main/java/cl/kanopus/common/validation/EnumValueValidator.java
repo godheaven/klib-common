@@ -25,8 +25,8 @@ package cl.kanopus.common.validation;
 
 import cl.kanopus.common.util.Utils;
 import cl.kanopus.common.validation.constraints.EnumValue;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 
 public class EnumValueValidator implements ConstraintValidator<EnumValue, Object> {
 

@@ -162,7 +162,8 @@ public class Utils {
     }
 
     public static <T extends Object> T defaultValue(T value, T defaultValue) {
-        if (value instanceof String string) {
+        if (value instanceof String) {
+            String string = (String) value;
             return (!isNullOrEmpty(string) ? value : defaultValue);
         } else {
             return (value != null) ? value : defaultValue;

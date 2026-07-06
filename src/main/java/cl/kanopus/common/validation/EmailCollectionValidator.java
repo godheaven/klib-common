@@ -25,8 +25,8 @@ package cl.kanopus.common.validation;
 
 import cl.kanopus.common.util.Utils;
 import cl.kanopus.common.validation.constraints.EmailCollection;
-import jakarta.validation.ConstraintValidator;
-import jakarta.validation.ConstraintValidatorContext;
+import javax.validation.ConstraintValidator;
+import javax.validation.ConstraintValidatorContext;
 import java.util.Collection;
 
 public class EmailCollectionValidator implements ConstraintValidator<EmailCollection, Collection<String>> {
