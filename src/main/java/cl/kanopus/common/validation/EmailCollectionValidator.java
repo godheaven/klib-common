@@ -48,7 +48,7 @@ public class EmailCollectionValidator implements ConstraintValidator<EmailCollec
         for (String email : value) {
             if (!Utils.isValidEmail(email)) {
                 constraintContext.disableDefaultConstraintViolation();
-                constraintContext.buildConstraintViolationWithTemplate(String.format(annotation.message(), email)).addConstraintViolation();
+                constraintContext.buildConstraintViolationWithTemplate(MessageTemplates.format(annotation.message(), email)).addConstraintViolation();
                 return false;
             }
         }

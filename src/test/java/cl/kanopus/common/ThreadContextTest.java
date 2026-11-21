@@ -46,8 +46,9 @@ class ThreadContextTest {
         assertEquals(123L, ThreadContext.getUserId());
 
         ThreadContext.destroyContext();
-        // After destroy, getThreadUniqueId will re-init and return a new id
-        String uid2 = ThreadContext.getThreadUniqueId();
-        assertNotNull(uid2);
+        // After destroy, the context is gone and it is not silently re-created
+        assertNull(ThreadContext.getThreadUniqueId());
+        assertNull(ThreadContext.getAppKey());
+        assertNull(ThreadContext.getUserId());
     }
 }

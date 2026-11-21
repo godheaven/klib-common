@@ -26,13 +26,15 @@ package cl.kanopus.common.util;
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.CharacterIterator;
 import java.text.StringCharacterIterator;
-import java.util.stream.Collectors;
 
 public class FileUtils {
-    private static String temporalFolder;
+    private static volatile String temporalFolder;
 
     private FileUtils() {
     }
@@ -41,12 +43,33 @@ public class FileUtils {
         FileUtils.temporalFolder = temporalFolder;
     }
 
+    /**
+     * Reads the whole file as UTF-8 text, preserving its line separators.
+     *
+     * @param filename
+     *            file to read (resolved with {@link #getFile(String...)})
+     * @return the file content
+     * @throws IOException
+     *             if the file does not exist or cannot be read
+     */
     public static StringBuilder fileToString(String filename) throws IOException {
-        StringBuilder text = new StringBuilder();
-        try (FileReader f = new FileReader(getFile(filename)); BufferedReader b = new BufferedReader(f)) {
-            text.append(b.lines().collect(Collectors.joining()));
-        }
-        return text;
+        return fileToString(filename, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * Reads the whole file with the given charset, preserving its line separators.
+     *
+     * @param filename
+     *            file to read (resolved with {@link #getFile(String...)})
+     * @param charset
+     *            charset of the file
+     * @return the file content
+     * @throws IOException
+     *             if the file does not exist or cannot be read
+     */
+    public static StringBuilder fileToString(String filename, Charset charset) throws IOException {
+        byte[] bytes = Files.readAllBytes(getFile(filename).toPath());
+        return new StringBuilder(new String(bytes, charset));
     }
 
     public static boolean renameFile(File file, String filename) {
@@ -84,14 +107,7 @@ public class FileUtils {
         File fileDir = new File(path);
 
         try (OutputStream out = new BufferedOutputStream(new FileOutputStream(fileDir)); InputStream in = inputStream) {
-
-            byte[] buf = new byte[8192];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-        } catch (IOException ex) {
-            // close streams, but don't mask original exception, if any
+            in.transferTo(out);
         }
         return fileDir;
     }
@@ -105,8 +121,26 @@ public class FileUtils {
         }
     }
 
+    /**
+     * Resolves {@code filename} inside the configured temporal folder. When a temporal folder is configured, the resulting path must stay inside it (absolute paths and {@code ..} segments escaping the folder are rejected).
+     *
+     * @throws IllegalArgumentException
+     *             if the filename escapes the temporal folder
+     */
     private static String checkAndGetFullTemporalPath(String filename) {
-        return (temporalFolder != null) ? (temporalFolder + File.separator + filename) : (filename);
+        if (filename == null || filename.isBlank()) {
+            throw new IllegalArgumentException("Filename must not be empty");
+        }
+        String folder = temporalFolder;
+        if (folder == null) {
+            return filename;
+        }
+        Path base = Paths.get(folder).toAbsolutePath().normalize();
+        Path resolved = base.resolve(filename).normalize();
+        if (!resolved.startsWith(base) || resolved.equals(base)) {
+            throw new IllegalArgumentException("Invalid filename, it must be inside the temporal folder: " + filename);
+        }
+        return resolved.toString();
     }
 
     public static byte[] toByteArray(InputStream in) throws IOException {
@@ -196,6 +230,6 @@ public class FileUtils {
             ci.next();
         }
         value *= Long.signum(bytes);
-        return String.format("%.1f %cB", value / 1024.0, ci.current());
+        return String.format(java.util.Locale.of("es", "CL"), "%.1f %cB", value / 1024.0, ci.current());
     }
 }

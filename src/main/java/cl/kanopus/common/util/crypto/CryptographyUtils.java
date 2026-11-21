@@ -32,8 +32,8 @@ package cl.kanopus.common.util.crypto;
 public class CryptographyUtils {
 
     // State: passphrase (avoid String when possible; use char[])
-    private static char[] encryptKey;
-    private static CryptoAlgorithm algorithm;
+    private static volatile char[] encryptKey;
+    private static volatile CryptoAlgorithm algorithm;
 
     private CryptographyUtils() {
     }
@@ -48,12 +48,17 @@ public class CryptographyUtils {
      *
      * @param passphrase
      *            the passphrase used to derive AES keys; must be non-empty
+     * @param algorithm
+     *            the encryption algorithm; must not be null
      * @throws IllegalArgumentException
-     *             if passphrase is null or blank
+     *             if passphrase is null or blank, or algorithm is null
      */
     public static void setEncryptKey(String passphrase, CryptoAlgorithm algorithm) {
         if (passphrase == null || passphrase.isBlank()) {
             throw new IllegalArgumentException("Encrypt key must be non-empty.");
+        }
+        if (algorithm == null) {
+            throw new IllegalArgumentException("Encryption algorithm must not be null.");
         }
         // Defensive copy to char[]
         CryptographyUtils.encryptKey = passphrase.toCharArray();
@@ -77,10 +82,11 @@ public class CryptographyUtils {
      *             for internal encryption failures
      */
     public static String encrypt(String plaintext) {
-        if (algorithm == CryptoAlgorithm.AES_GCM) {
-            return CryptoAesGcm.encrypt(encryptKey, plaintext);
+        CryptoAlgorithm alg = algorithm;
+        if (alg == CryptoAlgorithm.AES_GCM) {
+            return CryptoAesGcm.encrypt(requireKey(), plaintext);
         } else {
-            throw new IllegalStateException("Unsupported encryption algorithm: " + algorithm);
+            throw new IllegalStateException("Unsupported or not configured encryption algorithm: " + alg);
         }
     }
 
@@ -90,19 +96,26 @@ public class CryptographyUtils {
      * @param encoded
      *            the encoded ciphertext string produced by {@link #encrypt(String)}; must not be null
      * @return the decrypted plaintext as a UTF-8 string
-     * @throws IllegalArgumentException
-     *             if the input format is unsupported or malformed
      * @throws IllegalStateException
-     *             if the encryption passphrase has not been set
-     * @throws RuntimeException
-     *             if decryption fails (possible tampering or wrong key)
+     *             if the encryption passphrase or algorithm has not been set
+     * @throws CryptoException
+     *             if the input format is unsupported or malformed, or decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(String encoded) {
-        if (algorithm == CryptoAlgorithm.AES_GCM) {
-            return CryptoAesGcm.decrypt(encryptKey, encoded);
+        CryptoAlgorithm alg = algorithm;
+        if (alg == CryptoAlgorithm.AES_GCM) {
+            return CryptoAesGcm.decrypt(requireKey(), encoded);
         } else {
-            throw new IllegalStateException("Unsupported encryption algorithm: " + algorithm);
+            throw new IllegalStateException("Unsupported or not configured encryption algorithm: " + alg);
         }
+    }
+
+    private static char[] requireKey() {
+        char[] key = encryptKey;
+        if (key == null) {
+            throw new IllegalStateException("Encrypt key has not been configured, call CryptographyUtils.setEncryptKey first.");
+        }
+        return key;
     }
 
     public enum CryptoAlgorithm {

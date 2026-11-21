@@ -25,14 +25,22 @@ package cl.kanopus.common.treehash;
 
 import static cl.kanopus.common.treehash.TreeHash.KEY_ROOT;
 
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NodeHash {
+/**
+ * Node of a {@link TreeHash}. It is {@link Serializable} so the tree can be serialized (e.g. stored in an HTTP session); the {@code data} object must also be serializable for that to succeed.
+ */
+public class NodeHash implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     private String key;
     private String keyParent;
-    private Object data;
+    private Object data; // NOSONAR the payload is provided by the caller
     private int depth;
     private boolean expanded;
     private String type;
