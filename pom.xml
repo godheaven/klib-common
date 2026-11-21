@@ -33,7 +33,7 @@
 	<properties>
 		<maven.test.skip>false</maven.test.skip>
 		<license.skip>false</license.skip>
-		<jacoco.minimum.coverage>0.70</jacoco.minimum.coverage>
+		<jacoco.minimum.coverage>0.80</jacoco.minimum.coverage>
 	</properties>
 
 	<dependencies>
