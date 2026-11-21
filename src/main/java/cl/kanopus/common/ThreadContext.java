@@ -23,16 +23,28 @@
  */
 package cl.kanopus.common;
 
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.MDC;
 
+/**
+ * Per-thread request context (unique id, user, token, etc.).
+ * <p>
+ * Values are stored in a {@link ThreadLocal}, so they are never visible from another thread. Because threads are usually pooled, callers must always release the context with {@link #destroyContext()} (ideally in a {@code finally} block) or use the try-with-resources helper {@link #open()}:
+ *
+ * <pre>{@code
+ * try (ThreadContext.Scope scope = ThreadContext.open()) {
+ *     ThreadContext.setToken(token);
+ *     // ...
+ * }
+ * }</pre>
+ */
 public class ThreadContext {
 
-    private final Map<String, Map> map;
     private static final ThreadContext INSTANCE = new ThreadContext();
+    private static final ThreadLocal<Map<String, Object>> CONTEXT = new ThreadLocal<>();
+
     private static final String KEY_THREAD_UNIQUE_ID = "threadUniqueId";
     private static final String KEY_THREAD_TIME_START = "threadTimeStart";
     private static final String KEY_THREAD_APP_KEY = "threadAppKey";
@@ -43,36 +55,37 @@ public class ThreadContext {
     private static final String KEY_THREAD_TOKEN = "threadToken";
 
     private ThreadContext() {
-        this.map = Collections.synchronizedMap(new HashMap<>());
     }
 
+    /**
+     * @return the singleton instance (it holds no state; all the API is static).
+     * @deprecated the context is kept in a {@link ThreadLocal}; use the static methods directly.
+     */
+    @Deprecated(since = "4.20.0", forRemoval = true)
     public static ThreadContext getInstance() {
         return INSTANCE;
     }
 
     public static String getThreadId() {
-        return "" + Thread.currentThread().getId();
+        return String.valueOf(Thread.currentThread().threadId());
     }
 
     /**
-     * Returns the unique threadId for the current thread. This value is unique because it includes the thread start timestamp concatenated with the thread name.
+     * Returns the unique id of the current thread context. The value is created by {@link #initContext()} and includes the context start timestamp concatenated with the thread name.
      *
-     * @return a string representing the thread's unique identifier.
+     * @return the unique id of the current context, or {@code null} if the context has not been initialized
      */
     public static String getThreadUniqueId() {
-        String threadUniqueId = (String) getObject(KEY_THREAD_UNIQUE_ID);
-        if (threadUniqueId == null) {
-            // In exceptional cases where the context wasn't initialized,
-            // initialize it here.
-            initContext();
-            threadUniqueId = (String) getObject(KEY_THREAD_UNIQUE_ID);
-        }
-        return threadUniqueId;
+        return (String) getObject(KEY_THREAD_UNIQUE_ID);
     }
 
     public static void setAppKey(String appKey) {
         addObject(KEY_THREAD_APP_KEY, appKey);
-        MDC.put(KEY_THREAD_APP_KEY, appKey);
+        if (appKey != null) {
+            MDC.put(KEY_THREAD_APP_KEY, appKey);
+        } else {
+            MDC.remove(KEY_THREAD_APP_KEY);
+        }
     }
 
     public static String getAppKey() {
@@ -120,18 +133,14 @@ public class ThreadContext {
     }
 
     /**
-     * Returns the context map for the current thread.
+     * Returns the context map for the current thread. If no context exists, an empty (detached) map is returned.
      *
      * @return the context map for the current thread
      */
+    @SuppressWarnings("rawtypes")
     public static Map getContextMap() {
-        // Check if the map exists by retrieving it and checking for null.
-        // This is more efficient than checking before fetching the value.
-        Map contextMap = getInstance().map.get(getThreadId());
-        if (contextMap == null) {
-            contextMap = Collections.synchronizedMap(new HashMap<>());
-        }
-        return contextMap;
+        Map<String, Object> contextMap = CONTEXT.get();
+        return contextMap != null ? contextMap : new HashMap<>();
     }
 
     /**
@@ -143,10 +152,12 @@ public class ThreadContext {
      *            the object to store
      */
     public static void addObject(String objectKey, Object objectToInsert) {
-        String threadId = getThreadId();
-        Map contextMap = getContextMap();
+        Map<String, Object> contextMap = CONTEXT.get();
+        if (contextMap == null) {
+            contextMap = new HashMap<>();
+            CONTEXT.set(contextMap);
+        }
         contextMap.put(objectKey, objectToInsert);
-        getInstance().map.put(threadId, contextMap);
     }
 
     /**
@@ -157,35 +168,60 @@ public class ThreadContext {
      * @return the object stored in the current thread's ThreadContext, or null if not present
      */
     public static Object getObject(String objectName) {
-        Map contextMap = getContextMap();
-        return contextMap.get(objectName);
+        Map<String, Object> contextMap = CONTEXT.get();
+        return contextMap != null ? contextMap.get(objectName) : null;
     }
 
     public static long getTotalTimeMillis() {
         long totalTimeMillis = 0;
-        Object timeStart = getObject(KEY_THREAD_TIME_START);
-        if (timeStart != null) {
-            Date timeEnd = new Date();
-            totalTimeMillis = timeEnd.getTime() - ((Date) timeStart).getTime();
+        if (getObject(KEY_THREAD_TIME_START) instanceof Date timeStart) {
+            totalTimeMillis = System.currentTimeMillis() - timeStart.getTime();
         }
         return totalTimeMillis;
     }
 
+    /**
+     * Starts a fresh context for the current thread, discarding any value left by a previous task executed on the same (pooled) thread.
+     */
     public static void initContext() {
-        String threadUniqueId = (new Date()).getTime() + "_" + Thread.currentThread().getName();
+        destroyContext();
+        Date start = new Date();
+        String threadUniqueId = start.getTime() + "_" + Thread.currentThread().getName();
         addObject(KEY_THREAD_UNIQUE_ID, threadUniqueId);
-        addObject(KEY_THREAD_TIME_START, new Date());
+        addObject(KEY_THREAD_TIME_START, start);
         MDC.put(KEY_THREAD_UNIQUE_ID, threadUniqueId);
     }
 
     /**
-     * Removes the context map for the current thread.
+     * Initializes a fresh context for the current thread and returns a handle that destroys it when closed, for use in try-with-resources.
+     *
+     * @return a scope whose {@link Scope#close()} calls {@link #destroyContext()}
+     */
+    public static Scope open() {
+        initContext();
+        return new Scope();
+    }
+
+    /**
+     * Removes the context of the current thread and the MDC entries managed by this class.
      */
     public static void destroyContext() {
-        if (getInstance().map.containsKey(getThreadId())) {
-            getInstance().map.remove(getThreadId());
-            MDC.remove(KEY_THREAD_UNIQUE_ID);
-            MDC.remove(KEY_THREAD_APP_KEY);
+        CONTEXT.remove();
+        MDC.remove(KEY_THREAD_UNIQUE_ID);
+        MDC.remove(KEY_THREAD_APP_KEY);
+    }
+
+    /**
+     * Handle returned by {@link ThreadContext#open()}; closing it destroys the current thread context.
+     */
+    public static final class Scope implements AutoCloseable {
+
+        private Scope() {
+        }
+
+        @Override
+        public void close() {
+            destroyContext();
         }
     }
 }
