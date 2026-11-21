@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>cl.kanopus</groupId>
 		<artifactId>kanopus-core-parent</artifactId>
-		<version>4.06.3</version>
+		<version>4.20.0</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
@@ -20,6 +20,8 @@
 		It centralizes common logic and avoids duplication between projects, offering a consistent foundation for
 		building applications and services.
 	</description>
+
+	<url>https://github.com/godheaven/klib-common</url>
 
 	<scm>
 		<connection>scm:git:https://github.com/godheaven/klib-common.git</connection>
