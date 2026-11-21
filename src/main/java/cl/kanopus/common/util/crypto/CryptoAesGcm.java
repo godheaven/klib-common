@@ -40,6 +40,9 @@ class CryptoAesGcm {
     private static final SecureRandom RNG = new SecureRandom();
     private static final String KDF_ALG = "PBKDF2WithHmacSHA256";
     private static final int KDF_ITERATIONS = 210_000; // adjust according to SLO
+    // bounds accepted when reading the iteration count from untrusted input (DoS protection)
+    static final int KDF_MIN_ITERATIONS = 100_000;
+    static final int KDF_MAX_ITERATIONS = 1_000_000;
     private static final int KDF_KEY_LEN_BITS = 256;
 
     private static final String AES_TRANSFORM = "AES/GCM/NoPadding";
@@ -91,12 +94,8 @@ class CryptoAesGcm {
      * @param encoded
      *            the encoded ciphertext string produced by {@link #encrypt(char[], String)}; must not be null
      * @return the decrypted plaintext as a UTF-8 string
-     * @throws IllegalArgumentException
-     *             if the input format is unsupported or malformed
-     * @throws IllegalStateException
-     *             if the encryption passphrase has not been set
-     * @throws RuntimeException
-     *             if decryption fails (possible tampering or wrong key)
+     * @throws CryptoException
+     *             if the input format is unsupported or malformed, its KDF parameters are out of the accepted bounds, or decryption fails (possible tampering or wrong key)
      */
     public static String decrypt(char[] encryptKey, String encoded) {
         Objects.requireNonNull(encoded, "encoded");
@@ -104,17 +103,41 @@ class CryptoAesGcm {
 
         String[] parts = encoded.split(":");
         if (parts.length != 6 || !parts[0].equals("v1") || !parts[1].equals("pbkdf2")) {
-            throw new IllegalArgumentException("Unsupported ciphertext format");
+            throw new CryptoException("Unsupported ciphertext format");
         }
 
-        int iterations = Integer.parseInt(parts[2]);
-        byte[] salt = Base64.getUrlDecoder().decode(parts[3]);
-        byte[] iv = Base64.getUrlDecoder().decode(parts[4]);
-        byte[] cipherBytes = Base64.getUrlDecoder().decode(parts[5]);
+        int iterations = parseIterations(parts[2]);
+        byte[] salt = decodeBase64(parts[3], "salt");
+        byte[] iv = decodeBase64(parts[4], "iv");
+        byte[] cipherBytes = decodeBase64(parts[5], "ciphertext");
+        if (salt.length != SALT_LEN_BYTES || iv.length != IV_LEN_BYTES) {
+            throw new CryptoException("Invalid ciphertext: unexpected salt or iv length");
+        }
 
         SecretKey sk = deriveAesKey(encryptKey, salt, iterations);
         byte[] plain = gcmDecrypt(sk, iv, cipherBytes);
         return new String(plain, StandardCharsets.UTF_8);
+    }
+
+    private static int parseIterations(String value) {
+        int iterations;
+        try {
+            iterations = Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            throw new CryptoException("Invalid KDF iteration count", e);
+        }
+        if (iterations < KDF_MIN_ITERATIONS || iterations > KDF_MAX_ITERATIONS) {
+            throw new CryptoException("KDF iteration count out of accepted range [" + KDF_MIN_ITERATIONS + ", " + KDF_MAX_ITERATIONS + "]");
+        }
+        return iterations;
+    }
+
+    private static byte[] decodeBase64(String value, String name) {
+        try {
+            return Base64.getUrlDecoder().decode(value);
+        } catch (IllegalArgumentException e) {
+            throw new CryptoException("Invalid Base64 " + name, e);
+        }
     }
 
     private static SecretKey deriveAesKey(char[] pass, byte[] salt, int iterations) {
@@ -194,11 +217,13 @@ class CryptoAesGcm {
         if (parts.length != 5 || !parts[0].equals("v1") || !parts[1].equals("pbkdf2"))
             return false;
 
-        int iterations = Integer.parseInt(parts[2]);
-        byte[] salt = Base64.getUrlDecoder().decode(parts[3]);
-        byte[] dkStored = Base64.getUrlDecoder().decode(parts[4]);
-
         try {
+            int iterations = parseIterations(parts[2]);
+            byte[] salt = decodeBase64(parts[3], "salt");
+            byte[] dkStored = decodeBase64(parts[4], "hash");
+            if (dkStored.length == 0) {
+                return false;
+            }
             PBEKeySpec spec = new PBEKeySpec(raw.toCharArray(), salt, iterations, dkStored.length * 8);
             SecretKeyFactory skf = SecretKeyFactory.getInstance(KDF_ALG);
             byte[] dk = skf.generateSecret(spec).getEncoded();
