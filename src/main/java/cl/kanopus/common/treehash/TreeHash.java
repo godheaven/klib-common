@@ -23,6 +23,9 @@
  */
 package cl.kanopus.common.treehash;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +39,8 @@ public class TreeHash implements Serializable {
 
     private enum TYPE_NODE_LIST {
         ALL,
-        VISIBLE
+        VISIBLE,
+        VISIBLE_IN_SEARCH
     }
 
     private final Map<String, NodeHash> hash = new HashMap<>();
@@ -86,21 +90,23 @@ public class TreeHash implements Serializable {
         refresh = true;
     }
 
+    /**
+     * Removes the node and, while the parent is left without children, its ancestors (the root node is never removed).
+     *
+     * @param keyNode
+     *            key of the node to remove
+     */
     public final void removeNodeBranch(String keyNode) {
         NodeHash node = hash.get(keyNode);
-        NodeHash nodeParent = (node != null) ? hash.get(node.getKeyParent()) : null;
-        if (nodeParent != null) {
-            if (nodeParent.keyChildren.size() == 1) {
-                removeNodeBranch(nodeParent.getKey());
-            } else if (nodeParent.keyChildren.size() > 1) {
-                for (int i = 0; i < nodeParent.keyChildren.size(); i++) {
-                    // remove the entire branch
-                    if (keyNode.equals(nodeParent.keyChildren.get(i))) {
-                        remove(keyNode);
-                        break;
-                    }
-                }
-            }
+        if (node == null || KEY_ROOT.equals(keyNode)) {
+            return;
+        }
+        NodeHash nodeParent = hash.get(node.getKeyParent());
+        if (nodeParent != null && nodeParent.keyChildren.size() == 1 && !KEY_ROOT.equals(nodeParent.getKey())) {
+            // the parent would be left empty: remove the entire branch
+            removeNodeBranch(nodeParent.getKey());
+        } else {
+            remove(keyNode);
         }
     }
 
@@ -188,7 +194,7 @@ public class TreeHash implements Serializable {
     }
 
     public List<NodeHash> getNodeVisibleInSearchList() {
-        if (refresh || lastRefresh != TYPE_NODE_LIST.VISIBLE) {
+        if (refresh || lastRefresh != TYPE_NODE_LIST.VISIBLE_IN_SEARCH) {
             // Refresh the list to return the nodes
             List<NodeHash> newNodeList = new ArrayList<>();
             fillNodeList(TreeHash.KEY_ROOT, 0, newNodeList, true);
@@ -203,8 +209,16 @@ public class TreeHash implements Serializable {
 
             refresh = false;
         }
-        lastRefresh = TYPE_NODE_LIST.VISIBLE;
+        lastRefresh = TYPE_NODE_LIST.VISIBLE_IN_SEARCH;
         return nodeList;
+    }
+
+    @Serial
+    private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException {
+        in.defaultReadObject();
+        // the cached list is transient: rebuild it on the next access
+        nodeList = new ArrayList<>();
+        refresh = true;
     }
 
     public void setRefresh(boolean refresh) {

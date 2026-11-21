@@ -28,7 +28,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.net.URL;
 
 public class DesktopUtils {
 
@@ -66,25 +65,6 @@ public class DesktopUtils {
         } else {
             // assume Unix or Linux
             openUnix(file);
-        }
-    }
-
-    /**
-     * Attempt to use com.apple.eio.FileManager by reflection.
-     *
-     * @param url
-     *            the URL to launch
-     * @throws IOException
-     *             if the launch failed
-     */
-    private static void browseMac(final URL url) throws IOException {
-        try {
-            final Class fileMgr = getAppleFileManagerClass();
-            final Method openURL = fileMgr.getDeclaredMethod("openURL", String.class);
-
-            openURL.invoke(null, url.toString());
-        } catch (Exception e) {
-            throw new IOException("Could not launch Mac URL: " + e.getLocalizedMessage());
         }
     }
 
@@ -136,7 +116,7 @@ public class DesktopUtils {
     }
 
     /**
-     * Attempt to use com.apple.eio.FileManager by reflection.
+     * Uses the macOS {@code open} command (the old {@code com.apple.eio.FileManager} API no longer exists in current JDKs).
      *
      * @param file
      *            the File to open
@@ -144,8 +124,7 @@ public class DesktopUtils {
      *             if the open failed
      */
     private static void openMac(final File file) throws IOException {
-        // we use openURL() on the file's URL form since openURL supports file:// protocol
-        browseMac(file.getAbsoluteFile().toURL());
+        Runtime.getRuntime().exec(new String[]{"open", file.getAbsolutePath()});
     }
 
     /**
@@ -206,20 +185,6 @@ public class DesktopUtils {
     }
 
     /**
-     * Finds the com.apple.eio.FileManager class on a Mac.
-     *
-     * @return the FileManager instance
-     * @throws ClassNotFoundException
-     *             if FileManager was not found
-     */
-    private static Class getAppleFileManagerClass() throws ClassNotFoundException {
-        // NB The following String is intentionally not inlined to prevent ProGuard trying to locate
-        // the unknown class.
-        final String appleClass = "com.apple.eio.FileManager";
-        return Class.forName(appleClass);
-    }
-
-    /**
      * Checks whether a given executable exists, by means of the "which" command.
      *
      * @param cmd
@@ -231,16 +196,13 @@ public class DesktopUtils {
     private static boolean unixCommandExists(final String cmd) throws IOException {
         final Process whichProcess = Runtime.getRuntime().exec(new String[]{"which", cmd});
 
-        boolean finished = false;
-        do {
-            try {
-                whichProcess.waitFor();
-                finished = true;
-            } catch (InterruptedException e) {
-                // Interrupted waiting for which to complete
-            }
-        } while (!finished);
-
-        return whichProcess.exitValue() == 0;
+        try {
+            return whichProcess.waitFor() == 0;
+        } catch (InterruptedException e) {
+            // restore the interrupt flag so callers can react to it
+            Thread.currentThread().interrupt();
+            whichProcess.destroy();
+            return false;
+        }
     }
 }
