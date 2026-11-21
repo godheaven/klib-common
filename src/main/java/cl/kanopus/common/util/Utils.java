@@ -74,7 +74,9 @@ public class Utils {
     }
 
     private static DecimalFormatSymbols commaSymbols() {
-        DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
+        // Chilean format regardless of the JVM default locale: "." thousands, "," decimals
+        DecimalFormatSymbols symbolComma = DecimalFormatSymbols.getInstance(Locale.of("es", "CL"));
+        symbolComma.setGroupingSeparator('.');
         symbolComma.setDecimalSeparator(',');
         return symbolComma;
     }

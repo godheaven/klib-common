@@ -230,6 +230,6 @@ public class FileUtils {
             ci.next();
         }
         value *= Long.signum(bytes);
-        return String.format("%.1f %cB", value / 1024.0, ci.current());
+        return String.format(java.util.Locale.of("es", "CL"), "%.1f %cB", value / 1024.0, ci.current());
     }
 }
