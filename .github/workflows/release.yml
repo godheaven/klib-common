@@ -1,0 +1,10 @@
+name: release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    uses: godheaven/kanopus-core-parent/.github/workflows/maven-release.yml@main
+    secrets: inherit
