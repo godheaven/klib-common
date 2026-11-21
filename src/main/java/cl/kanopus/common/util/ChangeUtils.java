@@ -26,6 +26,7 @@ package cl.kanopus.common.util;
 import cl.kanopus.common.change.ChangeAction;
 import cl.kanopus.common.change.Comparator;
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.springframework.beans.BeanUtils;
@@ -49,7 +50,7 @@ public class ChangeUtils {
         HashMap<Integer, T> mapSource = new HashMap<>();
         if (sourceList != null) {
             for (T v : sourceList) {
-                int id = v.hashCode();
+                int id = Objects.hashCode(v);
                 mapIds.put(id, id);
                 mapSource.put(id, v);
             }
@@ -58,7 +59,7 @@ public class ChangeUtils {
         HashMap<Integer, T> mapTarget = new HashMap<>();
         if (targetList != null) {
             for (T v : targetList) {
-                int id = v.hashCode();
+                int id = Objects.hashCode(v);
                 if (id == 0) {
                     // Asigno ID negativo temporal
                     id = Utils.generateRandomInt() * -1;
@@ -102,7 +103,14 @@ public class ChangeUtils {
                     List<Field> fields = getAllFields(source.getClass(), level);
 
                     iterationFields : for (Field f : fields) {
-                        f.setAccessible(true);
+                        if (Modifier.isStatic(f.getModifiers())) {
+                            continue;
+                        }
+                        if (!f.trySetAccessible()) {
+                            // Type from a module that is not open to reflection (e.g. JDK classes): rely on equals()
+                            action = source.equals(target) ? ChangeAction.NONE : ChangeAction.UPDATE;
+                            break;
+                        }
                         if (BeanUtils.isSimpleProperty(f.getType())) {
                             Object sourceValue = f.get(source);
                             Object targetValue = f.get(target);
@@ -121,7 +129,10 @@ public class ChangeUtils {
                                 List list1 = (List) sourceValue;
                                 List list2 = (List) targetValue;
 
-                                if (list1 != null && list2 != null && list1.size() != list2.size()) {
+                                int size1 = list1 != null ? list1.size() : 0;
+                                int size2 = list2 != null ? list2.size() : 0;
+                                if (size1 != size2) {
+                                    // also covers a null list compared with a non-empty one
                                     action = ChangeAction.UPDATE;
                                     break;
                                 } else {
@@ -129,13 +140,13 @@ public class ChangeUtils {
                                     HashMap<Integer, Object> mapSource = new HashMap<>();
                                     if (sourceValue != null) {
                                         for (Object v : (List) sourceValue) {
-                                            mapSource.put(v.hashCode(), v.hashCode());
+                                            mapSource.put(Objects.hashCode(v), Objects.hashCode(v));
                                         }
                                     }
 
                                     if (targetValue != null) {
                                         for (Object v : (List) targetValue) {
-                                            if (!mapSource.containsKey(v.hashCode())) {
+                                            if (!mapSource.containsKey(Objects.hashCode(v))) {
                                                 action = ChangeAction.UPDATE;
                                                 break iterationFields;
                                             }
