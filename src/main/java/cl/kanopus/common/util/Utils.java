@@ -46,13 +46,19 @@ import java.util.regex.Pattern;
 
 public class Utils {
 
-    private static final PaddingDecimalFormat NUMBER_FORMAT;
-    private static final PaddingDecimalFormat NUMBER_FORMAT_WITH_MILES;
-    private static final DecimalFormat DECIMAL_FORMAT;
+    // java.text formats are not thread-safe: keep one instance per thread
+    private static final ThreadLocal<PaddingDecimalFormat> NUMBER_FORMAT = ThreadLocal.withInitial(() -> new PaddingDecimalFormat("#,###;(-#,###)", commaSymbols()));
+    private static final ThreadLocal<PaddingDecimalFormat> NUMBER_FORMAT_WITH_MILES = ThreadLocal.withInitial(() -> new PaddingDecimalFormat("###.##;(-###.##)", commaSymbols()));
+    private static final ThreadLocal<DecimalFormat> DECIMAL_FORMAT = ThreadLocal.withInitial(() -> new DecimalFormat("#,###.##;(-#,###.##)", commaSymbols()));
 
-    private static final SimpleDateFormat DATE_FORMAT;
-    private static final SimpleDateFormat TIME_FORMAT;
-    private static final SimpleDateFormat DATETIME_FORMAT;
+    private static final ThreadLocal<SimpleDateFormat> DATE_FORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("dd/MM/yyyy"));
+    private static final ThreadLocal<SimpleDateFormat> TIME_FORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("HH:mm:ss"));
+    private static final ThreadLocal<SimpleDateFormat> DATETIME_FORMAT = ThreadLocal.withInitial(() -> new SimpleDateFormat("dd/MM/yyyy HH:mm:ss"));
+
+    private static final DateTimeFormatter LOCAL_DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter LOCAL_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private static final DateTimeFormatter LOCAL_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+    private static final Locale LOCALE_ES = Locale.of("es", "ES");
 
     // ThreadLocal cache for SimpleDateFormat to avoid repeated instantiation
     private static final ThreadLocal<Map<String, SimpleDateFormat>> DATE_FORMAT_CACHE = ThreadLocal.withInitial(HashMap::new);
@@ -64,21 +70,13 @@ public class Utils {
     private static final Pattern NEWLINES = Pattern.compile("\\R");
     private static final Pattern SPACES = Pattern.compile("\\s+");
 
-    static {
-        DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
-        symbolComma.setDecimalSeparator(',');
-
-        NUMBER_FORMAT = new PaddingDecimalFormat("#,###;(-#,###)", symbolComma);
-        NUMBER_FORMAT_WITH_MILES = new PaddingDecimalFormat("###.##;(-###.##)", symbolComma);
-
-        DECIMAL_FORMAT = new DecimalFormat("#,###.##;(-#,###.##)", symbolComma);
-
-        DATE_FORMAT = new SimpleDateFormat("dd/MM/yyyy");
-        TIME_FORMAT = new SimpleDateFormat("HH:mm:ss");
-        DATETIME_FORMAT = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    private Utils() {
     }
 
-    private Utils() {
+    private static DecimalFormatSymbols commaSymbols() {
+        DecimalFormatSymbols symbolComma = new DecimalFormatSymbols();
+        symbolComma.setDecimalSeparator(',');
+        return symbolComma;
     }
 
     /**
@@ -204,14 +202,18 @@ public class Utils {
         return generateRandomText(12);
     }
 
+    /**
+     * @return a random strictly positive long (between 1 and {@link Long#MAX_VALUE} - 1)
+     */
     public static Long generateRandomLong() {
-        BigInteger bi = new BigInteger(130, RNG);
-        return bi.longValue() > 0 ? bi.longValue() : bi.longValue() * -1;
+        return RNG.nextLong(1, Long.MAX_VALUE);
     }
 
+    /**
+     * @return a random strictly positive int (between 1 and {@link Integer#MAX_VALUE} - 1)
+     */
     public static Integer generateRandomInt() {
-        BigInteger bi = new BigInteger(130, RNG);
-        return bi.intValue() > 0 ? bi.intValue() : bi.intValue() * -1;
+        return RNG.nextInt(1, Integer.MAX_VALUE);
     }
 
     public static String getNumberFormat(double number) {
@@ -227,50 +229,47 @@ public class Utils {
     }
 
     public static String getNumberFormat(double number, boolean includeSeparatorMiles, int padding) {
-        return (includeSeparatorMiles) ? NUMBER_FORMAT.format(number, padding) : NUMBER_FORMAT_WITH_MILES.format(number, padding);
+        return (includeSeparatorMiles) ? NUMBER_FORMAT.get().format(number, padding) : NUMBER_FORMAT_WITH_MILES.get().format(number, padding);
     }
 
     public static String getDecimalFormat(double number) {
-        return DECIMAL_FORMAT.format(number);
+        return DECIMAL_FORMAT.get().format(number);
     }
 
     public static String getDateFormat(Date date) {
-        return (date != null) ? DATE_FORMAT.format(date) : "";
+        return (date != null) ? DATE_FORMAT.get().format(date) : "";
     }
 
     public static String getDateFormat(LocalDate localDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        return localDate.format(formatter);
+        return (localDate != null) ? localDate.format(LOCAL_DATE_FORMATTER) : "";
     }
 
     public static String getDateFormat(LocalDate localDate, String pattern) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        return localDate.format(formatter);
+        return (localDate != null) ? localDate.format(DateTimeFormatter.ofPattern(pattern)) : "";
     }
 
     public static String getDateFormat(Date date, String pattern) {
         if (date == null) {
             return "";
         }
-        SimpleDateFormat sdf = getDateFormatter(pattern, new Locale("es", "ES"));
+        SimpleDateFormat sdf = getDateFormatter(pattern, LOCALE_ES);
         return sdf.format(date).toUpperCase();
     }
 
     public static String getTimeFormat(Date date) {
-        return (date != null) ? TIME_FORMAT.format(date) : "";
+        return (date != null) ? TIME_FORMAT.get().format(date) : "";
     }
 
     public static String getTimeFormat(LocalDateTime localDateTime) {
-        return (localDateTime != null) ? localDateTime.format(DateTimeFormatter.ofPattern("HH:mm:ss")) : "";
+        return (localDateTime != null) ? localDateTime.format(LOCAL_TIME_FORMATTER) : "";
     }
 
     public static String getDateTimeFormat(Date date) {
-        return (date != null) ? DATETIME_FORMAT.format(date) : "";
+        return (date != null) ? DATETIME_FORMAT.get().format(date) : "";
     }
 
     public static String getDateTimeFormat(LocalDateTime localDateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
-        return (localDateTime != null) ? localDateTime.format(formatter) : "";
+        return (localDateTime != null) ? localDateTime.format(LOCAL_DATETIME_FORMATTER) : "";
     }
 
     public static String getDateTimeFormat(LocalDateTime localDateTime, String pattern) {
@@ -283,7 +282,13 @@ public class Utils {
     }
 
     public static String getRutFormat(String rut, boolean includeDots) {
-        String plainText = rut.replaceAll("\\.", "").replace("-", "").toUpperCase();
+        if (rut == null) {
+            return null;
+        }
+        String plainText = rut.replace(".", "").replace("-", "").trim().toUpperCase();
+        if (plainText.length() < 2) {
+            return rut;
+        }
 
         String part1 = plainText.substring(0, plainText.length() - 1);
         String part2 = plainText.substring(plainText.length() - 1, plainText.length());
@@ -291,10 +296,13 @@ public class Utils {
     }
 
     public static Date getDate(String text) throws ParseException {
-        return (text != null && !text.isEmpty()) ? DATE_FORMAT.parse(text) : null;
+        return (text != null && !text.isEmpty()) ? DATE_FORMAT.get().parse(text) : null;
     }
 
     public static Date getDate(String text, String pattern) {
+        if (text == null) {
+            return null;
+        }
         try {
             SimpleDateFormat sdf = getDateFormatter(pattern, null);
             return sdf.parse(text);
@@ -407,11 +415,11 @@ public class Utils {
      */
     public static boolean isRut(String rut) {
         boolean valid = false;
-        if (!rut.isEmpty()) {
+        if (rut != null && !rut.isEmpty()) {
             // Create an array with the RUT and the verification digit
             String[] rutDv = rut.split("-");
             // The RUT parts (number and dv) must have a positive length
-            if (rutDv.length == 2) {
+            if (rutDv.length == 2 && rutDv[1].length() == 1) {
                 // Catch error when converting a string to integer
                 try {
                     int ru = Integer.parseInt(rutDv[0]);
@@ -563,10 +571,25 @@ public class Utils {
         return sb.toString();
     }
 
+    /**
+     * Replaces, in place, every occurrence of {@code toReplace} with {@code replacement} (left to right, non overlapping, like {@link String#replace(CharSequence, CharSequence)}). Text introduced by the replacement is never re-scanned, so a replacement containing {@code toReplace} does not loop.
+     *
+     * @param sb
+     *            the buffer to modify
+     * @param toReplace
+     *            the literal text to search; nothing is done if null or empty
+     * @param replacement
+     *            the literal replacement text ({@code null} is treated as {@code "null"} like {@link StringBuilder#append(String)})
+     */
     public static void replaceAll(StringBuilder sb, String toReplace, String replacement) {
-        int index;
-        while ((index = sb.lastIndexOf(toReplace)) != -1) {
-            sb.replace(index, index + toReplace.length(), replacement);
+        if (sb == null || toReplace == null || toReplace.isEmpty()) {
+            return;
+        }
+        String value = String.valueOf(replacement);
+        int index = sb.indexOf(toReplace);
+        while (index != -1) {
+            sb.replace(index, index + toReplace.length(), value);
+            index = sb.indexOf(toReplace, index + value.length());
         }
     }
 
@@ -752,9 +775,11 @@ public class Utils {
     }
 
     public static boolean isDateEquals(Date date1, Date date2) {
-        String date1Text = DATE_FORMAT.format(date1);
-        String date2Text = DATE_FORMAT.format(date2);
-        return date1Text.equals(date2Text);
+        if (date1 == null || date2 == null) {
+            return false;
+        }
+        SimpleDateFormat format = DATE_FORMAT.get();
+        return format.format(date1).equals(format.format(date2));
     }
 
     public static StringBuilder fileToString(File textFile) throws IOException {
@@ -762,7 +787,7 @@ public class Utils {
             throw new FileNotFoundException("File does not exist: " + textFile);
         }
         StringBuilder contents = new StringBuilder();
-        try (BufferedReader input = new BufferedReader(new FileReader(textFile))) {
+        try (BufferedReader input = new BufferedReader(new InputStreamReader(new FileInputStream(textFile), StandardCharsets.UTF_8))) {
             String line;
             while ((line = input.readLine()) != null) {
                 contents.append(line);
@@ -878,23 +903,45 @@ public class Utils {
     }
 
     public static BigInteger parseBigInteger(Long num) {
-        return BigInteger.valueOf(num);
+        return num == null ? null : BigInteger.valueOf(num);
     }
 
+    /**
+     * Converts a double to BigInteger, truncating the decimals (no int/long overflow).
+     *
+     * @param num
+     *            value to convert
+     * @return the integer part of {@code num}, or null if {@code num} is null
+     * @throws NumberFormatException
+     *             if {@code num} is NaN or infinite
+     */
     public static BigInteger parseBigInteger(Double num) {
-        return num == null ? null : BigInteger.valueOf(num.intValue());
+        return num == null ? null : BigDecimal.valueOf(num).toBigInteger();
     }
 
     public static BigInteger parseBigInteger(int num) {
         return BigInteger.valueOf(num);
     }
 
+    /**
+     * Converts a double to BigDecimal keeping its decimals (uses the canonical string representation of the double, without trailing zeros).
+     *
+     * @param num
+     *            value to convert
+     * @return the BigDecimal value, or null if {@code num} is null
+     * @throws NumberFormatException
+     *             if {@code num} is NaN or infinite
+     */
     public static BigDecimal parseBigDecimal(Double num) {
-        return BigDecimal.valueOf(num.longValue());
+        if (num == null) {
+            return null;
+        }
+        BigDecimal value = BigDecimal.valueOf(num).stripTrailingZeros();
+        return value.scale() < 0 ? value.setScale(0) : value;
     }
 
     public static BigDecimal parseBigDecimal(Long num) {
-        return BigDecimal.valueOf(num);
+        return num == null ? null : BigDecimal.valueOf(num);
     }
 
     public static BigDecimal parseBigDecimal(int num) {
@@ -1000,7 +1047,7 @@ public class Utils {
         boolean exist = false;
         if (array != null) {
             for (Integer a : array) {
-                if (a == id) {
+                if (a != null && a == id) {
                     exist = true;
                     break;
                 }
